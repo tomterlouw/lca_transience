@@ -45,8 +45,8 @@ code
 ├── configuration_file/               # Configuration files for scenario setup
 ├── inventories/                      # Life cycle inventory datasets
 ├── pathways/                         # Energy and material transition pathway outputs
-├── 1_export_package_Transience.ipynb # Notebook to export scenario packages
-├── 2_calc_impacts_ALL.ipynb          # Notebook to calculate all LCA impacts
+├── 1_export_packages.ipynb           # Notebook to export scenario packages
+├── 2_calc_impacts.ipynb             # Notebook to calculate all LCA impacts
 ├── config.py                         # Configuration parameters for setting up the module
 ├── datapackage_ce.json               # Circular economy scenario datapackage
 ├── datapackage_edm_i.json            # EDM industrial scenario datapackage
@@ -55,6 +55,24 @@ code
 ├── lca_transience.yml                # Python packages needed to run this repository
 └── README.md                         # readme file
 ```
+
+---
+
+## How to use it?
+
+The workflow is structured in two main Jupyter Notebooks:
+
+### `1_export_packages.ipynb`
+
+This notebook allows users to define scenarios (e.g., circular economy, OPEN-PROM) and export the modified background LCA databases using the `premise` framework. Each scenario is saved and exported to a datapackage containing both the transformed LCA data and the associated pathway assumptions.
+
+### `2_calc_impacts.ipynb`
+
+This notebook is used to calculate environmental impacts for the generated scenarios, including impact categories such as climate change, resource use, and water consumption. Users can specify different years and scenarios to assess decarbonization strategies or material intensity over time.
+
+📝 *Additional documentation is provided in each notebook to guide users through the setup and analysis steps.*
+
+> Currently, scenario data from MIC3 modules, to modify background LCA databases, is not provided open-source (yet), but will be provided in the next releases of the environmental module.
 
 ---
 
@@ -87,6 +105,7 @@ Your contribution is welcome! For major suggestions, collaborations, or structur
 
 Other contributors:
 * **Romain Sacchi (PSI)**
+* **Christian Bauer (PSI)**
 
 ---
 
