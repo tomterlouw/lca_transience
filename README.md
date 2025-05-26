@@ -43,17 +43,20 @@ The LCA module is designed to:
 ```bash
 code
 ├── configuration_file/               # Configuration files for scenario setup
-├── inventories/                      # Life cycle inventory datasets
+├── inventories/                      # Additional life cycle inventory datasets
 ├── pathways/                         # Energy and material transition pathway outputs
 ├── 1_export_packages.ipynb           # Notebook to export scenario packages
-├── 2_calc_impacts.ipynb             # Notebook to calculate all LCA impacts
+├── 2_calc_impacts.ipynb              # Notebook to calculate all LCA impacts
 ├── config.py                         # Configuration parameters for setting up the module
 ├── datapackage_ce.json               # Circular economy scenario datapackage
 ├── datapackage_edm_i.json            # EDM industrial scenario datapackage
 ├── datapackage_forecast.json         # Forecast scenario datapackage
 ├── datapackage_open_prom.json        # Open PROM scenario 
-├── lca_transience.yml                # Python packages needed to run this repository
-└── README.md                         # readme file
+├── lca_transience.yml                # Python packages needed to run this 
+license
+├── LICENSE                           # License file
+repository
+└── README.md                         # Readme file
 ```
 
 ---
@@ -71,6 +74,8 @@ This notebook allows users to define scenarios (e.g., circular economy, OPEN-PRO
 This notebook is used to calculate environmental impacts for the generated scenarios, including impact categories such as climate change, resource use, and water consumption. Users can specify different years and scenarios to assess decarbonization strategies or material intensity over time.
 
 📝 *Additional documentation is provided in each notebook to guide users through the setup and analysis steps.*
+
+The coupling between the output variables of MIC3 modules and life cycle inventories of the ecoinvent and premise databases are performed in configuration files provided in the map `configuration_file` for each linked MIC3 module individually. Initialization of data packages in the JSON files `datapackage_....json`. 
 
 > Currently, scenario data from MIC3 modules, to modify background LCA databases, is not provided open-source (yet), but will be provided in the next releases of the environmental module.
 
