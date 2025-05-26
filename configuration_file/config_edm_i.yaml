@@ -1,0 +1,219 @@
+# Configuration file for custom scenarios for `premise`
+---
+regionalize:
+  datasets:
+    - name: steel production, converter, low-alloyed, only primary steel
+      reference product: steel, low-alloyed
+      exists in original database: False    
+    - name: steel production, converter, low-alloyed, primary, with CCS
+      reference product: steel, low-alloyed
+      exists in original database: False   
+    - name: steel production, electric, low-alloyed, secondary steel, using scrap iron
+      reference product: steel, low-alloyed
+      exists in original database: False   
+    - name: steel production, from hydrogen-based DRI
+      reference product: steel, low-alloyed
+      exists in original database: False     
+    - name: steel production, from natural gas-based DRI
+      reference product: steel, low-alloyed
+      exists in original database: False     
+    - name: steel production, from molten oxide electrolysis
+      reference product: steel, low-alloyed
+      exists in original database: False     
+
+production pathways:
+  steel_secondary:
+    production volume:
+      variable: Production|Steel|Secondary steel
+    ecoinvent alias:
+      name: steel production, electric, low-alloyed, secondary steel, using scrap iron
+      reference product: steel, low-alloyed
+      exists in original database: True
+
+  steel_primary:
+    production volume:
+      variable: Production|Steel|BF/BOF
+    ecoinvent alias:
+      name: steel production, converter, low-alloyed, only primary steel
+      reference product: steel, low-alloyed
+      exists in original database: True
+
+  steel_primary_ccs:
+    production volume:
+      variable: Production|Steel|BF/BOF_CCS
+    ecoinvent alias:
+      name: steel production, converter, low-alloyed, primary, with CCS
+      reference product: steel, low-alloyed
+      exists in original database: False     
+
+  steel_primary_dri_h2:
+    production volume:
+      variable: Production|Steel|DRI_H2
+    ecoinvent alias:
+      name: steel production, from hydrogen-based DRI
+      reference product: steel, low-alloyed
+      exists in original database: False     
+
+  steel_primary_dri_ng:
+    production volume:
+      variable: Production|Steel|DRI_NG
+    ecoinvent alias:
+      name: steel production, from natural gas-based DRI
+      reference product: steel, low-alloyed
+      exists in original database: False    
+
+  #steel_primary_dri_ng_ccs:
+  #  production volume:
+  #    variable: Production|Steel|DRI/EAF_NG_CCS
+  #  ecoinvent alias:
+  #    name: steel production, from natural gas-based DRI, with CCS
+  #    reference product: steel, low-alloyed
+  #    exists in original database: False    
+
+  steel_primary_mo_electrolysis:
+    production volume:
+      variable: Production|Steel|Electrolysis
+    ecoinvent alias:
+      name: steel production, from molten oxide electrolysis
+      reference product: steel, low-alloyed
+      exists in original database: False    
+
+markets:
+  - name: market for steel, low-alloyed (SPS)
+    reference product: steel, low-alloyed
+    unit: kilogram
+    includes:
+      - steel_secondary
+      - steel_primary
+      - steel_primary_ccs
+      - steel_primary_dri_h2
+      - steel_primary_dri_ng
+      - steel_primary_mo_electrolysis
+      #- steel_primary_dri_ng_ccs
+
+    replaces:
+      - name: market for steel, low-alloyed
+        product: steel, low-alloyed
+        location: EUR
+
+      - name: market for steel, low-alloyed
+        product: steel, low-alloyed
+        location: RER
+
+      - name: market for steel, low-alloyed
+        product: steel, low-alloyed
+        location: NEU
+
+      - name: market for steel, low-alloyed
+        product: steel, low-alloyed
+        location: Europe without Switzerland
+# THIS IS ONLY FOR ACTIVITIES REPLACING HAVING THOSE LOCATIONS IN ACTIVITY IDENTITY
+#    replaces in:
+#      - location: GLO
+#      - location: EUR
+#      - location: RER
+#      - location: NEU
+#      - location: Europe without Switzerland
+
+  - name: market for steel, unalloyed (SPS)
+    reference product: steel, unalloyed
+    unit: kilogram
+    includes:
+      - steel_secondary
+      - steel_primary
+      - steel_primary_ccs
+      - steel_primary_dri_h2
+      - steel_primary_dri_ng
+      - steel_primary_mo_electrolysis
+      #- steel_primary_dri_ng_ccs
+
+    replaces:
+      - name: market for steel, unalloyed
+        product: steel, unalloyed
+        location: EUR
+
+      - name: market for steel, unalloyed
+        product: steel, unalloyed
+        location: RER
+
+      - name: market for steel, unalloyed
+        product: steel, unalloyed
+        location: NEU
+
+      - name: market for steel, unalloyed
+        product: steel, unalloyed
+        location: Europe without Switzerland
+# THIS IS ONLY FOR ACTIVITIES REPLACING HAVING THOSE LOCATIONS IN ACTIVITY IDENTITY
+#    replaces in:
+#      - location: GLO
+#      - location: EUR
+#      - location: RER
+#      - location: NEU
+#      - location: Europe without Switzerland
+
+  # Replace primary steel acts
+  - name: steel production, converter, low-alloyed (SPS)
+    reference product: steel, low-alloyed
+    unit: kilogram
+    includes:
+      - steel_secondary
+      - steel_primary
+      - steel_primary_ccs
+      - steel_primary_dri_h2
+      - steel_primary_dri_ng
+      - steel_primary_mo_electrolysis
+      #- steel_primary_dri_ng_ccs
+
+    replaces:
+      - name: steel production, converter, low-alloyed
+        product: steel, low-alloyed
+        location: EUR
+
+      - name: steel production, converter, low-alloyed
+        product: steel, low-alloyed
+        location: RER
+
+      - name: steel production, converter, low-alloyed
+        product: steel, low-alloyed
+        location: NEU
+
+      - name: steel production, converter, low-alloyed
+        product: steel, low-alloyed
+        location: Europe without Switzerland
+
+  # Replace primary steel acts
+  - name: steel production, converter, unalloyed (SPS)
+    reference product: steel, unalloyed
+    unit: kilogram
+    includes:
+      - steel_secondary
+      - steel_primary
+      - steel_primary_ccs
+      - steel_primary_dri_h2
+      - steel_primary_dri_ng
+      - steel_primary_mo_electrolysis
+      #- steel_primary_dri_ng_ccs
+
+    replaces:
+      - name: steel production, converter, unalloyed
+        product: steel, unalloyed
+        location: EUR
+
+      - name: steel production, converter, unalloyed
+        product: steel, unalloyed
+        location: RER
+
+      - name: steel production, converter, unalloyed
+        product: steel, unalloyed
+        location: NEU
+
+      - name: steel production, converter, unalloyed
+        product: steel, unalloyed
+        location: Europe without Switzerland
+# THIS IS ONLY FOR ACTIVITIES REPLACING HAVING THOSE LOCATIONS IN ACTIVITY IDENTITY
+#    replaces in:
+#      - location: GLO
+#      - location: EUR
+#      - location: RER
+#      - location: NEU
+#      - location: Europe without Switzerland

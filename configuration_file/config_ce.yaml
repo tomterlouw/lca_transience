@@ -1,0 +1,97 @@
+# Configuration file for custom scenarios for `premise`
+---
+
+# we cannot leave this empty, this will do nothing though...:
+production pathways:
+  building:
+    production volume:
+      variable: Circular Economy|Efficiency|Steel
+    ecoinvent alias:
+      name: building construction, hall
+      reference product: building, hall
+
+# THIS IS NEW: Now, for example, assume that we would have 10% improvement in steel requirements in buildings and facilities.
+# However, we should couple this later to scenarios, this is just for testing myself. Note that this are search functions and thus relate most likely to changes for multiple acticities
+# variable_lt will change all activities having the exchange here, to account for longer lifetimes of the activity. Thus, for example, a variable_lt of 0.95 in 'building construction, hall' 
+# will reduce the amount of 'building construction, hall' needed by 5% in all database activities due to 5% longer lifetime.
+# see external.py of premise.
+ce_measures:
+    datasets:
+      - name: building construction, hall
+        reference product: building, hall
+        exists in original database: True
+        target_exc: steel
+        target_exc_unit: kilogram
+        #target_exc_mask: 
+        variable: Circular Economy|Efficiency|Steel
+        variable_lt: Circular Economy|Lifetime|Hall
+
+        #NOTE, TO BE CHANGED: We have to account for the scrap amount and reduce this...
+      - name: facility 
+        reference product: facility
+        unit: unit
+        exists in original database: True
+        target_exc: steel
+        target_exc_unit: kilogram
+        variable: Circular Economy|Efficiency|Steel
+        variable_lt: Circular Economy|Lifetime|Facility
+
+      - name: building construction, hall 
+        reference product: building, hall
+        exists in original database: True
+        target_exc: concrete production, 
+        target_exc_unit: cubic meter
+        variable: Circular Economy|Efficiency|Concrete
+
+      - name: building construction, hall 
+        reference product: building, hall
+        exists in original database: True
+        target_exc: concrete, 
+        target_exc_unit: cubic meter
+        variable: Circular Economy|Efficiency|Concrete
+
+      - name: building construction, hall 
+        reference product: building, hall
+        exists in original database: True
+        target_exc: clay brick
+        target_exc_unit: kilogram
+        variable: Circular Economy|Efficiency|Clay brick
+
+      # Here, we modify the amount of concrete used in all activities with 'facility' 
+      # based on variable Circular Economy|Efficiency|Concrete
+      - name: facility 
+        reference product: facility
+        unit: unit
+        exists in original database: True
+        target_exc: concrete production, 
+        target_exc_unit: cubic meter
+        variable: Circular Economy|Efficiency|Concrete
+
+      - name: facility 
+        reference product: facility
+        unit: unit
+        exists in original database: True
+        target_exc: concrete, 
+        target_exc_unit: cubic meter
+        variable: Circular Economy|Efficiency|Concrete
+      
+        # do similar exercise for clay brick.
+      - name: facility 
+        reference product: facility
+        unit: unit
+        exists in original database: True
+        target_exc: clay brick
+        target_exc_unit: kilogram
+        variable: Circular Economy|Efficiency|Clay brick
+
+      # Here, we modify the amount of primary copper, coming first from 100% now provided by 50% recycled copper.
+      - name: battery production
+        reference product: battery,
+        unit: kilogram
+        exists in original database: True
+        target_exc: market for copper, anode
+        target_exc_unit: kilogram
+        target_exc_new_name: copper scrap, sorted, pressed, Recycled Content cut-off
+        target_exc_new_product: copper scrap, sorted, pressed
+        target_exc_new_location: GLO
+        variable_recycled_content: 0.5

@@ -1,0 +1,117 @@
+# Configuration file for custom scenarios for `premise`
+---
+regionalize:
+  datasets:
+    - name: ammonia production, hydrogen from electrolysis
+      reference product: ammonia, anhydrous, liquid
+      exists in original database: True
+    - name: ammonia production, steam reforming
+      reference product: ammonia, anhydrous, liquid
+      exists in original database: True
+    - name: methanol production, natural gas reforming
+      reference product: methanol
+      exists in original database: True
+    - name: methanol distillation, hydrogen from electrolysis, CO2 from DAC
+      reference product: methanol, purified
+      exists in original database: True
+
+production pathways:
+  # Ammonia H2
+  ammonia_h2:
+    production volume:
+      variable: Ammonia|Ammonia H2
+    ecoinvent alias:
+      name: ammonia production, hydrogen from electrolysis
+      reference product: ammonia, anhydrous, liquid
+      exists in original database: True
+
+  # Ammonia SMR
+  ammonia_smr:
+    production volume:
+      variable: Ammonia|Ammonia SMR
+    ecoinvent alias:
+      name: ammonia production, steam reforming
+      reference product: ammonia, anhydrous, liquid
+      exists in original database: True
+
+  methanol_h2:
+    production volume:
+      variable: Methanol|Methanol H2
+    ecoinvent alias:
+      name: methanol distillation, hydrogen from electrolysis, CO2 from DAC #Bold assumption, to be refined
+      reference product: methanol, purified
+      exists in original database: True
+
+  # Ammonia SMR
+  methanol_smr:
+    production volume:
+      variable: Methanol|Methanol SMR
+    ecoinvent alias:
+      name: methanol production, natural gas reforming
+      reference product: methanol
+      exists in original database: True
+
+  # Ethylene pathways
+
+markets:
+  - name: market for ammonia (SPS)
+    reference product: ammonia, anhydrous, liquid
+    unit: kilogram
+    includes:
+      - ammonia_h2
+      - ammonia_smr
+
+    #from original activity:
+    add:
+      - name: market group for transport, freight train
+        reference product: transport, freight train
+        amount: 0.0438196700916739
+
+      - name: market for transport, freight, inland waterways, barge
+        reference product: transport, freight, inland waterways, barge
+        amount: 0.0438196700916739
+
+      - name: market for transport, freight, lorry, unspecified
+        reference product: transport, freight, lorry, unspecified
+        amount: 0.171298965541689
+
+    replaces:
+      - name: market for ammonia, anhydrous, liquid
+        product: ammonia, anhydrous, liquid
+        operator: equals
+        location: RER
+
+      - name: market for ammonia, anhydrous, liquid
+        product: ammonia, anhydrous, liquid
+        operator: equals
+  
+  - name: market for methanol (SPS)
+    reference product: methanol
+    unit: kilogram
+    includes:
+      - methanol_h2
+      - methanol_smr
+
+    #from original activity:
+    add:
+      - name: market group for transport, freight train
+        reference product: transport, freight train
+        amount: 0.04381967
+
+      - name: market for transport, freight, inland waterways, barge
+        reference product: transport, freight, inland waterways, barge
+        amount: 0.021869035
+
+      - name: market for transport, freight, lorry, unspecified
+        reference product: transport, freight, lorry, unspecified
+        amount: 0.171298966
+
+    replaces:
+      - name: market for methanol
+        product: methanol
+        operator: equals
+        location: RER
+
+      - name: market for methanol
+        product: methanol
+        operator: equals

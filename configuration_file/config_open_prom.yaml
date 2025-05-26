@@ -1,0 +1,511 @@
+# Configuration file for custom scenarios for `premise`
+---
+
+regionalize:
+  datasets:
+    - name: carbon dioxide, captured at wood burning power plant 20 MW post, pipeline 200km, storage 1000m
+      reference product: carbon dioxide, captured at wood burning power plant 20 MW post, pipeline 200km, storage 1000m
+      exists in original database: True
+    - name: carbon dioxide, captured at hydrogen production plant, pre, pipeline 200km, storage 1000m
+      reference product: carbon dioxide, captured at hydrogen production plant, pre, pipeline 200km, storage 1000m
+      exists in original database: True
+    - name: heat and power co-generation, natural gas, conventional power plant, 100MW electrical
+      reference product: electricity, high voltage
+      exists in original database: True
+    - name: electricity production, at co-generation wood-fired power plant, post, pipeline 200km, storage 1000m
+      reference product: electricity, high voltage
+      exists in original database: True
+    - name: hydrogen production, gaseous, 30 bar, from PEM electrolysis, from grid electricity
+      reference product: hydrogen, gaseous, 30 bar
+      exists in original database: True
+    - name: hydrogen production, steam methane reforming
+      reference product: hydrogen, gaseous, low pressure
+      exists in original database: True
+    - name: hydrogen production, steam methane reforming, with CCS
+      reference product: hydrogen, gaseous, low pressure
+      exists in original database: True
+    - name: hydrogen production, steam methane reforming, from biomethane
+      reference product: hydrogen, gaseous, low pressure
+      exists in original database: True
+    - name: hydrogen production, steam methane reforming, from biomethane, with CCS
+      reference product: hydrogen, gaseous, low pressure
+      exists in original database: True
+    - name: carbon monoxide, from RWGS, for Fischer Tropsch process, hydrogen from wood gasification, with CCS
+      reference product: carbon monoxide, from RWGS
+      exists in original database: True
+    - name: carbon monoxide, from RWGS, for Fischer Tropsch process, hydrogen from electrolysis
+      reference product: carbon monoxide, from RWGS
+      exists in original database: True
+    - name: carbon dioxide, captured from atmosphere, with a sorbent-based direct air capture system, 100ktCO2
+      reference product: carbon dioxide, captured from atmosphere
+      exists in original database: True
+    - name: carbon dioxide, captured from atmosphere and stored, with a sorbent-based direct air capture system, 100ktCO2
+      reference product: carbon dioxide, captured from atmosphere
+      exists in original database: True
+    - name: syngas, RWGS, Production, for Fischer Tropsch process, hydrogen from wood gasification, with CCS
+      reference product: syngas, RWGS, Production
+      exists in original database: True
+    - name: syngas, RWGS, Production, for Fischer Tropsch process, hydrogen from electrolysis
+      reference product: syngas, RWGS, Production, for Fischer Tropsch process, hydrogen from electrolysis
+      exists in original database: True
+    - name: heat production, at hard coal industrial furnace 1-10MW
+      reference product: heat, district or industrial, other than natural gas
+      exists in original database: True
+    - name: heat production, at co-generation wood-fired power plant, post, pipeline 200km, storage 1000m
+      reference product: heat, district or industrial, other than natural gas
+      exists in original database: True
+    - name: heat and power co-generation, oil
+      reference product: heat, district or industrial, other than natural gas
+      exists in original database: True
+    - name: heat production, hard coal briquette, stove 5-15kW
+      reference product: heat, central or small-scale, other than natural gas
+      exists in original database: True
+    - name: heat production, light fuel oil, at boiler 10kW condensing, non-modulating
+      reference product: heat, central or small-scale, other than natural gas
+      exists in original database: True
+    - name: heat production, natural gas, at boiler condensing modulating <100kW
+      reference product: heat, central or small-scale, natural gas
+      exists in original database: True
+    - name: heat production, light fuel oil, at industrial furnace 1MW
+      reference product: heat, district or industrial, other than natural gas
+      exists in original database: True
+    - name: heat production, natural gas, at boiler condensing modulating >100kW
+      reference product: heat, district or industrial, natural gas
+      exists in original database: True
+    - name: heat, from on-site industrial fuel cell CHP
+      reference product: heat
+      exists in original database: True
+    - name: heat and power co-generation, natural gas, 1MW electrical, lean burn
+      reference product: heat, district or industrial, natural gas
+      exists in original database: True
+    - name: heat production, natural gas, at industrial furnace >100kW
+      reference product: heat, district or industrial, natural gas
+      exists in original database: True
+
+production pathways:
+  # originally, assumed to be hydropower alpine pumped storage as this is the most used tech in Europe
+  hydro:
+    production volume:
+      variable: Secondary Energy|Electricity|Hydro
+    ecoinvent alias:
+      name: electricity production, hydro, pumped storage
+      reference product: electricity, high voltage
+      exists in original database: True
+      mask: renewable energy products
+
+  # the scenario does not differentiate between nuclear technologies, PWR most used in EU.
+  nuclear:
+    production volume:
+      variable: Secondary Energy|Electricity|Nuclear
+    ecoinvent alias:
+      name: electricity production, nuclear, pressure water reactor
+      reference product: electricity, high voltage
+      exists in original database: True
+      mask: heavy water moderated
+
+  gas:
+    production volume:
+      variable: Secondary Energy|Electricity|Gas
+    ecoinvent alias:
+      name: electricity production, natural gas, combined cycle power plant
+      reference product: electricity, high voltage
+      exists in original database: True
+
+  pv:
+    production volume:
+      variable: Secondary Energy|Electricity|Solar
+    ecoinvent alias:
+      name: electricity production, from photovoltaic panels
+      reference product: electricity, low voltage
+      exists in original database: False
+      mask: renewable energy products
+
+  wind (onshore):
+    production volume:
+      variable: Secondary Energy|Electricity|Wind|Onshore
+    ecoinvent alias:
+      name: electricity production, wind, 1-3MW turbine, onshore
+      reference product: electricity, high voltage
+      exists in original database: True
+      mask: renewable energy products
+
+  wind (offshore):
+    production volume:
+      variable: Secondary Energy|Electricity|Wind|Offshore
+    ecoinvent alias:
+      name: electricity production, wind, 1-3MW turbine, offshore
+      reference product: electricity, high voltage
+      exists in original database: True
+      mask: renewable energy products
+
+  geothermal:
+    production volume:
+      variable: Secondary Energy|Electricity|Geothermal
+    ecoinvent alias:
+      name: electricity production, deep geothermal
+      reference product: electricity, high voltage
+      exists in original database: True
+
+  hydrogen:
+    production volume:
+      variable: Secondary Energy|Electricity|Hydrogen
+    ecoinvent alias:
+      name: electricity production, from hydrogen fuel cell
+      reference product: electricity, low voltage
+      exists in original database: False
+
+  biomass:
+    production volume:
+      variable: Secondary Energy|Electricity|Biomass
+    ecoinvent alias:
+      name: heat and power co-generation, wood chips, 2000 kW, state-of-the-art 2014
+      reference product: electricity, high voltage
+      exists in original database: True
+      mask: renewable energy products
+
+  oil:
+    production volume:
+      variable: Secondary Energy|Electricity|Oil
+    ecoinvent alias:
+      name: electricity production, oil
+      reference product: electricity, high voltage
+      exists in original database: True
+      mask: aluminium industry
+
+  coal:
+    production volume:
+      variable: Secondary Energy|Electricity|Coal
+    ecoinvent alias:
+      name: electricity production, hard coal
+      reference product: electricity, high voltage
+      exists in original database: True
+
+  medium_to_high:
+    production volume:
+      variable: Secondary Energy|Electricity
+    ecoinvent alias:
+      name: market group for electricity, high voltage (SPS)
+      reference product: electricity, high voltage
+      exists in original database: False
+      new dataset: True
+
+  low_to_medium:
+    production volume:
+      variable: Final Energy|Electricity
+    ecoinvent alias:
+      name: market group for electricity, medium voltage (SPS)
+      reference product: electricity, medium voltage
+      exists in original database: False
+      new dataset: True
+
+##################### FINAL ENERGY: 
+  # INDUSTRY:
+  FE_industry_process_electricity:
+    production volume:
+      variable: Final Energy|Industry|Electricity
+    ecoinvent alias:
+      name: electricity for industrial applications
+      reference product: electricity for industrial applications
+      exists in original database: False
+  
+  FE_industry_process_light_fuel_oil:
+    production volume:
+      variable: Final Energy|Industry|Liquids
+    ecoinvent alias:
+      name: light fuel oil, burned in industrial furnace 1MW
+      reference product: heat
+      exists in original database: False
+  
+  FE_industry_process_natural_gas:
+    production volume:
+      variable: Final Energy|Industry|Gases
+    ecoinvent alias:
+      name: natural gas, burned in industrial furnace >100kW
+      reference product: heat
+      exists in original database: True
+
+  FE_industry_process_heat:
+    production volume:
+      variable: Final Energy|Industry|Heat
+    ecoinvent alias:
+      name: heat production, natural gas, at industrial furnace >100kW
+      reference product: heat, district or industrial, natural gas
+      exists in original database: True
+
+  FE_industry_process_coal:
+    production volume:
+      variable: Final Energy|Industry|Solids
+    ecoinvent alias:
+      name: hard coal, burned in hard coal industrial furnace 1-10MW
+      reference product: heat
+      exists in original database: False
+  
+  FE_industry_process_hydrogen:
+    production volume:
+      variable: Final Energy|Industry|Hydrogen
+    ecoinvent alias:
+      name: hydrogen burned, in hydrogen boiler
+      reference product: heat
+      exists in original database: False
+
+  #Non-Energy use sector
+  FE_non_energy_gas:
+    production volume:
+      variable: Final Energy|Non-Energy Use|Gases
+    ecoinvent alias:
+      name: natural gas, energy content
+      reference product: energy
+      exists in original database: False
+
+  FE_non_energy_liquids:
+    production volume:
+      variable: Final Energy|Non-Energy Use|Liquids
+    ecoinvent alias:
+      name: naphtha, energy content
+      reference product: energy
+      exists in original database: False
+
+  # Residential sector.
+  FE_residential_electricity:
+    production volume:
+      variable: Final Energy|Residential and Commercial|Electricity
+    ecoinvent alias:
+      name: electricity, used in residential electric appliances
+      reference product: electricity, low voltage
+      exists in original database: False
+
+  FE_residential_space_heating_light_fuel_oil:
+    production volume:
+      variable: Final Energy|Residential and Commercial|Liquids
+    ecoinvent alias:
+      name: light fuel oil, burned in residential 10kW boiler
+      reference product: heat
+      exists in original database: False
+
+  FE_residential_space_heating_gas:
+    production volume:
+      variable: Final Energy|Residential and Commercial|Gases
+    ecoinvent alias:
+      name: natural gas, burned in residential natural gas boiler <100kW
+      reference product: heat
+      exists in original database: False
+
+  FE_residential_space_heating_heat_pump_gas:
+    production volume:
+      variable: Final Energy|Residential and Commercial|Heat
+    ecoinvent alias:
+      name: heat production, natural gas, at boiler condensing modulating <100kW
+      reference product: heat, central or small-scale, natural gas
+      exists in original database: True
+
+  FE_residential_space_heating_wood:
+    production volume:
+      variable: Final Energy|Residential and Commercial|Solids
+    ecoinvent alias:
+      name: wood, burned in residential wood stove 5-15kW
+      reference product: heat
+      exists in original database: False
+
+  FE_residential_space_heating_solar:
+    production volume:
+      variable: Final Energy|Solar
+    ecoinvent alias:
+      name: solar energy, from residential hot water tank
+      reference product: heat
+      exists in original database: False
+
+  FE_residential_space_heating_hydrogen:
+    production volume:
+      variable: Final Energy|Residential and Commercial|Hydrogen
+    ecoinvent alias:
+      name: hydrogen burned, in hydrogen boiler, residential
+      reference product: heat
+      exists in original database: False
+
+  ## TRANSPORTATION
+  FE_transportation_hydrogen:
+    production volume:
+      variable: Final Energy|Transportation|Hydrogen
+    ecoinvent alias:
+      name: hydrogen, used in heavy duty vehicle
+      reference product: heat
+      exists in original database: False
+
+  FE_transportation_liquids: #assumed to be oil
+    production volume:
+      variable: Final Energy|Transportation|Liquids
+    ecoinvent alias:
+      name: petrol, burned in passenger car vehicle
+      reference product: heat
+      exists in original database: False
+
+  FE_transportation_electricity: 
+    production volume:
+      variable: Final Energy|Transportation|Electricity
+    ecoinvent alias:
+      name: electricity, used in passenger car vehicle
+      reference product: electricity, low voltage
+      exists in original database: False
+
+  FE_transportation_gas: 
+    production volume:
+      variable: Final Energy|Transportation|Gases
+    ecoinvent alias:
+      name: compressed gas, burned in passenger car vehicle
+      reference product: heat
+      exists in original database: False
+
+  #BUNKERS:
+  #Final Energy|Bunkers|Electricity
+  #Final Energy|Bunkers|Gases
+  #Final Energy|Bunkers|Hydrogen
+  #Final Energy|Bunkers|Liquids
+
+  ## CDR  
+  FE_cdr_beccs: 
+    production volume:
+      variable: Carbon Capture|Biomass
+    ecoinvent alias:
+      name: carbon dioxide removal, with a wood burning power plant with carbon capture and storage #THIS IS WITH STORAGE!
+      reference product: carbon dioxide removal, with a wood burning power plant with carbon capture and storage 
+      exists in original database: False
+
+  FE_cdr_daccs: 
+    production volume:
+      variable: Carbon Capture|Direct Air Capture
+    ecoinvent alias:
+      name: carbon dioxide removal, with direct air capture #THIS IS WITH STORAGE!
+      reference product: carbon dioxide removal, with direct air capture
+      exists in original database: False
+
+  #CO2 capture
+  FE_co2_capture_fossil: 
+    production volume:
+      variable: Carbon Capture|Fossil
+    ecoinvent alias:
+      name: carbon dioxide, captured from natural gas, post, 200km pipeline, storage 1000m
+      reference product: carbon dioxide, captured from natural gas, post, 200km pipeline, storage 1000m
+      exists in original database: True
+
+  FE_co2_capture_fossil_ind: 
+    production volume:
+      variable: Carbon Capture|Industrial Processes
+    ecoinvent alias:
+      name: carbon dioxide, captured at cement production plant, using monoethanolamine
+      reference product: carbon dioxide, captured at cement plant
+      exists in original database: True
+
+markets:
+  - name: market group for electricity, high voltage (SPS)
+    reference product: electricity, high voltage
+    unit: kilowatt hour
+    includes:
+      - hydro
+      - nuclear
+      - oil
+      - gas
+      - pv
+      - wind (onshore)
+      - wind (offshore)
+      - geothermal
+      - hydrogen
+      - biomass
+      - coal
+
+    add:
+      - name: transmission network construction, electricity, high voltage
+        reference product: transmission network, electricity, high voltage
+        amount: 6.58e-09
+
+      - name: Dinitrogen monoxide
+        categories: air
+        unit: kilogram
+        amount: 5.0e-06
+
+      - name: Ozone
+        categories: air
+        unit: kilogram
+        amount: 4.16e-06
+
+    replaces:
+      - name: market group for electricity, high voltage
+        product: electricity, high voltage
+        location: EUR
+        operator: contains
+
+      - name: market group for electricity, high voltage
+        product: electricity, high voltage
+        location: RER
+        operator: contains
+
+#    replaces in:
+#      - location: GLO
+#      - location: EUR
+#      - location: RER
+#      - location: NEU
+#      - location: Europe without Switzerland
+
+  - name: market group for electricity, medium voltage (SPS)
+    reference product: electricity, medium voltage
+    unit: kilowatt hour
+    includes:
+      - medium_to_high
+
+    add:
+      - name: market for sulfur hexafluoride, liquid
+        reference product: sulfur hexafluoride, liquid
+        amount: 5.4e-08
+
+      - name: transmission network construction, electricity, medium voltage
+        reference product: transmission network, electricity, medium voltage
+        amount: 1.86e-08
+
+      - name: Sulfur hexafluoride
+        categories: air
+        unit: kilogram
+        amount: 5.4e-08
+
+      - name: market group for electricity, high voltage (SPS)
+        reference product: electricity, high voltage
+        amount: 0.065
+
+    replaces:
+      - name: market group for electricity, medium voltage
+        product: electricity, medium voltage
+        operator: contains
+
+#    replaces in:
+#      - location: GLO
+#      - location: EUR
+#      - location: RER
+#      - location: NEU
+#      - location: Europe without Switzerland
+
+  - name: market group for electricity, low voltage (SPS)
+    reference product: electricity, low voltage
+    unit: kilowatt hour
+    includes:
+      - low_to_medium
+
+    add:
+      - name: market for sulfur hexafluoride, liquid
+        reference product: sulfur hexafluoride, liquid
+        amount: 2.99e-09
+
+      - name: distribution network construction, electricity, low voltage
+        reference product: distribution network, electricity, low voltage
+        amount: 8.74e-08
+
+      - name: Sulfur hexafluoride
+        categories: air
+        unit: kilogram
+        amount: 2.99e-09
+
+      - name: market group for electricity, medium voltage (SPS)
+        reference product: electricity, medium voltage
+        amount: 0.027
+
+    replaces:
+      - name: market group for electricity, low voltage
+        product: electricity, low voltage
+        operator: contains
