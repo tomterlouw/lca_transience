@@ -1,127 +1,216 @@
-# Environmental life cycle assessment (LCA) module – TRANSIENCE
+# Environmental Life Cycle Assessment (LCA) Module – TRANSIENCE
 
-This repository contains the code, data structures, and documentation for the **Environmental Life Cycle Assessment (LCA) module** developed during the **[TRANSIENCE](https://www.transience.eu/)** project, related to project Deliverable 4.7. 
+## Homepage
 
-This repository is a key component of the **MIC3** framework (Model for European Industry Circularity and Climate Change Mitigation), enabling prospective environmental assessment of products, industrial decarbonization pathways, and circular economy pathways.
+Welcome to the documentation for the **Environmental Life Cycle Assessment (LCA) module** developed as part of the **[TRANSIENCE](https://www.transience.eu/)** project. This module is a key component of the **MIC3** framework, enabling environmental assessment of products and services, entire industrial decarbonization pathways, and circular economy transformations. As such, it links to various MIC3 modules developed within the **MIC3** framework.
 
-It builds upon the existing **prospective LCA frameworks** `premise` and `pathways` to calculate environmental burdens of energy transition pathways:
-- [`premise`](https://github.com/polca/premise) *(Sacchi et al., 2022)* – which enables the modification of background LCA databases.
-- [`pathways`](https://github.com/polca/pathways) *(Sacchi & Hahn-Menacho, 2024)* – which supports quantifying the environmental burdens of entire energy transformation scenarios using modified LCA databases.
+Use this documentation to:
 
-The full documentation of those Python packages can be found in the above links.
+* Understand the model and its capabilities.
+* Install and run the module (if having access to the ecoinvent database, see next requirements).
+* Explore tutorials and example analyses.
+* Learn about integration with other MIC3 modules.
 
-##### DISCLAIMER:
->  The current results and the coupling between the energy system module variables and life cycle inventories are still at an early stage. The integration between MIC3 modules will be further harmonized in future iterations. The results presented here are therefore illustrative and serve only to demonstrate that the integration is functional.
+Additionally, the module is also linked to two additional repositories developed with the **[TRANSIENCE](https://www.transience.eu/)** project. The first module is developed to provide more attention to climate-effective applications that may support industrial decarbonization:
+- `hydrogen_applications` is a repository that enables the quantification of the climate-effectiveness of planned hydrogen projects and applications. It uses data obtained from the International Energy Agency (IEA) and code developed during the TRANSIENCE project (see [Acknowledgements](#acknowledgements)). Available via: https://github.com/tomterlouw/hydrogen_applications. The code has been prepared for the following research paper:
+*Terlouw, T., Moretti, C., Harpprecht, C., Sacchi, R., McKenna, R., & Bauer, C. (2025). Global greenhouse gas emissions mitigation potential of existing and planned hydrogen projects. Nature Energy. DOI: 10.1038/s41560-025-01892-9. https://www.nature.com/articles/s41560-025-01892-9.*
 
----
-
-## 🔍 Overview
-
-The LCA module is designed to:
-
-- Integrate **prospective LCA** with modified background LCA databases.
-- Full linking with **energy system scenarios** from Task 4.6.
-- Assess products (e.g., buildings, packaging, transport – Task 4.2) and **industrial transformations** (Task 4.4).
-- Quantify **life cycle environmental impacts** throughout various environmental impact categories, for example:
-  - 🟢 Climate change (life cycle GHG emissions).
-  - ❤️ Human health.
-  - 🪨 Resource depletion (including critical raw materials).
-- Enable **spatially explicit** and regionalised environmental assessments.
+Secondly, another repository is developed to determine the climate effectiveness of the European Union Carbon Border Adjustment Mechanism (CBAM):
+- `Steel_CBAM` is a repository designed to quantify the climate-effectiveness of the European Union's Carbon Border Adjustment Mechanism (CBAM) for the global steel industry. It combines (prospective) life cycle assessment (LCA) with regionalized production data.  Available via: https://github.com/tomterlouw/Steel_CBAM. 
 
 ---
 
-## 🚀 Features
+## First Steps
 
-- 🔁 Modular and flexible design.  
-- 🧩 Compatible with other MIC3 modules.  
-- 📊 Supports product-, process-, and system-level analysis.  
+This section guides you through getting started with the environmental LCA module as part of the **MIC3** framework:
 
----
-
-## 📁 Repository structure
+1. **Clone the repository**:
 
 ```bash
-code
-├── configuration_file/               # Configuration files for scenario setup
-├── inventories/                      # Additional life cycle inventory datasets
-├── pathways/                         # Energy and material transition pathway outputs
-├── 1_export_packages.ipynb           # Notebook to export scenario packages
-├── 2_calc_impacts.ipynb              # Notebook to calculate all LCA impacts
-├── config.py                         # Configuration parameters for setting up the module
-├── datapackage_ce.json               # Circular economy scenario datapackage
-├── datapackage_edm_i.json            # EDM industrial scenario datapackage
-├── datapackage_forecast.json         # Forecast scenario datapackage
-├── datapackage_open_prom.json        # Open PROM scenario 
-├── lca_transience.yml                # Python packages needed to run this 
-license
-├── LICENSE                           # License file
-repository
-└── README.md                         # Readme file
+git clone https://github.com/tomterlouw/lca_transience.git
+cd lca_transience
+```
+
+2. **Set up the Python environment** using `lca_transience.yml`.
+3. **Obtain required credentials**: `KEY_PREMISE` (for `premise`) and `USER_PW` (for ecoinvent).
+4. **Run the notebooks**:
+
+   * `1_export_packages.ipynb` to generate new background LCA databases for each user scenario and export as scenario data packages.
+   * `2_calc_impacts.ipynb` import data packages and calculate overall environmental burdens of entire energy system model pathways.
+
+---
+
+## Installation
+
+Dependencies and setup:
+
+* Python 3.11
+* Required packages are listed in `lca_transience.yml`. Install via:
+
+```bash
+conda env create -f lca_transience.yml
+conda activate lca_transience
+```
+
+* Credentials required:
+
+  * **`KEY_PREMISE`**: Access for premise background database modifications.
+  * **`USER_PW`**: Password for the ecoinvent database. Ecoinvent database access with the password and username as used on **[ecoinvent](https://ecoinvent.org/)**.
+
+> Note: Scenario data, developed within the **MIC3** framework, to modify background LCA databases is not yet provided open-source but will be included in future releases.
+
+---
+
+## Tutorial
+
+1. **Define scenarios** in `1_export_packages.ipynb`: integrate circular economy measures, and the outputs from **MIC3** modules (currently OPEN-PROM, I-TOM, and FORECAST scenarios) to modify the background LCA database.
+2. **Export LCA packages**: transformed databases and scenario assumptions exported to local disk.
+3. **Calculate impacts** in `2_calc_impacts.ipynb` by specifying year, scenario, and desired impact categories:
+
+   * Climate change (tCO₂-eq)
+   * Resource depletion
+   * Human health
+   * Water consumption
+
+Detailed instructions and code examples are embedded in the notebooks.
+
+---
+
+## Model Overview
+
+The LCA module provides:
+
+* **Prospective LCA integration** using `premise`.
+* **Linking with energy system scenarios** (Task 4.6).
+* **Assessment of products and industrial transformations** (Tasks 4.2 & 4.4) using `pathways`.
+* **Spatially explicit and regionalized environmental assessments**. This will be integrated later using the novel open-source package `edges`
+
+### Context and Main Features
+
+* Part of **MIC3 framework** for industrial decarbonization and circular economy modeling.
+* Primary outputs: life cycle environmental impacts (climate change, resource use, human health).
+* Modular, flexible, and compatible with other MIC3 modules. Further integration will be done next year.
+
+---
+
+## Structure
+
+The module contains the following submodules:
+
+```text
+code/
+├── configuration_file/       # Scenario setup
+├── inventories/              # Additional LCA datasets
+├── pathways/                 # Energy/material transition outputs
+├── 1_export_packages.ipynb   # Notebook to export LCA packages
+├── 2_calc_impacts.ipynb      # Notebook to calculate environmental impacts
+├── config.py                 # Module parameters
+├── datapackage_*.json        # Scenario definitions
+├── lca_transience.yml        # Environment setup
 ```
 
 ---
 
-## How to use it?
+## Mathematical Foundation
 
-The workflow is structured in two main Jupyter Notebooks:
-
-### `1_export_packages.ipynb`
-
-This notebook allows users to define scenarios (e.g., circular economy, OPEN-PROM) and export the modified background LCA databases using the `premise` framework. Each scenario is saved and exported to a datapackage containing both the transformed LCA data and the associated pathway assumptions.
-
-### `2_calc_impacts.ipynb`
-
-This notebook is used to calculate environmental impacts for the generated scenarios, including impact categories such as climate change, resource use, and water consumption. Users can specify different years and scenarios to assess decarbonization strategies or material intensity over time.
-
-📝 *Additional documentation is provided in each notebook to guide users through the setup and analysis steps.*
-
-The coupling between the output variables of MIC3 modules and life cycle inventories of the ecoinvent and premise databases are performed in configuration files provided in the map `configuration_file` for each linked MIC3 module individually. Initialization of data packages in the JSON files `datapackage_....json`. 
-
-> Currently, scenario data from MIC3 modules, to modify background LCA databases, is not provided open-source (yet), but will be provided in the next releases of the environmental module.
+* LCA impacts are computed according to standard life cycle impact assessment methods.
+* Modifications to the background database reflect prospective technological, material, and energy transformations.
+* Impact aggregation uses `premise`’s scenario-driven transformation approach.
 
 ---
 
-## 🔧 Dependencies
+## Code Organisation
 
-To run this repository or use the code, the following credentials and tools are required:
-
-- **`KEY_PREMISE`**: A key for [`premise`](https://github.com/polca/premise) to generate prospective LCA databases, including additional life cycle inventories.
-- **`USER_PW`**: An account and user password to access the background LCA database **ecoinvent**.
-- All required Python (v3.11) packages are listed in the environment file: `lca_transience.yml`.
-
----
-
-## 📄 License, citing, and scientific references
-
-If you use this repository, the data, or any of the included code, please cite the following (citation coming soon):
-
-> *[citation]*
-
-For detailed licensing information, please refer to the [`LICENSE`](./LICENSE) file.
+* **Notebooks**: Main user interface for scenario export and impact calculation.
+* **Configuration files**: Parameter settings for linking with MIC3 modules.
+* **Data packages**: JSON files containing scenario assumptions.
+* **Submodules**: Separate pathways, inventories, and configuration for modularity.
 
 ---
 
-## 🤝 Contributing
+## Parameters
 
-Your contribution is welcome! For major suggestions, collaborations, or structural changes, please contact:
+Parameters are set in `config.py` and include:
 
-**Tom Terlouw**  
-[tom.terlouw@psi.ch](mailto:tom.terlouw@psi.ch)
+* Scenario definitions (year, region, technology).
+* Impact categories for assessment.
+* Energy and material transformation pathways.
+
+---
+
+## Data Inputs
+
+* Background LCA databases (ecoinvent, premise-transformed).
+* Scenario assumptions (from MIC3 modules).
+* Additional inventories in `inventories/`.
+
+---
+
+## Configuration
+
+* Configurations are stored in `configuration_file/` for each linked module.
+* Define scenario-specific transformations and parameter overrides.
+
+---
+
+## Constraints
+
+* Model assumes the availability of scenario data from MIC3 modules.
+* Results are indicative for early-stage integration and may be refined in future iterations.
+
+---
+
+## Data Outputs
+
+* Environmental impact tables (per scenario, region, year).
+* Life cycle impact indicators (climate change, resource use, human health).
+* Scenario comparison plots (via `2_calc_impacts.ipynb`).
+
+---
+
+## Integration with Other Models
+
+### Inputs from Other Modules
+
+* Energy system outputs (Task 4.6) such as energy mix and industrial transformations.
+* Circular economy and product-specific scenario data (Tasks 4.2 & 4.4).
+
+### Outputs to Other Modules
+
+* Regionalized life cycle impact data for MIC3 decision support.
+* Aggregated impact indicators for scenario comparison.
+
+---
+
+## Example questions the environmental module can address:
+
+* What is the environmental impact of a product or service now and in future considering prospective decarbonization scenarios sourced from the MIC3 framework?
+* What are the environmental burdens of entire energy system transformation pathways developed in the MIC3 framework? For example, environmental impacts on entire industrial or energy transformation pathways on (critical) materials, greenhouse gases, human toxicity, and/or biodiversity.
+* How does industrial decarbonization affect regional life cycle GHG emissions now and in the future?
+
+---
+
+## License and Citation
+
+Please refer to the [`LICENSE`](./LICENSE) licensing file. Details on citing this repository will be provided as soon there is an initial publication.
+
+---
+
+## Contributing
+
+For contributions, suggestions, or collaborations, please contact:
+**Tom Terlouw** – [tom.terlouw@psi.ch](mailto:tom.terlouw@psi.ch)
 
 Other contributors:
+
 * **Romain Sacchi (PSI)**
 * **Christian Bauer (PSI)**
 
 ---
 
-## 🙏 Acknowledgements
+## Acknowledgements
 
-This repository builds upon several scientific contributions (see *License, citing, and scientific references*) and was developed as part of the **TRANSIENCE** project.
+* Developed as part of **TRANSIENCE** (Horizon Europe Project No. 101137606).
+* Supported by HADEA, SERI, and UKRI Horizon Europe Guarantee.
 
-Supported by:
-- **Horizon Europe TRANSIENCE** (Project No. 101137606), funded by:
-    - European Health and Digital Executive Agency (HADEA)  
-    - Swiss State Secretariat for Education, Research and Innovation (SERI)  
-    - UK Research and Innovation (UKRI) Horizon Europe Guarantee  
-
-> The views expressed are those of the authors and do not necessarily reflect the position of the European Commission or other funding agencies.
+> Disclaimer: The current results shown are illustrative and continously updated throughout the project; full integration of MIC3 modules is ongoing.
