@@ -1,15 +1,15 @@
 Biomass CHP:
   dataset:
-  - name: heat and power co-generation, wood chips, 2000 kW
+  - name: heat and power co-generation, wood chips, 2000 kW, state-of-the-art 2014
     reference product: electricity, high voltage
     unit: kilowatt hour
   - name: heat and power co-generation, wood chips, 6667 kW
     reference product: electricity, high voltage
     unit: kilowatt hour
-  - name: heat and power co-generation, wood chips, 2000 kW, state-of-the-art 2014
+  - name: heat and power co-generation, wood chips, 6667 kW, state-of-the-art 2014
     reference product: electricity, high voltage
     unit: kilowatt hour
-  - name: heat and power co-generation, wood chips, 6667 kW, state-of-the-art 2014
+  - name: heat and power co-generation, wood chips, 2000 kW
     reference product: electricity, high voltage
     unit: kilowatt hour
   scenario variable: SE|Electricity|Biomass|++|Combined Heat and Power w/o CC
@@ -28,10 +28,10 @@ Biomass IGCC CCS:
   scenario variable: SE|Electricity|Biomass|++|Gasification Combined Cycle w/ CC
 Coal CHP:
   dataset:
-  - name: heat and power co-generation, lignite
+  - name: heat and power co-generation, hard coal
     reference product: electricity, high voltage
     unit: kilowatt hour
-  - name: heat and power co-generation, hard coal
+  - name: heat and power co-generation, lignite
     reference product: electricity, high voltage
     unit: kilowatt hour
   scenario variable: SE|Electricity|Coal|++|Combined Heat and Power w/o CC
@@ -46,42 +46,42 @@ Coal IGCC:
   scenario variable: SE|Electricity|Coal|++|Gasification Combined Cycle w/o CC
 Coal IGCC CCS:
   dataset:
-  - name: electricity production, at hard coal-fired IGCC power plant, pre, pipeline
+  - name: electricity production, at lignite-fired IGCC power plant, pre, pipeline
       200km, storage 1000m
     reference product: electricity, high voltage
     unit: kilowatt hour
-  - name: electricity production, at lignite-fired IGCC power plant, pre, pipeline
+  - name: electricity production, at hard coal-fired IGCC power plant, pre, pipeline
       200km, storage 1000m
     reference product: electricity, high voltage
     unit: kilowatt hour
   scenario variable: SE|Electricity|Coal|++|Gasification Combined Cycle w/ CC
 Coal PC:
   dataset:
+  - name: electricity production, hard coal, conventional
+    reference product: electricity, high voltage
+    unit: kilowatt hour
   - name: electricity production, hard coal
     reference product: electricity, high voltage
     unit: kilowatt hour
   - name: electricity production, lignite
     reference product: electricity, high voltage
     unit: kilowatt hour
-  - name: electricity production, hard coal, conventional
-    reference product: electricity, high voltage
-    unit: kilowatt hour
   scenario variable: SE|Electricity|Coal|++|Pulverised Coal w/o CC
 Coal PC CCS:
   dataset:
-  - name: electricity production, at hard coal-fired power plant, post, pipeline 200km,
-      storage 1000m
-    reference product: electricity, high voltage
-    unit: kilowatt hour
-  - name: electricity production, at lignite-fired power plant, post, pipeline 200km,
-      storage 1000m
-    reference product: electricity, high voltage
-    unit: kilowatt hour
   - name: electricity production, at lignite-fired power plant, oxy, pipeline 200km,
       storage 1000m
     reference product: electricity, high voltage
     unit: kilowatt hour
+  - name: electricity production, at hard coal-fired power plant, post, pipeline 200km,
+      storage 1000m
+    reference product: electricity, high voltage
+    unit: kilowatt hour
   - name: electricity production, at hard coal-fired power plant, oxy, pipeline 200km,
+      storage 1000m
+    reference product: electricity, high voltage
+    unit: kilowatt hour
+  - name: electricity production, at lignite-fired power plant, post, pipeline 200km,
       storage 1000m
     reference product: electricity, high voltage
     unit: kilowatt hour
@@ -269,28 +269,28 @@ Geothermal:
   scenario variable: SE|Electricity|+|Geothermal
 Hydro:
   dataset:
-  - name: electricity production, hydro, run-of-river
+  - name: electricity production, hydro, reservoir, tropical region
     reference product: electricity, high voltage
     unit: kilowatt hour
   - name: electricity production, hydro, reservoir, alpine region
     reference product: electricity, high voltage
     unit: kilowatt hour
-  - name: electricity production, hydro, reservoir, non-alpine region
+  - name: electricity production, hydro, run-of-river
     reference product: electricity, high voltage
     unit: kilowatt hour
-  - name: electricity production, hydro, reservoir, tropical region
+  - name: electricity production, hydro, reservoir, non-alpine region
     reference product: electricity, high voltage
     unit: kilowatt hour
   scenario variable: SE|Electricity|+|Hydro
 Nuclear:
   dataset:
+  - name: electricity production, nuclear, pressure water reactor
+    reference product: electricity, high voltage
+    unit: kilowatt hour
   - name: electricity production, nuclear, boiling water reactor
     reference product: electricity, high voltage
     unit: kilowatt hour
   - name: electricity production, nuclear, pressure water reactor, heavy water moderated
-    reference product: electricity, high voltage
-    unit: kilowatt hour
-  - name: electricity production, nuclear, pressure water reactor
     reference product: electricity, high voltage
     unit: kilowatt hour
   scenario variable: SE|Electricity|+|Nuclear
@@ -332,19 +332,19 @@ Wind Offshore:
   scenario variable: SE|Electricity|Wind|+|Offshore
 Wind Onshore:
   dataset:
-  - name: electricity production, wind, 1-3MW turbine, onshore
-    reference product: electricity, high voltage
-    unit: kilowatt hour
   - name: electricity production, wind, 1-3MW turbine, onshore, direct drive
-    reference product: electricity, high voltage
-    unit: kilowatt hour
-  - name: electricity production, wind, >3MW turbine, onshore, direct drive
     reference product: electricity, high voltage
     unit: kilowatt hour
   - name: electricity production, wind, <1MW turbine, onshore, direct drive
     reference product: electricity, high voltage
     unit: kilowatt hour
   - name: electricity production, wind, <1MW turbine, onshore
+    reference product: electricity, high voltage
+    unit: kilowatt hour
+  - name: electricity production, wind, 1-3MW turbine, onshore
+    reference product: electricity, high voltage
+    unit: kilowatt hour
+  - name: electricity production, wind, >3MW turbine, onshore, direct drive
     reference product: electricity, high voltage
     unit: kilowatt hour
   - name: electricity production, wind, >3MW turbine, onshore
@@ -359,16 +359,16 @@ ammonia_h2:
   scenario variable: Ammonia|Ammonia H2
 ammonia_smr:
   dataset:
-  - name: ammonia production, steam reforming with syngas and flue gas CCS
+  - name: ammonia production, steam reforming with syngas CCS
     reference product: ammonia, anhydrous, liquid
     unit: kilogram
-  - name: ammonia production, steam reforming
+  - name: ammonia production, steam reforming with syngas and flue gas CCS
     reference product: ammonia, anhydrous, liquid
     unit: kilogram
   - name: ammonia production, steam reforming, liquid
     reference product: ammonia, anhydrous, liquid
     unit: kilogram
-  - name: ammonia production, steam reforming with syngas CCS
+  - name: ammonia production, steam reforming
     reference product: ammonia, anhydrous, liquid
     unit: kilogram
   scenario variable: Ammonia|Ammonia SMR
@@ -381,14 +381,14 @@ biodiesel, from used cooking oil:
   scenario variable: SE|Liquids|Biomass|Biodiesel|w/o CC
 bioethanol, from grass:
   dataset:
-  - name: ethanol production, via fermentation, from miscanthus, energy allocation
-    reference product: ethanol, from miscanthus
-    unit: kilogram
   - name: ethanol production, via fermentation, from switchgrass, energy allocation
     reference product: ethanol, from switchgrass
     unit: kilogram
   - name: ethanol production from sweet sorghum
     reference product: ethanol, without water, in 95% solution state, from fermentation
+    unit: kilogram
+  - name: ethanol production, via fermentation, from miscanthus, energy allocation
+    reference product: ethanol, from miscanthus
     unit: kilogram
   - name: ethanol production from grass
     reference product: ethanol, without water, in 95% solution state, from fermentation
@@ -396,35 +396,26 @@ bioethanol, from grass:
   scenario variable: SE|Liquids|Biomass|++|Non-Cellulosic
 bioethanol, from sugar:
   dataset:
-  - name: ethanol production, via fermentation, from sugarcane, energy allocation
-    reference product: ethanol, from sugarcane
-    unit: kilogram
   - name: ethanol production, via fermentation, from sugarbeet, energy allocation
     reference product: ethanol, from sugarbeet
     unit: kilogram
-  - name: ethanol production from sugar beet molasses
+  - name: ethanol production from sugar beet
     reference product: ethanol, without water, in 95% solution state, from fermentation
     unit: kilogram
-  - name: ethanol production from sugar beet
+  - name: ethanol production, via fermentation, from sugarcane, energy allocation
+    reference product: ethanol, from sugarcane
+    unit: kilogram
+  - name: ethanol production from sugar beet molasses
     reference product: ethanol, without water, in 95% solution state, from fermentation
     unit: kilogram
   scenario variable: SE|Liquids|Biomass|Conventional Ethanol
 bioethanol, from wood:
   dataset:
-  - name: ethanol production, via fermentation, from eucalyptus
-    reference product: ethanol, from eucalyptus
+  - name: ethanol production from wood
+    reference product: ethanol, without water, in 95% solution state, from fermentation
     unit: kilogram
   - name: ethanol production, via fermentation, from willow, energy allocation
     reference product: ethanol, from willow
-    unit: kilogram
-  - name: ethanol production, via fermentation, from poplar, energy allocation
-    reference product: ethanol, from poplar
-    unit: kilogram
-  - name: ethanol production, via fermentation, from forest residue, energy allocation
-    reference product: ethanol, from forest residue
-    unit: kilogram
-  - name: ethanol production, via fermentation, from forest residues, energy allocation
-    reference product: ethanol, from forest residues
     unit: kilogram
   - name: ethanol production, via fermentation, from forest product (non-residual),
       energy allocation
@@ -433,19 +424,28 @@ bioethanol, from wood:
   - name: ethanol production, via fermentation, from forest residue, energy allocation
     reference product: ethanol, from forest residues
     unit: kilogram
-  - name: ethanol production from wood
-    reference product: ethanol, without water, in 95% solution state, from fermentation
+  - name: ethanol production, via fermentation, from poplar, energy allocation
+    reference product: ethanol, from poplar
+    unit: kilogram
+  - name: ethanol production, via fermentation, from forest residues, energy allocation
+    reference product: ethanol, from forest residues
+    unit: kilogram
+  - name: ethanol production, via fermentation, from eucalyptus
+    reference product: ethanol, from eucalyptus
+    unit: kilogram
+  - name: ethanol production, via fermentation, from forest residue, energy allocation
+    reference product: ethanol, from forest residue
     unit: kilogram
   scenario variable: SE|Liquids|Biomass|Cellulosic|+|w/o CC
 bioethanol, from wood, with CCS:
   dataset:
-  - name: ethanol production, via fermentation, from poplar, with carbon capture and
-      storage, energy allocation
-    reference product: ethanol, from poplar
-    unit: kilogram
   - name: ethanol production, via fermentation, from eucalyptus, with carbon capture
       and storage
     reference product: ethanol, from eucalyptus
+    unit: kilogram
+  - name: ethanol production, via fermentation, from poplar, with carbon capture and
+      storage, energy allocation
+    reference product: ethanol, from poplar
     unit: kilogram
   scenario variable: SE|Liquids|Biomass|Cellulosic|+|w/ CC
 biomass:
@@ -462,17 +462,17 @@ biomass - residual:
   scenario variable: SE|Electricity|Biomass|Residues
 biomass crops - purpose grown:
   dataset:
-  - name: market for wood chips, wet, measured as dry mass
-    reference product: wood chips, wet, measured as dry mass
-    unit: kilogram
   - name: market for wood chips and particles, willow
     reference product: wood chips and particles, willow
     unit: kilogram
-  - name: market for wood chips, from post-consumer wood, measured as dry mass
-    reference product: wood chips, from post-consumer wood, measured as dry mass
+  - name: market for wood chips, wet, measured as dry mass
+    reference product: wood chips, wet, measured as dry mass
     unit: kilogram
   - name: market for wood chips, dry, measured as dry mass
     reference product: wood chips, dry, measured as dry mass
+    unit: kilogram
+  - name: market for wood chips, from post-consumer wood, measured as dry mass
+    reference product: wood chips, from post-consumer wood, measured as dry mass
     unit: kilogram
   scenario variable: SE|Electricity|Biomass|Energy Crops
 biomethane:
@@ -483,12 +483,6 @@ biomethane:
   - name: mixed natural gas and biomethane production, high pressure
     reference product: mixed natural gas and biomethane, high pressure
     unit: cubic meter
-  - name: biomethane production, from biogas upgrading, using amine scrubbing
-    reference product: biomethane, from biogas upgrading, using amine scrubbing
-    unit: kilogram
-  - name: biomethane production, medium pressure, vehicle grade
-    reference product: biomethane, medium pressure, vehicle grade
-    unit: kilogram
   - name: biomethane production, high pressure from synthetic gas, wood, fluidised
       technology
     reference product: biomethane, high pressure
@@ -497,20 +491,26 @@ biomethane:
       technology
     reference product: biomethane, high pressure
     unit: cubic meter
+  - name: biomethane production, from biogas upgrading, using amine scrubbing
+    reference product: biomethane, from biogas upgrading, using amine scrubbing
+    unit: kilogram
   - name: biomethane production, high pressure, vehicle grade
     reference product: biomethane, high pressure, vehicle grade
+    unit: kilogram
+  - name: biomethane production, medium pressure, vehicle grade
+    reference product: biomethane, medium pressure, vehicle grade
     unit: kilogram
   scenario variable: SE|Gases|+|Biomass
 building:
   dataset:
+  - name: building construction, hall, wood construction
+    reference product: building, hall, wood construction
+    unit: square meter
   - name: building construction, hall
     reference product: building, hall
     unit: square meter
   - name: building construction, hall, steel construction
     reference product: building, hall, steel construction
-    unit: square meter
-  - name: building construction, hall, wood construction
-    reference product: building, hall, wood construction
     unit: square meter
   scenario variable: Circular Economy|Efficiency|Steel
 bus, battery electric:
@@ -540,27 +540,31 @@ bus, fuel cell:
   scenario variable: ES|Transport|Pass|Road|Bus|FCEV
 coal:
   dataset:
-  - name: electricity production, hard coal, conventional
-    reference product: electricity, high voltage
-    unit: kilowatt hour
-  - name: electricity production, hard coal, ultra-supercritical
-    reference product: electricity, high voltage
-    unit: kilowatt hour
-  - name: electricity production, hard coal, subcritical
-    reference product: electricity, high voltage
-    unit: kilowatt hour
-  - name: electricity production, hard coal, at coal mine power plant
-    reference product: electricity, high voltage, for internal use in coal mining
-    unit: kilowatt hour
   - name: electricity production, hard coal
     reference product: electricity, high voltage
     unit: kilowatt hour
   - name: electricity production, hard coal, supercritical
     reference product: electricity, high voltage
     unit: kilowatt hour
+  - name: electricity production, hard coal, ultra-supercritical
+    reference product: electricity, high voltage
+    unit: kilowatt hour
+  - name: electricity production, hard coal, at coal mine power plant
+    reference product: electricity, high voltage, for internal use in coal mining
+    unit: kilowatt hour
+  - name: electricity production, hard coal, conventional
+    reference product: electricity, high voltage
+    unit: kilowatt hour
+  - name: electricity production, hard coal, subcritical
+    reference product: electricity, high voltage
+    unit: kilowatt hour
   scenario variable: Secondary Energy|Electricity|Coal
 dac_solvent:
   dataset:
+  - name: carbon dioxide, captured from atmosphere, with a solvent-based direct air
+      capture system, 1MtCO2, with industrial steam heat, and grid electricity
+    reference product: carbon dioxide, captured from atmosphere
+    unit: kilogram
   - name: carbon dioxide, captured from atmosphere, with a solvent-based direct air
       capture system, 1MtCO2, with heat pump heat, and grid electricity
     reference product: carbon dioxide, captured from atmosphere
@@ -569,30 +573,26 @@ dac_solvent:
       capture system, 1MtCO2
     reference product: carbon dioxide, captured from atmosphere
     unit: kilogram
-  - name: carbon dioxide, captured from atmosphere, with a solvent-based direct air
-      capture system, 1MtCO2, with industrial steam heat, and grid electricity
-    reference product: carbon dioxide, captured from atmosphere
-    unit: kilogram
   scenario variable: Emi|CO2|Cumulated|CDR|DACCS
 diesel:
   dataset:
-  - name: diesel production, petroleum refinery operation
+  - name: market for diesel
     reference product: diesel
     unit: kilogram
-  - name: petroleum refinery operation
+  - name: market for diesel, low-sulfur
+    reference product: diesel, low-sulfur
+    unit: kilogram
+  - name: diesel production, low-sulfur, petroleum refinery operation
+    reference product: diesel, low-sulfur
+    unit: kilogram
+  - name: diesel production, petroleum refinery operation
     reference product: diesel
     unit: kilogram
   - name: diesel production, low-sulfur
     reference product: diesel, low-sulfur
     unit: kilogram
-  - name: market for diesel, low-sulfur
-    reference product: diesel, low-sulfur
-    unit: kilogram
-  - name: market for diesel
+  - name: petroleum refinery operation
     reference product: diesel
-    unit: kilogram
-  - name: diesel production, low-sulfur, petroleum refinery operation
-    reference product: diesel, low-sulfur
     unit: kilogram
   scenario variable: SE|Liquids|Fossil|+|Oil|Diesel
 diesel, synthetic, from wood:
@@ -617,20 +617,20 @@ gas:
   scenario variable: Secondary Energy|Electricity|Gas
 gasoline:
   dataset:
+  - name: petroleum refinery operation
+    reference product: petrol, unleaded
+    unit: kilogram
   - name: market for petrol, low-sulfur
     reference product: petrol, low-sulfur
     unit: kilogram
-  - name: petrol production, low-sulfur
-    reference product: petrol, low-sulfur
+  - name: market for petrol, unleaded
+    reference product: petrol, unleaded
     unit: kilogram
   - name: petrol production, unleaded, petroleum refinery operation
     reference product: petrol, unleaded
     unit: kilogram
-  - name: petroleum refinery operation
-    reference product: petrol, unleaded
-    unit: kilogram
-  - name: market for petrol, unleaded
-    reference product: petrol, unleaded
+  - name: petrol production, low-sulfur
+    reference product: petrol, low-sulfur
     unit: kilogram
   scenario variable: SE|Liquids|Fossil|+|Oil|Gasoline
 geothermal:
@@ -668,14 +668,14 @@ hydrogen, from biomass, with CCS:
 hydrogen, from coal:
   dataset:
   - name: hydrogen production, coal gasification
+    reference product: heat, from steam, in chemical industry
+    unit: megajoule
+  - name: hydrogen production, coal gasification
     reference product: sulfur
     unit: kilogram
   - name: hydrogen production, coal gasification
     reference product: hydrogen, gaseous, low pressure
     unit: kilogram
-  - name: hydrogen production, coal gasification
-    reference product: heat, from steam, in chemical industry
-    unit: megajoule
   scenario variable: SE|Hydrogen|Coal|+|w/o CC
 hydrogen, from coal, with CCS:
   dataset:
@@ -730,43 +730,43 @@ methanol_smr:
   scenario variable: Methanol|Methanol SMR
 natural gas:
   dataset:
-  - name: market group for natural gas, high pressure
-    reference product: natural gas, high pressure
-    unit: cubic meter
-  - name: market for natural gas, high pressure, 20-year period
-    reference product: natural gas, high pressure
-    unit: cubic meter
   - name: petroleum and gas production, offshore
-    reference product: natural gas, high pressure
-    unit: cubic meter
+    reference product: petroleum
+    unit: kilogram
   - name: petroleum and gas production, onshore
+    reference product: petroleum
+    unit: kilogram
+  - name: market for natural gas, liquefied
+    reference product: natural gas, liquefied
+    unit: cubic meter
+  - name: market group for natural gas, high pressure
     reference product: natural gas, high pressure
     unit: cubic meter
   - name: natural gas production, liquefied
     reference product: natural gas, liquefied
     unit: cubic meter
-  - name: market for natural gas, liquefied
-    reference product: natural gas, liquefied
-    unit: cubic meter
-  - name: petroleum and gas production, onshore
-    reference product: petroleum
-    unit: kilogram
-  - name: market for natural gas, low pressure
-    reference product: natural gas, low pressure
-    unit: cubic meter
   - name: market for natural gas, high pressure, 40-year period
     reference product: natural gas, high pressure
     unit: cubic meter
-  - name: petroleum and gas production, offshore
-    reference product: petroleum
-    unit: kilogram
   - name: market for natural gas, high pressure, 60-year period
     reference product: natural gas, high pressure
+    unit: cubic meter
+  - name: market for natural gas, high pressure, 20-year period
+    reference product: natural gas, high pressure
+    unit: cubic meter
+  - name: market for natural gas, high pressure
+    reference product: natural gas, high pressure
+    unit: cubic meter
+  - name: petroleum and gas production, onshore
+    reference product: natural gas, high pressure
+    unit: cubic meter
+  - name: market for natural gas, low pressure
+    reference product: natural gas, low pressure
     unit: cubic meter
   - name: natural gas, high pressure, domestic supply with seasonal storage
     reference product: natural gas, high pressure
     unit: cubic meter
-  - name: market for natural gas, high pressure
+  - name: petroleum and gas production, offshore
     reference product: natural gas, high pressure
     unit: cubic meter
   scenario variable: SE|Gases|Fossil|+|Natural Gas
@@ -991,16 +991,16 @@ pv:
   scenario variable: Secondary Energy|Electricity|Solar
 steel - primary:
   dataset:
-  - name: steel production, converter, low-alloyed
-    reference product: steel, low-alloyed
-    unit: kilogram
-  - name: steel production, converter, low-alloyed, primary, with CCS
+  - name: steel production, converter, low-alloyed, only primary steel
     reference product: steel, low-alloyed
     unit: kilogram
   - name: steel production, converter, unalloyed
     reference product: steel, unalloyed
     unit: kilogram
-  - name: steel production, converter, low-alloyed, only primary steel
+  - name: steel production, converter, low-alloyed, primary, with CCS
+    reference product: steel, low-alloyed
+    unit: kilogram
+  - name: steel production, converter, low-alloyed
     reference product: steel, low-alloyed
     unit: kilogram
   - name: steel production, converter, low-alloyed (SPS)
@@ -1012,14 +1012,14 @@ steel - primary:
   scenario variable: Production|Industry|Steel|Primary
 steel - secondary:
   dataset:
-  - name: steel production, electric, chromium steel 18/8
-    reference product: steel, chromium steel 18/8
-    unit: kilogram
   - name: steel production, electric, low-alloyed
     reference product: steel, low-alloyed
     unit: kilogram
   - name: steel production, electric, low-alloyed, secondary steel, using scrap iron
     reference product: steel, low-alloyed
+    unit: kilogram
+  - name: steel production, electric, chromium steel 18/8
+    reference product: steel, chromium steel 18/8
     unit: kilogram
   scenario variable: Production|Industry|Steel|Secondary
 steel_primary:
@@ -1045,10 +1045,10 @@ steel_primary_dri_ng:
   - name: steel production, from natural gas-based DRI
     reference product: steel, low-alloyed
     unit: kilogram
-  - name: steel production, from natural gas-based DRI, with CCS
+  - name: steel production, from natural gas-based DRI, with CCS [2]
     reference product: steel, low-alloyed
     unit: kilogram
-  - name: steel production, from natural gas-based DRI, with CCS [2]
+  - name: steel production, from natural gas-based DRI, with CCS
     reference product: steel, low-alloyed
     unit: kilogram
   scenario variable: Production|Steel|DRI_NG
