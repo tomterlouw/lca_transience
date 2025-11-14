@@ -1662,3 +1662,835 @@ market for methanol (SPS),methanol,kilogram
 market for methanol (SPS),methanol,kilogram
 market for methanol (SPS),methanol,kilogram
 market for methanol (SPS),methanol,kilogram
+"market for cooling energy, at -25 °C","cooling energy, at -25 °C",megajoule
+"cooling energy production, at -45 °C, R-134a compression refrigeration system 1 MW","cooling energy, at -45 °C",megajoule
+"cooling energy production, at -45 °C, propylene compression refrigeration system 1 MW","cooling energy, at -45 °C",megajoule
+"cooling energy production, at -25 °C, ammonia compression refrigeration system 1 MW","cooling energy, at -25 °C",megajoule
+"cooling energy production, at -55 °C, propylene-ethylene compression refrigeration system 1 MW","cooling energy, at -55 °C",megajoule
+"market for cooling energy, at -55 °C","cooling energy, at -55 °C",megajoule
+"market for cooling energy, at -15 °C","cooling energy, at -15 °C",megajoule
+"cooling energy production, at -25 °C, propylene compression refrigeration system 1 MW","cooling energy, at -25 °C",megajoule
+"cooling energy production, at -100 °C, R-134a-carbon dioxide-ethylene compression refrigeration system 1 MW","cooling energy, at -100 °C",megajoule
+"market for cooling energy, at -160 °C","cooling energy, at -160 °C",megajoule
+"cooling energy production, at -15 °C, R-134a compression refrigeration system 1 MW","cooling energy, at -15 °C",megajoule
+"market for cooling energy, at -45 °C","cooling energy, at -45 °C",megajoule
+"market for cooling energy, at -100 °C","cooling energy, at -100 °C",megajoule
+"cooling energy production, at -100 °C, propylene-ethylene compression refrigeration system 1 MW","cooling energy, at -100 °C",megajoule
+"cooling energy production, at -160 °C, propylene-ethylene-methane compression refrigeration system 1 MW","cooling energy, at -160 °C",megajoule
+"carbon dioxide removal, with a wood burning power plant with carbon capture and storage","carbon dioxide removal, with a wood burning power plant with carbon capture and storage",kilogram
+electricity for industrial applications,electricity for industrial applications,kilowatt hour
+"carbon dioxide removal, with direct air capture","carbon dioxide removal, with direct air capture",kilogram
+"hydrogen burned, in hydrogen boiler, residential",heat,megajoule
+"naphtha, energy content",energy,megajoule
+"natural gas, energy content",energy,megajoule
+"steel production, converter, low-alloyed, primary, with CCS","steel, low-alloyed",kilogram
+"steel production, from hydrogen-based DRI","steel, low-alloyed",kilogram
+"steel production, from natural gas-based DRI","steel, low-alloyed",kilogram
+"steel production, from natural gas-based DRI, with CCS","steel, low-alloyed",kilogram
+"steel production, from molten oxide electrolysis","steel, low-alloyed",kilogram
+"steel production, from natural gas-based DRI, with CCS [2]","steel, low-alloyed",kilogram
+"steel production, electric, low-alloyed, secondary steel, using scrap iron","steel, low-alloyed",kilogram
+"steel production, converter, low-alloyed, only primary steel","steel, low-alloyed",kilogram
+"steel production, from hydrogen-based DRI","steel, low-alloyed",kilogram
+"steel production, from natural gas-based DRI","steel, low-alloyed",kilogram
+"steel production, from molten oxide electrolysis","steel, low-alloyed",kilogram
+"steel production, electric, low-alloyed, secondary steel, using scrap iron","steel, low-alloyed",kilogram
+"market group for electricity, high voltage (SPS)","electricity, high voltage",kilowatt hour
+"market group for electricity, medium voltage (SPS)","electricity, medium voltage",kilowatt hour
+"market group for electricity, low voltage (SPS)","electricity, low voltage",kilowatt hour
+"market for steel, low-alloyed (SPS)","steel, low-alloyed",kilogram
+"market for steel, unalloyed (SPS)","steel, unalloyed",kilogram
+"steel production, converter, low-alloyed (SPS)","steel, low-alloyed",kilogram
+"steel production, converter, unalloyed (SPS)","steel, unalloyed",kilogram
+"market for cooling energy, at -25 °C","cooling energy, at -25 °C",megajoule
+"cooling energy production, at -45 °C, R-134a compression refrigeration system 1 MW","cooling energy, at -45 °C",megajoule
+"cooling energy production, at -45 °C, propylene compression refrigeration system 1 MW","cooling energy, at -45 °C",megajoule
+"cooling energy production, at -25 °C, ammonia compression refrigeration system 1 MW","cooling energy, at -25 °C",megajoule
+"cooling energy production, at -55 °C, propylene-ethylene compression refrigeration system 1 MW","cooling energy, at -55 °C",megajoule
+"market for cooling energy, at -55 °C","cooling energy, at -55 °C",megajoule
+"market for cooling energy, at -15 °C","cooling energy, at -15 °C",megajoule
+"cooling energy production, at -25 °C, propylene compression refrigeration system 1 MW","cooling energy, at -25 °C",megajoule
+"cooling energy production, at -100 °C, R-134a-carbon dioxide-ethylene compression refrigeration system 1 MW","cooling energy, at -100 °C",megajoule
+"market for cooling energy, at -160 °C","cooling energy, at -160 °C",megajoule
+"cooling energy production, at -15 °C, R-134a compression refrigeration system 1 MW","cooling energy, at -15 °C",megajoule
+"market for cooling energy, at -45 °C","cooling energy, at -45 °C",megajoule
+"market for cooling energy, at -100 °C","cooling energy, at -100 °C",megajoule
+"cooling energy production, at -100 °C, propylene-ethylene compression refrigeration system 1 MW","cooling energy, at -100 °C",megajoule
+"cooling energy production, at -160 °C, propylene-ethylene-methane compression refrigeration system 1 MW","cooling energy, at -160 °C",megajoule
+"carbon dioxide removal, with a wood burning power plant with carbon capture and storage","carbon dioxide removal, with a wood burning power plant with carbon capture and storage",kilogram
+electricity for industrial applications,electricity for industrial applications,kilowatt hour
+"carbon dioxide removal, with direct air capture","carbon dioxide removal, with direct air capture",kilogram
+"hydrogen burned, in hydrogen boiler, residential",heat,megajoule
+"naphtha, energy content",energy,megajoule
+"natural gas, energy content",energy,megajoule
+"steel production, converter, low-alloyed, primary, with CCS","steel, low-alloyed",kilogram
+"steel production, from hydrogen-based DRI","steel, low-alloyed",kilogram
+"steel production, from natural gas-based DRI","steel, low-alloyed",kilogram
+"steel production, from natural gas-based DRI, with CCS","steel, low-alloyed",kilogram
+"steel production, from molten oxide electrolysis","steel, low-alloyed",kilogram
+"steel production, from natural gas-based DRI, with CCS [2]","steel, low-alloyed",kilogram
+"steel production, electric, low-alloyed, secondary steel, using scrap iron","steel, low-alloyed",kilogram
+"steel production, converter, low-alloyed, only primary steel","steel, low-alloyed",kilogram
+"steel production, from hydrogen-based DRI","steel, low-alloyed",kilogram
+"steel production, from natural gas-based DRI","steel, low-alloyed",kilogram
+"steel production, from molten oxide electrolysis","steel, low-alloyed",kilogram
+"steel production, electric, low-alloyed, secondary steel, using scrap iron","steel, low-alloyed",kilogram
+"market group for electricity, high voltage (SPS)","electricity, high voltage",kilowatt hour
+"market group for electricity, medium voltage (SPS)","electricity, medium voltage",kilowatt hour
+"market group for electricity, low voltage (SPS)","electricity, low voltage",kilowatt hour
+"market for steel, low-alloyed (SPS)","steel, low-alloyed",kilogram
+"market for steel, unalloyed (SPS)","steel, unalloyed",kilogram
+"steel production, converter, low-alloyed (SPS)","steel, low-alloyed",kilogram
+"steel production, converter, unalloyed (SPS)","steel, unalloyed",kilogram
+"market for cooling energy, at -25 °C","cooling energy, at -25 °C",megajoule
+"cooling energy production, at -45 °C, R-134a compression refrigeration system 1 MW","cooling energy, at -45 °C",megajoule
+"cooling energy production, at -45 °C, propylene compression refrigeration system 1 MW","cooling energy, at -45 °C",megajoule
+"cooling energy production, at -25 °C, ammonia compression refrigeration system 1 MW","cooling energy, at -25 °C",megajoule
+"cooling energy production, at -55 °C, propylene-ethylene compression refrigeration system 1 MW","cooling energy, at -55 °C",megajoule
+"market for cooling energy, at -55 °C","cooling energy, at -55 °C",megajoule
+"market for cooling energy, at -15 °C","cooling energy, at -15 °C",megajoule
+"cooling energy production, at -25 °C, propylene compression refrigeration system 1 MW","cooling energy, at -25 °C",megajoule
+"cooling energy production, at -100 °C, R-134a-carbon dioxide-ethylene compression refrigeration system 1 MW","cooling energy, at -100 °C",megajoule
+"market for cooling energy, at -160 °C","cooling energy, at -160 °C",megajoule
+"cooling energy production, at -15 °C, R-134a compression refrigeration system 1 MW","cooling energy, at -15 °C",megajoule
+"market for cooling energy, at -45 °C","cooling energy, at -45 °C",megajoule
+"market for cooling energy, at -100 °C","cooling energy, at -100 °C",megajoule
+"cooling energy production, at -100 °C, propylene-ethylene compression refrigeration system 1 MW","cooling energy, at -100 °C",megajoule
+"cooling energy production, at -160 °C, propylene-ethylene-methane compression refrigeration system 1 MW","cooling energy, at -160 °C",megajoule
+"carbon dioxide removal, with a wood burning power plant with carbon capture and storage","carbon dioxide removal, with a wood burning power plant with carbon capture and storage",kilogram
+electricity for industrial applications,electricity for industrial applications,kilowatt hour
+"carbon dioxide removal, with direct air capture","carbon dioxide removal, with direct air capture",kilogram
+"hydrogen burned, in hydrogen boiler, residential",heat,megajoule
+"naphtha, energy content",energy,megajoule
+"natural gas, energy content",energy,megajoule
+"steel production, converter, low-alloyed, primary, with CCS","steel, low-alloyed",kilogram
+"steel production, from hydrogen-based DRI","steel, low-alloyed",kilogram
+"steel production, from natural gas-based DRI","steel, low-alloyed",kilogram
+"steel production, from natural gas-based DRI, with CCS","steel, low-alloyed",kilogram
+"steel production, from molten oxide electrolysis","steel, low-alloyed",kilogram
+"steel production, from natural gas-based DRI, with CCS [2]","steel, low-alloyed",kilogram
+"steel production, electric, low-alloyed, secondary steel, using scrap iron","steel, low-alloyed",kilogram
+"steel production, converter, low-alloyed, only primary steel","steel, low-alloyed",kilogram
+"steel production, from hydrogen-based DRI","steel, low-alloyed",kilogram
+"steel production, from natural gas-based DRI","steel, low-alloyed",kilogram
+"steel production, from molten oxide electrolysis","steel, low-alloyed",kilogram
+"steel production, electric, low-alloyed, secondary steel, using scrap iron","steel, low-alloyed",kilogram
+"market group for electricity, high voltage (SPS)","electricity, high voltage",kilowatt hour
+"market group for electricity, medium voltage (SPS)","electricity, medium voltage",kilowatt hour
+"market group for electricity, low voltage (SPS)","electricity, low voltage",kilowatt hour
+"market for steel, low-alloyed (SPS)","steel, low-alloyed",kilogram
+"market for steel, unalloyed (SPS)","steel, unalloyed",kilogram
+"steel production, converter, low-alloyed (SPS)","steel, low-alloyed",kilogram
+"steel production, converter, unalloyed (SPS)","steel, unalloyed",kilogram
+"market for cooling energy, at -25 °C","cooling energy, at -25 °C",megajoule
+"cooling energy production, at -45 °C, R-134a compression refrigeration system 1 MW","cooling energy, at -45 °C",megajoule
+"cooling energy production, at -45 °C, propylene compression refrigeration system 1 MW","cooling energy, at -45 °C",megajoule
+"cooling energy production, at -25 °C, ammonia compression refrigeration system 1 MW","cooling energy, at -25 °C",megajoule
+"cooling energy production, at -55 °C, propylene-ethylene compression refrigeration system 1 MW","cooling energy, at -55 °C",megajoule
+"market for cooling energy, at -55 °C","cooling energy, at -55 °C",megajoule
+"market for cooling energy, at -15 °C","cooling energy, at -15 °C",megajoule
+"cooling energy production, at -25 °C, propylene compression refrigeration system 1 MW","cooling energy, at -25 °C",megajoule
+"cooling energy production, at -100 °C, R-134a-carbon dioxide-ethylene compression refrigeration system 1 MW","cooling energy, at -100 °C",megajoule
+"market for cooling energy, at -160 °C","cooling energy, at -160 °C",megajoule
+"cooling energy production, at -15 °C, R-134a compression refrigeration system 1 MW","cooling energy, at -15 °C",megajoule
+"market for cooling energy, at -45 °C","cooling energy, at -45 °C",megajoule
+"market for cooling energy, at -100 °C","cooling energy, at -100 °C",megajoule
+"cooling energy production, at -100 °C, propylene-ethylene compression refrigeration system 1 MW","cooling energy, at -100 °C",megajoule
+"cooling energy production, at -160 °C, propylene-ethylene-methane compression refrigeration system 1 MW","cooling energy, at -160 °C",megajoule
+"carbon dioxide removal, with a wood burning power plant with carbon capture and storage","carbon dioxide removal, with a wood burning power plant with carbon capture and storage",kilogram
+electricity for industrial applications,electricity for industrial applications,kilowatt hour
+"carbon dioxide removal, with direct air capture","carbon dioxide removal, with direct air capture",kilogram
+"hydrogen burned, in hydrogen boiler, residential",heat,megajoule
+"naphtha, energy content",energy,megajoule
+"natural gas, energy content",energy,megajoule
+"steel production, converter, low-alloyed, primary, with CCS","steel, low-alloyed",kilogram
+"steel production, from hydrogen-based DRI","steel, low-alloyed",kilogram
+"steel production, from natural gas-based DRI","steel, low-alloyed",kilogram
+"steel production, from natural gas-based DRI, with CCS","steel, low-alloyed",kilogram
+"steel production, from molten oxide electrolysis","steel, low-alloyed",kilogram
+"steel production, from natural gas-based DRI, with CCS [2]","steel, low-alloyed",kilogram
+"steel production, electric, low-alloyed, secondary steel, using scrap iron","steel, low-alloyed",kilogram
+"steel production, converter, low-alloyed, only primary steel","steel, low-alloyed",kilogram
+"steel production, from hydrogen-based DRI","steel, low-alloyed",kilogram
+"steel production, from natural gas-based DRI","steel, low-alloyed",kilogram
+"steel production, from molten oxide electrolysis","steel, low-alloyed",kilogram
+"steel production, electric, low-alloyed, secondary steel, using scrap iron","steel, low-alloyed",kilogram
+"market group for electricity, high voltage (SPS)","electricity, high voltage",kilowatt hour
+"market group for electricity, medium voltage (SPS)","electricity, medium voltage",kilowatt hour
+"market group for electricity, low voltage (SPS)","electricity, low voltage",kilowatt hour
+"market for steel, low-alloyed (SPS)","steel, low-alloyed",kilogram
+"market for steel, unalloyed (SPS)","steel, unalloyed",kilogram
+"steel production, converter, low-alloyed (SPS)","steel, low-alloyed",kilogram
+"steel production, converter, unalloyed (SPS)","steel, unalloyed",kilogram
+"market for cooling energy, at -25 °C","cooling energy, at -25 °C",megajoule
+"cooling energy production, at -45 °C, R-134a compression refrigeration system 1 MW","cooling energy, at -45 °C",megajoule
+"cooling energy production, at -45 °C, propylene compression refrigeration system 1 MW","cooling energy, at -45 °C",megajoule
+"cooling energy production, at -25 °C, ammonia compression refrigeration system 1 MW","cooling energy, at -25 °C",megajoule
+"cooling energy production, at -55 °C, propylene-ethylene compression refrigeration system 1 MW","cooling energy, at -55 °C",megajoule
+"market for cooling energy, at -55 °C","cooling energy, at -55 °C",megajoule
+"market for cooling energy, at -15 °C","cooling energy, at -15 °C",megajoule
+"cooling energy production, at -25 °C, propylene compression refrigeration system 1 MW","cooling energy, at -25 °C",megajoule
+"cooling energy production, at -100 °C, R-134a-carbon dioxide-ethylene compression refrigeration system 1 MW","cooling energy, at -100 °C",megajoule
+"market for cooling energy, at -160 °C","cooling energy, at -160 °C",megajoule
+"cooling energy production, at -15 °C, R-134a compression refrigeration system 1 MW","cooling energy, at -15 °C",megajoule
+"market for cooling energy, at -45 °C","cooling energy, at -45 °C",megajoule
+"market for cooling energy, at -100 °C","cooling energy, at -100 °C",megajoule
+"cooling energy production, at -100 °C, propylene-ethylene compression refrigeration system 1 MW","cooling energy, at -100 °C",megajoule
+"cooling energy production, at -160 °C, propylene-ethylene-methane compression refrigeration system 1 MW","cooling energy, at -160 °C",megajoule
+"carbon dioxide removal, with a wood burning power plant with carbon capture and storage","carbon dioxide removal, with a wood burning power plant with carbon capture and storage",kilogram
+electricity for industrial applications,electricity for industrial applications,kilowatt hour
+"carbon dioxide removal, with direct air capture","carbon dioxide removal, with direct air capture",kilogram
+"hydrogen burned, in hydrogen boiler, residential",heat,megajoule
+"naphtha, energy content",energy,megajoule
+"natural gas, energy content",energy,megajoule
+"steel production, converter, low-alloyed, primary, with CCS","steel, low-alloyed",kilogram
+"steel production, from hydrogen-based DRI","steel, low-alloyed",kilogram
+"steel production, from natural gas-based DRI","steel, low-alloyed",kilogram
+"steel production, from natural gas-based DRI, with CCS","steel, low-alloyed",kilogram
+"steel production, from molten oxide electrolysis","steel, low-alloyed",kilogram
+"steel production, from natural gas-based DRI, with CCS [2]","steel, low-alloyed",kilogram
+"steel production, electric, low-alloyed, secondary steel, using scrap iron","steel, low-alloyed",kilogram
+"steel production, converter, low-alloyed, only primary steel","steel, low-alloyed",kilogram
+"steel production, from hydrogen-based DRI","steel, low-alloyed",kilogram
+"steel production, from natural gas-based DRI","steel, low-alloyed",kilogram
+"steel production, from molten oxide electrolysis","steel, low-alloyed",kilogram
+"steel production, electric, low-alloyed, secondary steel, using scrap iron","steel, low-alloyed",kilogram
+"market group for electricity, high voltage (SPS)","electricity, high voltage",kilowatt hour
+"market group for electricity, medium voltage (SPS)","electricity, medium voltage",kilowatt hour
+"market group for electricity, low voltage (SPS)","electricity, low voltage",kilowatt hour
+"market for steel, low-alloyed (SPS)","steel, low-alloyed",kilogram
+"market for steel, unalloyed (SPS)","steel, unalloyed",kilogram
+"steel production, converter, low-alloyed (SPS)","steel, low-alloyed",kilogram
+"steel production, converter, unalloyed (SPS)","steel, unalloyed",kilogram
+market for ammonia (SPS),"ammonia, anhydrous, liquid",kilogram
+market for ammonia (SPS),"ammonia, anhydrous, liquid",kilogram
+market for ammonia (SPS),"ammonia, anhydrous, liquid",kilogram
+market for ammonia (SPS),"ammonia, anhydrous, liquid",kilogram
+market for ammonia (SPS),"ammonia, anhydrous, liquid",kilogram
+market for ammonia (SPS),"ammonia, anhydrous, liquid",kilogram
+market for ammonia (SPS),"ammonia, anhydrous, liquid",kilogram
+market for ammonia (SPS),"ammonia, anhydrous, liquid",kilogram
+market for ammonia (SPS),"ammonia, anhydrous, liquid",kilogram
+market for ammonia (SPS),"ammonia, anhydrous, liquid",kilogram
+market for ammonia (SPS),"ammonia, anhydrous, liquid",kilogram
+market for ammonia (SPS),"ammonia, anhydrous, liquid",kilogram
+market for ammonia (SPS),"ammonia, anhydrous, liquid",kilogram
+market for ammonia (SPS),"ammonia, anhydrous, liquid",kilogram
+market for ammonia (SPS),"ammonia, anhydrous, liquid",kilogram
+market for ammonia (SPS),"ammonia, anhydrous, liquid",kilogram
+market for ammonia (SPS),"ammonia, anhydrous, liquid",kilogram
+market for ammonia (SPS),"ammonia, anhydrous, liquid",kilogram
+market for ammonia (SPS),"ammonia, anhydrous, liquid",kilogram
+market for methanol (SPS),methanol,kilogram
+market for methanol (SPS),methanol,kilogram
+market for methanol (SPS),methanol,kilogram
+market for methanol (SPS),methanol,kilogram
+market for methanol (SPS),methanol,kilogram
+"market for cooling energy, at -25 °C","cooling energy, at -25 °C",megajoule
+"cooling energy production, at -45 °C, R-134a compression refrigeration system 1 MW","cooling energy, at -45 °C",megajoule
+"cooling energy production, at -45 °C, propylene compression refrigeration system 1 MW","cooling energy, at -45 °C",megajoule
+"cooling energy production, at -25 °C, ammonia compression refrigeration system 1 MW","cooling energy, at -25 °C",megajoule
+"cooling energy production, at -55 °C, propylene-ethylene compression refrigeration system 1 MW","cooling energy, at -55 °C",megajoule
+"market for cooling energy, at -55 °C","cooling energy, at -55 °C",megajoule
+"market for cooling energy, at -15 °C","cooling energy, at -15 °C",megajoule
+"cooling energy production, at -25 °C, propylene compression refrigeration system 1 MW","cooling energy, at -25 °C",megajoule
+"cooling energy production, at -100 °C, R-134a-carbon dioxide-ethylene compression refrigeration system 1 MW","cooling energy, at -100 °C",megajoule
+"market for cooling energy, at -160 °C","cooling energy, at -160 °C",megajoule
+"cooling energy production, at -15 °C, R-134a compression refrigeration system 1 MW","cooling energy, at -15 °C",megajoule
+"market for cooling energy, at -45 °C","cooling energy, at -45 °C",megajoule
+"market for cooling energy, at -100 °C","cooling energy, at -100 °C",megajoule
+"cooling energy production, at -100 °C, propylene-ethylene compression refrigeration system 1 MW","cooling energy, at -100 °C",megajoule
+"cooling energy production, at -160 °C, propylene-ethylene-methane compression refrigeration system 1 MW","cooling energy, at -160 °C",megajoule
+"carbon dioxide removal, with a wood burning power plant with carbon capture and storage","carbon dioxide removal, with a wood burning power plant with carbon capture and storage",kilogram
+electricity for industrial applications,electricity for industrial applications,kilowatt hour
+"carbon dioxide removal, with direct air capture","carbon dioxide removal, with direct air capture",kilogram
+"hydrogen burned, in hydrogen boiler, residential",heat,megajoule
+"naphtha, energy content",energy,megajoule
+"natural gas, energy content",energy,megajoule
+"steel production, converter, low-alloyed, primary, with CCS","steel, low-alloyed",kilogram
+"steel production, from hydrogen-based DRI","steel, low-alloyed",kilogram
+"steel production, from natural gas-based DRI","steel, low-alloyed",kilogram
+"steel production, from natural gas-based DRI, with CCS","steel, low-alloyed",kilogram
+"steel production, from molten oxide electrolysis","steel, low-alloyed",kilogram
+"steel production, from natural gas-based DRI, with CCS [2]","steel, low-alloyed",kilogram
+"steel production, electric, low-alloyed, secondary steel, using scrap iron","steel, low-alloyed",kilogram
+"steel production, converter, low-alloyed, only primary steel","steel, low-alloyed",kilogram
+"steel production, from hydrogen-based DRI","steel, low-alloyed",kilogram
+"steel production, from natural gas-based DRI","steel, low-alloyed",kilogram
+"steel production, from molten oxide electrolysis","steel, low-alloyed",kilogram
+"steel production, electric, low-alloyed, secondary steel, using scrap iron","steel, low-alloyed",kilogram
+"market group for electricity, high voltage (SPS)","electricity, high voltage",kilowatt hour
+"market group for electricity, medium voltage (SPS)","electricity, medium voltage",kilowatt hour
+"market group for electricity, low voltage (SPS)","electricity, low voltage",kilowatt hour
+"market for steel, low-alloyed (SPS)","steel, low-alloyed",kilogram
+"market for steel, unalloyed (SPS)","steel, unalloyed",kilogram
+"steel production, converter, low-alloyed (SPS)","steel, low-alloyed",kilogram
+"steel production, converter, unalloyed (SPS)","steel, unalloyed",kilogram
+market for ammonia (SPS),"ammonia, anhydrous, liquid",kilogram
+market for ammonia (SPS),"ammonia, anhydrous, liquid",kilogram
+market for ammonia (SPS),"ammonia, anhydrous, liquid",kilogram
+market for ammonia (SPS),"ammonia, anhydrous, liquid",kilogram
+market for ammonia (SPS),"ammonia, anhydrous, liquid",kilogram
+market for ammonia (SPS),"ammonia, anhydrous, liquid",kilogram
+market for ammonia (SPS),"ammonia, anhydrous, liquid",kilogram
+market for ammonia (SPS),"ammonia, anhydrous, liquid",kilogram
+market for ammonia (SPS),"ammonia, anhydrous, liquid",kilogram
+market for ammonia (SPS),"ammonia, anhydrous, liquid",kilogram
+market for ammonia (SPS),"ammonia, anhydrous, liquid",kilogram
+market for ammonia (SPS),"ammonia, anhydrous, liquid",kilogram
+market for ammonia (SPS),"ammonia, anhydrous, liquid",kilogram
+market for ammonia (SPS),"ammonia, anhydrous, liquid",kilogram
+market for ammonia (SPS),"ammonia, anhydrous, liquid",kilogram
+market for ammonia (SPS),"ammonia, anhydrous, liquid",kilogram
+market for ammonia (SPS),"ammonia, anhydrous, liquid",kilogram
+market for ammonia (SPS),"ammonia, anhydrous, liquid",kilogram
+market for ammonia (SPS),"ammonia, anhydrous, liquid",kilogram
+market for methanol (SPS),methanol,kilogram
+market for methanol (SPS),methanol,kilogram
+market for methanol (SPS),methanol,kilogram
+market for methanol (SPS),methanol,kilogram
+market for methanol (SPS),methanol,kilogram
+"market for cooling energy, at -25 °C","cooling energy, at -25 °C",megajoule
+"cooling energy production, at -45 °C, R-134a compression refrigeration system 1 MW","cooling energy, at -45 °C",megajoule
+"cooling energy production, at -45 °C, propylene compression refrigeration system 1 MW","cooling energy, at -45 °C",megajoule
+"cooling energy production, at -25 °C, ammonia compression refrigeration system 1 MW","cooling energy, at -25 °C",megajoule
+"cooling energy production, at -55 °C, propylene-ethylene compression refrigeration system 1 MW","cooling energy, at -55 °C",megajoule
+"market for cooling energy, at -55 °C","cooling energy, at -55 °C",megajoule
+"market for cooling energy, at -15 °C","cooling energy, at -15 °C",megajoule
+"cooling energy production, at -25 °C, propylene compression refrigeration system 1 MW","cooling energy, at -25 °C",megajoule
+"cooling energy production, at -100 °C, R-134a-carbon dioxide-ethylene compression refrigeration system 1 MW","cooling energy, at -100 °C",megajoule
+"market for cooling energy, at -160 °C","cooling energy, at -160 °C",megajoule
+"cooling energy production, at -15 °C, R-134a compression refrigeration system 1 MW","cooling energy, at -15 °C",megajoule
+"market for cooling energy, at -45 °C","cooling energy, at -45 °C",megajoule
+"market for cooling energy, at -100 °C","cooling energy, at -100 °C",megajoule
+"cooling energy production, at -100 °C, propylene-ethylene compression refrigeration system 1 MW","cooling energy, at -100 °C",megajoule
+"cooling energy production, at -160 °C, propylene-ethylene-methane compression refrigeration system 1 MW","cooling energy, at -160 °C",megajoule
+"carbon dioxide removal, with a wood burning power plant with carbon capture and storage","carbon dioxide removal, with a wood burning power plant with carbon capture and storage",kilogram
+electricity for industrial applications,electricity for industrial applications,kilowatt hour
+"carbon dioxide removal, with direct air capture","carbon dioxide removal, with direct air capture",kilogram
+"hydrogen burned, in hydrogen boiler, residential",heat,megajoule
+"naphtha, energy content",energy,megajoule
+"natural gas, energy content",energy,megajoule
+"steel production, converter, low-alloyed, primary, with CCS","steel, low-alloyed",kilogram
+"steel production, from hydrogen-based DRI","steel, low-alloyed",kilogram
+"steel production, from natural gas-based DRI","steel, low-alloyed",kilogram
+"steel production, from natural gas-based DRI, with CCS","steel, low-alloyed",kilogram
+"steel production, from molten oxide electrolysis","steel, low-alloyed",kilogram
+"steel production, from natural gas-based DRI, with CCS [2]","steel, low-alloyed",kilogram
+"steel production, electric, low-alloyed, secondary steel, using scrap iron","steel, low-alloyed",kilogram
+"steel production, converter, low-alloyed, only primary steel","steel, low-alloyed",kilogram
+"steel production, from hydrogen-based DRI","steel, low-alloyed",kilogram
+"steel production, from natural gas-based DRI","steel, low-alloyed",kilogram
+"steel production, from molten oxide electrolysis","steel, low-alloyed",kilogram
+"steel production, electric, low-alloyed, secondary steel, using scrap iron","steel, low-alloyed",kilogram
+"market group for electricity, high voltage (SPS)","electricity, high voltage",kilowatt hour
+"market group for electricity, medium voltage (SPS)","electricity, medium voltage",kilowatt hour
+"market group for electricity, low voltage (SPS)","electricity, low voltage",kilowatt hour
+"market for steel, low-alloyed (SPS)","steel, low-alloyed",kilogram
+"market for steel, unalloyed (SPS)","steel, unalloyed",kilogram
+"steel production, converter, low-alloyed (SPS)","steel, low-alloyed",kilogram
+"steel production, converter, unalloyed (SPS)","steel, unalloyed",kilogram
+market for ammonia (SPS),"ammonia, anhydrous, liquid",kilogram
+market for ammonia (SPS),"ammonia, anhydrous, liquid",kilogram
+market for ammonia (SPS),"ammonia, anhydrous, liquid",kilogram
+market for ammonia (SPS),"ammonia, anhydrous, liquid",kilogram
+market for ammonia (SPS),"ammonia, anhydrous, liquid",kilogram
+market for ammonia (SPS),"ammonia, anhydrous, liquid",kilogram
+market for ammonia (SPS),"ammonia, anhydrous, liquid",kilogram
+market for ammonia (SPS),"ammonia, anhydrous, liquid",kilogram
+market for ammonia (SPS),"ammonia, anhydrous, liquid",kilogram
+market for ammonia (SPS),"ammonia, anhydrous, liquid",kilogram
+market for ammonia (SPS),"ammonia, anhydrous, liquid",kilogram
+market for ammonia (SPS),"ammonia, anhydrous, liquid",kilogram
+market for ammonia (SPS),"ammonia, anhydrous, liquid",kilogram
+market for ammonia (SPS),"ammonia, anhydrous, liquid",kilogram
+market for ammonia (SPS),"ammonia, anhydrous, liquid",kilogram
+market for ammonia (SPS),"ammonia, anhydrous, liquid",kilogram
+market for ammonia (SPS),"ammonia, anhydrous, liquid",kilogram
+market for ammonia (SPS),"ammonia, anhydrous, liquid",kilogram
+market for ammonia (SPS),"ammonia, anhydrous, liquid",kilogram
+market for methanol (SPS),methanol,kilogram
+market for methanol (SPS),methanol,kilogram
+market for methanol (SPS),methanol,kilogram
+market for methanol (SPS),methanol,kilogram
+market for methanol (SPS),methanol,kilogram
+"market for cooling energy, at -25 °C","cooling energy, at -25 °C",megajoule
+"cooling energy production, at -45 °C, R-134a compression refrigeration system 1 MW","cooling energy, at -45 °C",megajoule
+"cooling energy production, at -45 °C, propylene compression refrigeration system 1 MW","cooling energy, at -45 °C",megajoule
+"cooling energy production, at -25 °C, ammonia compression refrigeration system 1 MW","cooling energy, at -25 °C",megajoule
+"cooling energy production, at -55 °C, propylene-ethylene compression refrigeration system 1 MW","cooling energy, at -55 °C",megajoule
+"market for cooling energy, at -55 °C","cooling energy, at -55 °C",megajoule
+"market for cooling energy, at -15 °C","cooling energy, at -15 °C",megajoule
+"cooling energy production, at -25 °C, propylene compression refrigeration system 1 MW","cooling energy, at -25 °C",megajoule
+"cooling energy production, at -100 °C, R-134a-carbon dioxide-ethylene compression refrigeration system 1 MW","cooling energy, at -100 °C",megajoule
+"market for cooling energy, at -160 °C","cooling energy, at -160 °C",megajoule
+"cooling energy production, at -15 °C, R-134a compression refrigeration system 1 MW","cooling energy, at -15 °C",megajoule
+"market for cooling energy, at -45 °C","cooling energy, at -45 °C",megajoule
+"market for cooling energy, at -100 °C","cooling energy, at -100 °C",megajoule
+"cooling energy production, at -100 °C, propylene-ethylene compression refrigeration system 1 MW","cooling energy, at -100 °C",megajoule
+"cooling energy production, at -160 °C, propylene-ethylene-methane compression refrigeration system 1 MW","cooling energy, at -160 °C",megajoule
+"carbon dioxide removal, with a wood burning power plant with carbon capture and storage","carbon dioxide removal, with a wood burning power plant with carbon capture and storage",kilogram
+electricity for industrial applications,electricity for industrial applications,kilowatt hour
+"carbon dioxide removal, with direct air capture","carbon dioxide removal, with direct air capture",kilogram
+"hydrogen burned, in hydrogen boiler, residential",heat,megajoule
+"naphtha, energy content",energy,megajoule
+"natural gas, energy content",energy,megajoule
+"steel production, converter, low-alloyed, primary, with CCS","steel, low-alloyed",kilogram
+"steel production, from hydrogen-based DRI","steel, low-alloyed",kilogram
+"steel production, from natural gas-based DRI","steel, low-alloyed",kilogram
+"steel production, from natural gas-based DRI, with CCS","steel, low-alloyed",kilogram
+"steel production, from molten oxide electrolysis","steel, low-alloyed",kilogram
+"steel production, from natural gas-based DRI, with CCS [2]","steel, low-alloyed",kilogram
+"steel production, electric, low-alloyed, secondary steel, using scrap iron","steel, low-alloyed",kilogram
+"steel production, converter, low-alloyed, only primary steel","steel, low-alloyed",kilogram
+"steel production, from hydrogen-based DRI","steel, low-alloyed",kilogram
+"steel production, from natural gas-based DRI","steel, low-alloyed",kilogram
+"steel production, from molten oxide electrolysis","steel, low-alloyed",kilogram
+"steel production, electric, low-alloyed, secondary steel, using scrap iron","steel, low-alloyed",kilogram
+"market group for electricity, high voltage (SPS)","electricity, high voltage",kilowatt hour
+"market group for electricity, medium voltage (SPS)","electricity, medium voltage",kilowatt hour
+"market group for electricity, low voltage (SPS)","electricity, low voltage",kilowatt hour
+"market for steel, low-alloyed (SPS)","steel, low-alloyed",kilogram
+"market for steel, unalloyed (SPS)","steel, unalloyed",kilogram
+"steel production, converter, low-alloyed (SPS)","steel, low-alloyed",kilogram
+"steel production, converter, unalloyed (SPS)","steel, unalloyed",kilogram
+market for ammonia (SPS),"ammonia, anhydrous, liquid",kilogram
+market for ammonia (SPS),"ammonia, anhydrous, liquid",kilogram
+market for ammonia (SPS),"ammonia, anhydrous, liquid",kilogram
+market for ammonia (SPS),"ammonia, anhydrous, liquid",kilogram
+market for ammonia (SPS),"ammonia, anhydrous, liquid",kilogram
+market for ammonia (SPS),"ammonia, anhydrous, liquid",kilogram
+market for ammonia (SPS),"ammonia, anhydrous, liquid",kilogram
+market for ammonia (SPS),"ammonia, anhydrous, liquid",kilogram
+market for ammonia (SPS),"ammonia, anhydrous, liquid",kilogram
+market for ammonia (SPS),"ammonia, anhydrous, liquid",kilogram
+market for ammonia (SPS),"ammonia, anhydrous, liquid",kilogram
+market for ammonia (SPS),"ammonia, anhydrous, liquid",kilogram
+market for ammonia (SPS),"ammonia, anhydrous, liquid",kilogram
+market for ammonia (SPS),"ammonia, anhydrous, liquid",kilogram
+market for ammonia (SPS),"ammonia, anhydrous, liquid",kilogram
+market for ammonia (SPS),"ammonia, anhydrous, liquid",kilogram
+market for ammonia (SPS),"ammonia, anhydrous, liquid",kilogram
+market for ammonia (SPS),"ammonia, anhydrous, liquid",kilogram
+market for ammonia (SPS),"ammonia, anhydrous, liquid",kilogram
+market for methanol (SPS),methanol,kilogram
+market for methanol (SPS),methanol,kilogram
+market for methanol (SPS),methanol,kilogram
+market for methanol (SPS),methanol,kilogram
+market for methanol (SPS),methanol,kilogram
+"market for cooling energy, at -25 °C","cooling energy, at -25 °C",megajoule
+"cooling energy production, at -45 °C, R-134a compression refrigeration system 1 MW","cooling energy, at -45 °C",megajoule
+"cooling energy production, at -45 °C, propylene compression refrigeration system 1 MW","cooling energy, at -45 °C",megajoule
+"cooling energy production, at -25 °C, ammonia compression refrigeration system 1 MW","cooling energy, at -25 °C",megajoule
+"cooling energy production, at -55 °C, propylene-ethylene compression refrigeration system 1 MW","cooling energy, at -55 °C",megajoule
+"market for cooling energy, at -55 °C","cooling energy, at -55 °C",megajoule
+"market for cooling energy, at -15 °C","cooling energy, at -15 °C",megajoule
+"cooling energy production, at -25 °C, propylene compression refrigeration system 1 MW","cooling energy, at -25 °C",megajoule
+"cooling energy production, at -100 °C, R-134a-carbon dioxide-ethylene compression refrigeration system 1 MW","cooling energy, at -100 °C",megajoule
+"market for cooling energy, at -160 °C","cooling energy, at -160 °C",megajoule
+"cooling energy production, at -15 °C, R-134a compression refrigeration system 1 MW","cooling energy, at -15 °C",megajoule
+"market for cooling energy, at -45 °C","cooling energy, at -45 °C",megajoule
+"market for cooling energy, at -100 °C","cooling energy, at -100 °C",megajoule
+"cooling energy production, at -100 °C, propylene-ethylene compression refrigeration system 1 MW","cooling energy, at -100 °C",megajoule
+"cooling energy production, at -160 °C, propylene-ethylene-methane compression refrigeration system 1 MW","cooling energy, at -160 °C",megajoule
+"carbon dioxide removal, with a wood burning power plant with carbon capture and storage","carbon dioxide removal, with a wood burning power plant with carbon capture and storage",kilogram
+electricity for industrial applications,electricity for industrial applications,kilowatt hour
+"carbon dioxide removal, with direct air capture","carbon dioxide removal, with direct air capture",kilogram
+"hydrogen burned, in hydrogen boiler, residential",heat,megajoule
+"naphtha, energy content",energy,megajoule
+"natural gas, energy content",energy,megajoule
+"steel production, converter, low-alloyed, primary, with CCS","steel, low-alloyed",kilogram
+"steel production, from hydrogen-based DRI","steel, low-alloyed",kilogram
+"steel production, from natural gas-based DRI","steel, low-alloyed",kilogram
+"steel production, from natural gas-based DRI, with CCS","steel, low-alloyed",kilogram
+"steel production, from molten oxide electrolysis","steel, low-alloyed",kilogram
+"steel production, from natural gas-based DRI, with CCS [2]","steel, low-alloyed",kilogram
+"steel production, electric, low-alloyed, secondary steel, using scrap iron","steel, low-alloyed",kilogram
+"steel production, converter, low-alloyed, only primary steel","steel, low-alloyed",kilogram
+"steel production, from hydrogen-based DRI","steel, low-alloyed",kilogram
+"steel production, from natural gas-based DRI","steel, low-alloyed",kilogram
+"steel production, from molten oxide electrolysis","steel, low-alloyed",kilogram
+"steel production, electric, low-alloyed, secondary steel, using scrap iron","steel, low-alloyed",kilogram
+"market group for electricity, high voltage (SPS)","electricity, high voltage",kilowatt hour
+"market group for electricity, medium voltage (SPS)","electricity, medium voltage",kilowatt hour
+"market group for electricity, low voltage (SPS)","electricity, low voltage",kilowatt hour
+"market for steel, low-alloyed (SPS)","steel, low-alloyed",kilogram
+"market for steel, unalloyed (SPS)","steel, unalloyed",kilogram
+"steel production, converter, low-alloyed (SPS)","steel, low-alloyed",kilogram
+"steel production, converter, unalloyed (SPS)","steel, unalloyed",kilogram
+"market for cooling energy, at -25 °C","cooling energy, at -25 °C",megajoule
+"cooling energy production, at -45 °C, R-134a compression refrigeration system 1 MW","cooling energy, at -45 °C",megajoule
+"cooling energy production, at -45 °C, propylene compression refrigeration system 1 MW","cooling energy, at -45 °C",megajoule
+"cooling energy production, at -25 °C, ammonia compression refrigeration system 1 MW","cooling energy, at -25 °C",megajoule
+"cooling energy production, at -55 °C, propylene-ethylene compression refrigeration system 1 MW","cooling energy, at -55 °C",megajoule
+"market for cooling energy, at -55 °C","cooling energy, at -55 °C",megajoule
+"market for cooling energy, at -15 °C","cooling energy, at -15 °C",megajoule
+"cooling energy production, at -25 °C, propylene compression refrigeration system 1 MW","cooling energy, at -25 °C",megajoule
+"cooling energy production, at -100 °C, R-134a-carbon dioxide-ethylene compression refrigeration system 1 MW","cooling energy, at -100 °C",megajoule
+"market for cooling energy, at -160 °C","cooling energy, at -160 °C",megajoule
+"cooling energy production, at -15 °C, R-134a compression refrigeration system 1 MW","cooling energy, at -15 °C",megajoule
+"market for cooling energy, at -45 °C","cooling energy, at -45 °C",megajoule
+"market for cooling energy, at -100 °C","cooling energy, at -100 °C",megajoule
+"cooling energy production, at -100 °C, propylene-ethylene compression refrigeration system 1 MW","cooling energy, at -100 °C",megajoule
+"cooling energy production, at -160 °C, propylene-ethylene-methane compression refrigeration system 1 MW","cooling energy, at -160 °C",megajoule
+"carbon dioxide removal, with a wood burning power plant with carbon capture and storage","carbon dioxide removal, with a wood burning power plant with carbon capture and storage",kilogram
+electricity for industrial applications,electricity for industrial applications,kilowatt hour
+"carbon dioxide removal, with direct air capture","carbon dioxide removal, with direct air capture",kilogram
+"hydrogen burned, in hydrogen boiler, residential",heat,megajoule
+"naphtha, energy content",energy,megajoule
+"natural gas, energy content",energy,megajoule
+"steel production, converter, low-alloyed, primary, with CCS","steel, low-alloyed",kilogram
+"steel production, from hydrogen-based DRI","steel, low-alloyed",kilogram
+"steel production, from natural gas-based DRI","steel, low-alloyed",kilogram
+"steel production, from natural gas-based DRI, with CCS","steel, low-alloyed",kilogram
+"steel production, from molten oxide electrolysis","steel, low-alloyed",kilogram
+"steel production, from natural gas-based DRI, with CCS [2]","steel, low-alloyed",kilogram
+"steel production, electric, low-alloyed, secondary steel, using scrap iron","steel, low-alloyed",kilogram
+"steel production, converter, low-alloyed, only primary steel","steel, low-alloyed",kilogram
+"steel production, from hydrogen-based DRI","steel, low-alloyed",kilogram
+"steel production, from natural gas-based DRI","steel, low-alloyed",kilogram
+"steel production, from molten oxide electrolysis","steel, low-alloyed",kilogram
+"steel production, electric, low-alloyed, secondary steel, using scrap iron","steel, low-alloyed",kilogram
+"market group for electricity, high voltage (SPS)","electricity, high voltage",kilowatt hour
+"market group for electricity, medium voltage (SPS)","electricity, medium voltage",kilowatt hour
+"market group for electricity, low voltage (SPS)","electricity, low voltage",kilowatt hour
+"market for steel, low-alloyed (SPS)","steel, low-alloyed",kilogram
+"market for steel, unalloyed (SPS)","steel, unalloyed",kilogram
+"steel production, converter, low-alloyed (SPS)","steel, low-alloyed",kilogram
+"steel production, converter, unalloyed (SPS)","steel, unalloyed",kilogram
+"market for cooling energy, at -25 °C","cooling energy, at -25 °C",megajoule
+"cooling energy production, at -45 °C, R-134a compression refrigeration system 1 MW","cooling energy, at -45 °C",megajoule
+"cooling energy production, at -45 °C, propylene compression refrigeration system 1 MW","cooling energy, at -45 °C",megajoule
+"cooling energy production, at -25 °C, ammonia compression refrigeration system 1 MW","cooling energy, at -25 °C",megajoule
+"cooling energy production, at -55 °C, propylene-ethylene compression refrigeration system 1 MW","cooling energy, at -55 °C",megajoule
+"market for cooling energy, at -55 °C","cooling energy, at -55 °C",megajoule
+"market for cooling energy, at -15 °C","cooling energy, at -15 °C",megajoule
+"cooling energy production, at -25 °C, propylene compression refrigeration system 1 MW","cooling energy, at -25 °C",megajoule
+"cooling energy production, at -100 °C, R-134a-carbon dioxide-ethylene compression refrigeration system 1 MW","cooling energy, at -100 °C",megajoule
+"market for cooling energy, at -160 °C","cooling energy, at -160 °C",megajoule
+"cooling energy production, at -15 °C, R-134a compression refrigeration system 1 MW","cooling energy, at -15 °C",megajoule
+"market for cooling energy, at -45 °C","cooling energy, at -45 °C",megajoule
+"market for cooling energy, at -100 °C","cooling energy, at -100 °C",megajoule
+"cooling energy production, at -100 °C, propylene-ethylene compression refrigeration system 1 MW","cooling energy, at -100 °C",megajoule
+"cooling energy production, at -160 °C, propylene-ethylene-methane compression refrigeration system 1 MW","cooling energy, at -160 °C",megajoule
+"carbon dioxide removal, with a wood burning power plant with carbon capture and storage","carbon dioxide removal, with a wood burning power plant with carbon capture and storage",kilogram
+electricity for industrial applications,electricity for industrial applications,kilowatt hour
+"carbon dioxide removal, with direct air capture","carbon dioxide removal, with direct air capture",kilogram
+"hydrogen burned, in hydrogen boiler, residential",heat,megajoule
+"naphtha, energy content",energy,megajoule
+"natural gas, energy content",energy,megajoule
+"steel production, converter, low-alloyed, primary, with CCS","steel, low-alloyed",kilogram
+"steel production, from hydrogen-based DRI","steel, low-alloyed",kilogram
+"steel production, from natural gas-based DRI","steel, low-alloyed",kilogram
+"steel production, from natural gas-based DRI, with CCS","steel, low-alloyed",kilogram
+"steel production, from molten oxide electrolysis","steel, low-alloyed",kilogram
+"steel production, from natural gas-based DRI, with CCS [2]","steel, low-alloyed",kilogram
+"steel production, electric, low-alloyed, secondary steel, using scrap iron","steel, low-alloyed",kilogram
+"steel production, converter, low-alloyed, only primary steel","steel, low-alloyed",kilogram
+"steel production, from hydrogen-based DRI","steel, low-alloyed",kilogram
+"steel production, from natural gas-based DRI","steel, low-alloyed",kilogram
+"steel production, from molten oxide electrolysis","steel, low-alloyed",kilogram
+"steel production, electric, low-alloyed, secondary steel, using scrap iron","steel, low-alloyed",kilogram
+"market group for electricity, high voltage (SPS)","electricity, high voltage",kilowatt hour
+"market group for electricity, medium voltage (SPS)","electricity, medium voltage",kilowatt hour
+"market group for electricity, low voltage (SPS)","electricity, low voltage",kilowatt hour
+"market for steel, low-alloyed (SPS)","steel, low-alloyed",kilogram
+"market for steel, unalloyed (SPS)","steel, unalloyed",kilogram
+"steel production, converter, low-alloyed (SPS)","steel, low-alloyed",kilogram
+"steel production, converter, unalloyed (SPS)","steel, unalloyed",kilogram
+"market for cooling energy, at -25 °C","cooling energy, at -25 °C",megajoule
+"cooling energy production, at -45 °C, R-134a compression refrigeration system 1 MW","cooling energy, at -45 °C",megajoule
+"cooling energy production, at -45 °C, propylene compression refrigeration system 1 MW","cooling energy, at -45 °C",megajoule
+"cooling energy production, at -25 °C, ammonia compression refrigeration system 1 MW","cooling energy, at -25 °C",megajoule
+"cooling energy production, at -55 °C, propylene-ethylene compression refrigeration system 1 MW","cooling energy, at -55 °C",megajoule
+"market for cooling energy, at -55 °C","cooling energy, at -55 °C",megajoule
+"market for cooling energy, at -15 °C","cooling energy, at -15 °C",megajoule
+"cooling energy production, at -25 °C, propylene compression refrigeration system 1 MW","cooling energy, at -25 °C",megajoule
+"cooling energy production, at -100 °C, R-134a-carbon dioxide-ethylene compression refrigeration system 1 MW","cooling energy, at -100 °C",megajoule
+"market for cooling energy, at -160 °C","cooling energy, at -160 °C",megajoule
+"cooling energy production, at -15 °C, R-134a compression refrigeration system 1 MW","cooling energy, at -15 °C",megajoule
+"market for cooling energy, at -45 °C","cooling energy, at -45 °C",megajoule
+"market for cooling energy, at -100 °C","cooling energy, at -100 °C",megajoule
+"cooling energy production, at -100 °C, propylene-ethylene compression refrigeration system 1 MW","cooling energy, at -100 °C",megajoule
+"cooling energy production, at -160 °C, propylene-ethylene-methane compression refrigeration system 1 MW","cooling energy, at -160 °C",megajoule
+"carbon dioxide removal, with a wood burning power plant with carbon capture and storage","carbon dioxide removal, with a wood burning power plant with carbon capture and storage",kilogram
+electricity for industrial applications,electricity for industrial applications,kilowatt hour
+"carbon dioxide removal, with direct air capture","carbon dioxide removal, with direct air capture",kilogram
+"hydrogen burned, in hydrogen boiler, residential",heat,megajoule
+"naphtha, energy content",energy,megajoule
+"natural gas, energy content",energy,megajoule
+"steel production, converter, low-alloyed, primary, with CCS","steel, low-alloyed",kilogram
+"steel production, from hydrogen-based DRI","steel, low-alloyed",kilogram
+"steel production, from natural gas-based DRI","steel, low-alloyed",kilogram
+"steel production, from natural gas-based DRI, with CCS","steel, low-alloyed",kilogram
+"steel production, from molten oxide electrolysis","steel, low-alloyed",kilogram
+"steel production, from natural gas-based DRI, with CCS [2]","steel, low-alloyed",kilogram
+"steel production, electric, low-alloyed, secondary steel, using scrap iron","steel, low-alloyed",kilogram
+"steel production, converter, low-alloyed, only primary steel","steel, low-alloyed",kilogram
+"steel production, from hydrogen-based DRI","steel, low-alloyed",kilogram
+"steel production, from natural gas-based DRI","steel, low-alloyed",kilogram
+"steel production, from molten oxide electrolysis","steel, low-alloyed",kilogram
+"steel production, electric, low-alloyed, secondary steel, using scrap iron","steel, low-alloyed",kilogram
+"market group for electricity, high voltage (SPS)","electricity, high voltage",kilowatt hour
+"market group for electricity, medium voltage (SPS)","electricity, medium voltage",kilowatt hour
+"market group for electricity, low voltage (SPS)","electricity, low voltage",kilowatt hour
+"market for steel, low-alloyed (SPS)","steel, low-alloyed",kilogram
+"market for steel, unalloyed (SPS)","steel, unalloyed",kilogram
+"steel production, converter, low-alloyed (SPS)","steel, low-alloyed",kilogram
+"steel production, converter, unalloyed (SPS)","steel, unalloyed",kilogram
+"market for cooling energy, at -25 °C","cooling energy, at -25 °C",megajoule
+"cooling energy production, at -45 °C, R-134a compression refrigeration system 1 MW","cooling energy, at -45 °C",megajoule
+"cooling energy production, at -45 °C, propylene compression refrigeration system 1 MW","cooling energy, at -45 °C",megajoule
+"cooling energy production, at -25 °C, ammonia compression refrigeration system 1 MW","cooling energy, at -25 °C",megajoule
+"cooling energy production, at -55 °C, propylene-ethylene compression refrigeration system 1 MW","cooling energy, at -55 °C",megajoule
+"market for cooling energy, at -55 °C","cooling energy, at -55 °C",megajoule
+"market for cooling energy, at -15 °C","cooling energy, at -15 °C",megajoule
+"cooling energy production, at -25 °C, propylene compression refrigeration system 1 MW","cooling energy, at -25 °C",megajoule
+"cooling energy production, at -100 °C, R-134a-carbon dioxide-ethylene compression refrigeration system 1 MW","cooling energy, at -100 °C",megajoule
+"market for cooling energy, at -160 °C","cooling energy, at -160 °C",megajoule
+"cooling energy production, at -15 °C, R-134a compression refrigeration system 1 MW","cooling energy, at -15 °C",megajoule
+"market for cooling energy, at -45 °C","cooling energy, at -45 °C",megajoule
+"market for cooling energy, at -100 °C","cooling energy, at -100 °C",megajoule
+"cooling energy production, at -100 °C, propylene-ethylene compression refrigeration system 1 MW","cooling energy, at -100 °C",megajoule
+"cooling energy production, at -160 °C, propylene-ethylene-methane compression refrigeration system 1 MW","cooling energy, at -160 °C",megajoule
+"carbon dioxide removal, with a wood burning power plant with carbon capture and storage","carbon dioxide removal, with a wood burning power plant with carbon capture and storage",kilogram
+electricity for industrial applications,electricity for industrial applications,kilowatt hour
+"carbon dioxide removal, with direct air capture","carbon dioxide removal, with direct air capture",kilogram
+"hydrogen burned, in hydrogen boiler, residential",heat,megajoule
+"naphtha, energy content",energy,megajoule
+"natural gas, energy content",energy,megajoule
+"steel production, converter, low-alloyed, primary, with CCS","steel, low-alloyed",kilogram
+"steel production, from hydrogen-based DRI","steel, low-alloyed",kilogram
+"steel production, from natural gas-based DRI","steel, low-alloyed",kilogram
+"steel production, from natural gas-based DRI, with CCS","steel, low-alloyed",kilogram
+"steel production, from molten oxide electrolysis","steel, low-alloyed",kilogram
+"steel production, from natural gas-based DRI, with CCS [2]","steel, low-alloyed",kilogram
+"steel production, electric, low-alloyed, secondary steel, using scrap iron","steel, low-alloyed",kilogram
+"steel production, converter, low-alloyed, only primary steel","steel, low-alloyed",kilogram
+"steel production, from hydrogen-based DRI","steel, low-alloyed",kilogram
+"steel production, from natural gas-based DRI","steel, low-alloyed",kilogram
+"steel production, from molten oxide electrolysis","steel, low-alloyed",kilogram
+"steel production, electric, low-alloyed, secondary steel, using scrap iron","steel, low-alloyed",kilogram
+"market group for electricity, high voltage (SPS)","electricity, high voltage",kilowatt hour
+"market group for electricity, medium voltage (SPS)","electricity, medium voltage",kilowatt hour
+"market group for electricity, low voltage (SPS)","electricity, low voltage",kilowatt hour
+"market for steel, low-alloyed (SPS)","steel, low-alloyed",kilogram
+"market for steel, unalloyed (SPS)","steel, unalloyed",kilogram
+"steel production, converter, low-alloyed (SPS)","steel, low-alloyed",kilogram
+"steel production, converter, unalloyed (SPS)","steel, unalloyed",kilogram
+market for ammonia (SPS),"ammonia, anhydrous, liquid",kilogram
+market for ammonia (SPS),"ammonia, anhydrous, liquid",kilogram
+market for ammonia (SPS),"ammonia, anhydrous, liquid",kilogram
+market for ammonia (SPS),"ammonia, anhydrous, liquid",kilogram
+market for ammonia (SPS),"ammonia, anhydrous, liquid",kilogram
+market for ammonia (SPS),"ammonia, anhydrous, liquid",kilogram
+market for ammonia (SPS),"ammonia, anhydrous, liquid",kilogram
+market for ammonia (SPS),"ammonia, anhydrous, liquid",kilogram
+market for ammonia (SPS),"ammonia, anhydrous, liquid",kilogram
+market for ammonia (SPS),"ammonia, anhydrous, liquid",kilogram
+market for ammonia (SPS),"ammonia, anhydrous, liquid",kilogram
+market for ammonia (SPS),"ammonia, anhydrous, liquid",kilogram
+market for ammonia (SPS),"ammonia, anhydrous, liquid",kilogram
+market for ammonia (SPS),"ammonia, anhydrous, liquid",kilogram
+market for ammonia (SPS),"ammonia, anhydrous, liquid",kilogram
+market for ammonia (SPS),"ammonia, anhydrous, liquid",kilogram
+market for ammonia (SPS),"ammonia, anhydrous, liquid",kilogram
+market for ammonia (SPS),"ammonia, anhydrous, liquid",kilogram
+market for ammonia (SPS),"ammonia, anhydrous, liquid",kilogram
+market for methanol (SPS),methanol,kilogram
+market for methanol (SPS),methanol,kilogram
+market for methanol (SPS),methanol,kilogram
+market for methanol (SPS),methanol,kilogram
+market for methanol (SPS),methanol,kilogram
+"market for cooling energy, at -25 °C","cooling energy, at -25 °C",megajoule
+"cooling energy production, at -45 °C, R-134a compression refrigeration system 1 MW","cooling energy, at -45 °C",megajoule
+"cooling energy production, at -45 °C, propylene compression refrigeration system 1 MW","cooling energy, at -45 °C",megajoule
+"cooling energy production, at -25 °C, ammonia compression refrigeration system 1 MW","cooling energy, at -25 °C",megajoule
+"cooling energy production, at -55 °C, propylene-ethylene compression refrigeration system 1 MW","cooling energy, at -55 °C",megajoule
+"market for cooling energy, at -55 °C","cooling energy, at -55 °C",megajoule
+"market for cooling energy, at -15 °C","cooling energy, at -15 °C",megajoule
+"cooling energy production, at -25 °C, propylene compression refrigeration system 1 MW","cooling energy, at -25 °C",megajoule
+"cooling energy production, at -100 °C, R-134a-carbon dioxide-ethylene compression refrigeration system 1 MW","cooling energy, at -100 °C",megajoule
+"market for cooling energy, at -160 °C","cooling energy, at -160 °C",megajoule
+"cooling energy production, at -15 °C, R-134a compression refrigeration system 1 MW","cooling energy, at -15 °C",megajoule
+"market for cooling energy, at -45 °C","cooling energy, at -45 °C",megajoule
+"market for cooling energy, at -100 °C","cooling energy, at -100 °C",megajoule
+"cooling energy production, at -100 °C, propylene-ethylene compression refrigeration system 1 MW","cooling energy, at -100 °C",megajoule
+"cooling energy production, at -160 °C, propylene-ethylene-methane compression refrigeration system 1 MW","cooling energy, at -160 °C",megajoule
+"carbon dioxide removal, with a wood burning power plant with carbon capture and storage","carbon dioxide removal, with a wood burning power plant with carbon capture and storage",kilogram
+electricity for industrial applications,electricity for industrial applications,kilowatt hour
+"carbon dioxide removal, with direct air capture","carbon dioxide removal, with direct air capture",kilogram
+"hydrogen burned, in hydrogen boiler, residential",heat,megajoule
+"naphtha, energy content",energy,megajoule
+"natural gas, energy content",energy,megajoule
+"steel production, converter, low-alloyed, primary, with CCS","steel, low-alloyed",kilogram
+"steel production, from hydrogen-based DRI","steel, low-alloyed",kilogram
+"steel production, from natural gas-based DRI","steel, low-alloyed",kilogram
+"steel production, from natural gas-based DRI, with CCS","steel, low-alloyed",kilogram
+"steel production, from molten oxide electrolysis","steel, low-alloyed",kilogram
+"steel production, from natural gas-based DRI, with CCS [2]","steel, low-alloyed",kilogram
+"steel production, electric, low-alloyed, secondary steel, using scrap iron","steel, low-alloyed",kilogram
+"steel production, converter, low-alloyed, only primary steel","steel, low-alloyed",kilogram
+"steel production, from hydrogen-based DRI","steel, low-alloyed",kilogram
+"steel production, from natural gas-based DRI","steel, low-alloyed",kilogram
+"steel production, from molten oxide electrolysis","steel, low-alloyed",kilogram
+"steel production, electric, low-alloyed, secondary steel, using scrap iron","steel, low-alloyed",kilogram
+"market group for electricity, high voltage (SPS)","electricity, high voltage",kilowatt hour
+"market group for electricity, medium voltage (SPS)","electricity, medium voltage",kilowatt hour
+"market group for electricity, low voltage (SPS)","electricity, low voltage",kilowatt hour
+"market for steel, low-alloyed (SPS)","steel, low-alloyed",kilogram
+"market for steel, unalloyed (SPS)","steel, unalloyed",kilogram
+"steel production, converter, low-alloyed (SPS)","steel, low-alloyed",kilogram
+"steel production, converter, unalloyed (SPS)","steel, unalloyed",kilogram
+market for ammonia (SPS),"ammonia, anhydrous, liquid",kilogram
+market for ammonia (SPS),"ammonia, anhydrous, liquid",kilogram
+market for ammonia (SPS),"ammonia, anhydrous, liquid",kilogram
+market for ammonia (SPS),"ammonia, anhydrous, liquid",kilogram
+market for ammonia (SPS),"ammonia, anhydrous, liquid",kilogram
+market for ammonia (SPS),"ammonia, anhydrous, liquid",kilogram
+market for ammonia (SPS),"ammonia, anhydrous, liquid",kilogram
+market for ammonia (SPS),"ammonia, anhydrous, liquid",kilogram
+market for ammonia (SPS),"ammonia, anhydrous, liquid",kilogram
+market for ammonia (SPS),"ammonia, anhydrous, liquid",kilogram
+market for ammonia (SPS),"ammonia, anhydrous, liquid",kilogram
+market for ammonia (SPS),"ammonia, anhydrous, liquid",kilogram
+market for ammonia (SPS),"ammonia, anhydrous, liquid",kilogram
+market for ammonia (SPS),"ammonia, anhydrous, liquid",kilogram
+market for ammonia (SPS),"ammonia, anhydrous, liquid",kilogram
+market for ammonia (SPS),"ammonia, anhydrous, liquid",kilogram
+market for ammonia (SPS),"ammonia, anhydrous, liquid",kilogram
+market for ammonia (SPS),"ammonia, anhydrous, liquid",kilogram
+market for ammonia (SPS),"ammonia, anhydrous, liquid",kilogram
+market for methanol (SPS),methanol,kilogram
+market for methanol (SPS),methanol,kilogram
+market for methanol (SPS),methanol,kilogram
+market for methanol (SPS),methanol,kilogram
+market for methanol (SPS),methanol,kilogram
+"market for cooling energy, at -25 °C","cooling energy, at -25 °C",megajoule
+"cooling energy production, at -45 °C, R-134a compression refrigeration system 1 MW","cooling energy, at -45 °C",megajoule
+"cooling energy production, at -45 °C, propylene compression refrigeration system 1 MW","cooling energy, at -45 °C",megajoule
+"cooling energy production, at -25 °C, ammonia compression refrigeration system 1 MW","cooling energy, at -25 °C",megajoule
+"cooling energy production, at -55 °C, propylene-ethylene compression refrigeration system 1 MW","cooling energy, at -55 °C",megajoule
+"market for cooling energy, at -55 °C","cooling energy, at -55 °C",megajoule
+"market for cooling energy, at -15 °C","cooling energy, at -15 °C",megajoule
+"cooling energy production, at -25 °C, propylene compression refrigeration system 1 MW","cooling energy, at -25 °C",megajoule
+"cooling energy production, at -100 °C, R-134a-carbon dioxide-ethylene compression refrigeration system 1 MW","cooling energy, at -100 °C",megajoule
+"market for cooling energy, at -160 °C","cooling energy, at -160 °C",megajoule
+"cooling energy production, at -15 °C, R-134a compression refrigeration system 1 MW","cooling energy, at -15 °C",megajoule
+"market for cooling energy, at -45 °C","cooling energy, at -45 °C",megajoule
+"market for cooling energy, at -100 °C","cooling energy, at -100 °C",megajoule
+"cooling energy production, at -100 °C, propylene-ethylene compression refrigeration system 1 MW","cooling energy, at -100 °C",megajoule
+"cooling energy production, at -160 °C, propylene-ethylene-methane compression refrigeration system 1 MW","cooling energy, at -160 °C",megajoule
+"carbon dioxide removal, with a wood burning power plant with carbon capture and storage","carbon dioxide removal, with a wood burning power plant with carbon capture and storage",kilogram
+electricity for industrial applications,electricity for industrial applications,kilowatt hour
+"carbon dioxide removal, with direct air capture","carbon dioxide removal, with direct air capture",kilogram
+"hydrogen burned, in hydrogen boiler, residential",heat,megajoule
+"naphtha, energy content",energy,megajoule
+"natural gas, energy content",energy,megajoule
+"steel production, converter, low-alloyed, primary, with CCS","steel, low-alloyed",kilogram
+"steel production, from hydrogen-based DRI","steel, low-alloyed",kilogram
+"steel production, from natural gas-based DRI","steel, low-alloyed",kilogram
+"steel production, from natural gas-based DRI, with CCS","steel, low-alloyed",kilogram
+"steel production, from molten oxide electrolysis","steel, low-alloyed",kilogram
+"steel production, from natural gas-based DRI, with CCS [2]","steel, low-alloyed",kilogram
+"steel production, electric, low-alloyed, secondary steel, using scrap iron","steel, low-alloyed",kilogram
+"steel production, converter, low-alloyed, only primary steel","steel, low-alloyed",kilogram
+"steel production, from hydrogen-based DRI","steel, low-alloyed",kilogram
+"steel production, from natural gas-based DRI","steel, low-alloyed",kilogram
+"steel production, from molten oxide electrolysis","steel, low-alloyed",kilogram
+"steel production, electric, low-alloyed, secondary steel, using scrap iron","steel, low-alloyed",kilogram
+"market group for electricity, high voltage (SPS)","electricity, high voltage",kilowatt hour
+"market group for electricity, medium voltage (SPS)","electricity, medium voltage",kilowatt hour
+"market group for electricity, low voltage (SPS)","electricity, low voltage",kilowatt hour
+"market for steel, low-alloyed (SPS)","steel, low-alloyed",kilogram
+"market for steel, unalloyed (SPS)","steel, unalloyed",kilogram
+"steel production, converter, low-alloyed (SPS)","steel, low-alloyed",kilogram
+"steel production, converter, unalloyed (SPS)","steel, unalloyed",kilogram
+market for ammonia (SPS),"ammonia, anhydrous, liquid",kilogram
+market for ammonia (SPS),"ammonia, anhydrous, liquid",kilogram
+market for ammonia (SPS),"ammonia, anhydrous, liquid",kilogram
+market for ammonia (SPS),"ammonia, anhydrous, liquid",kilogram
+market for ammonia (SPS),"ammonia, anhydrous, liquid",kilogram
+market for ammonia (SPS),"ammonia, anhydrous, liquid",kilogram
+market for ammonia (SPS),"ammonia, anhydrous, liquid",kilogram
+market for ammonia (SPS),"ammonia, anhydrous, liquid",kilogram
+market for ammonia (SPS),"ammonia, anhydrous, liquid",kilogram
+market for ammonia (SPS),"ammonia, anhydrous, liquid",kilogram
+market for ammonia (SPS),"ammonia, anhydrous, liquid",kilogram
+market for ammonia (SPS),"ammonia, anhydrous, liquid",kilogram
+market for ammonia (SPS),"ammonia, anhydrous, liquid",kilogram
+market for ammonia (SPS),"ammonia, anhydrous, liquid",kilogram
+market for ammonia (SPS),"ammonia, anhydrous, liquid",kilogram
+market for ammonia (SPS),"ammonia, anhydrous, liquid",kilogram
+market for ammonia (SPS),"ammonia, anhydrous, liquid",kilogram
+market for ammonia (SPS),"ammonia, anhydrous, liquid",kilogram
+market for ammonia (SPS),"ammonia, anhydrous, liquid",kilogram
+market for methanol (SPS),methanol,kilogram
+market for methanol (SPS),methanol,kilogram
+market for methanol (SPS),methanol,kilogram
+market for methanol (SPS),methanol,kilogram
+market for methanol (SPS),methanol,kilogram
+"market for cooling energy, at -25 °C","cooling energy, at -25 °C",megajoule
+"cooling energy production, at -45 °C, R-134a compression refrigeration system 1 MW","cooling energy, at -45 °C",megajoule
+"cooling energy production, at -45 °C, propylene compression refrigeration system 1 MW","cooling energy, at -45 °C",megajoule
+"cooling energy production, at -25 °C, ammonia compression refrigeration system 1 MW","cooling energy, at -25 °C",megajoule
+"cooling energy production, at -55 °C, propylene-ethylene compression refrigeration system 1 MW","cooling energy, at -55 °C",megajoule
+"market for cooling energy, at -55 °C","cooling energy, at -55 °C",megajoule
+"market for cooling energy, at -15 °C","cooling energy, at -15 °C",megajoule
+"cooling energy production, at -25 °C, propylene compression refrigeration system 1 MW","cooling energy, at -25 °C",megajoule
+"cooling energy production, at -100 °C, R-134a-carbon dioxide-ethylene compression refrigeration system 1 MW","cooling energy, at -100 °C",megajoule
+"market for cooling energy, at -160 °C","cooling energy, at -160 °C",megajoule
+"cooling energy production, at -15 °C, R-134a compression refrigeration system 1 MW","cooling energy, at -15 °C",megajoule
+"market for cooling energy, at -45 °C","cooling energy, at -45 °C",megajoule
+"market for cooling energy, at -100 °C","cooling energy, at -100 °C",megajoule
+"cooling energy production, at -100 °C, propylene-ethylene compression refrigeration system 1 MW","cooling energy, at -100 °C",megajoule
+"cooling energy production, at -160 °C, propylene-ethylene-methane compression refrigeration system 1 MW","cooling energy, at -160 °C",megajoule
+"carbon dioxide removal, with a wood burning power plant with carbon capture and storage","carbon dioxide removal, with a wood burning power plant with carbon capture and storage",kilogram
+electricity for industrial applications,electricity for industrial applications,kilowatt hour
+"carbon dioxide removal, with direct air capture","carbon dioxide removal, with direct air capture",kilogram
+"hydrogen burned, in hydrogen boiler, residential",heat,megajoule
+"naphtha, energy content",energy,megajoule
+"natural gas, energy content",energy,megajoule
+"steel production, converter, low-alloyed, primary, with CCS","steel, low-alloyed",kilogram
+"steel production, from hydrogen-based DRI","steel, low-alloyed",kilogram
+"steel production, from natural gas-based DRI","steel, low-alloyed",kilogram
+"steel production, from natural gas-based DRI, with CCS","steel, low-alloyed",kilogram
+"steel production, from molten oxide electrolysis","steel, low-alloyed",kilogram
+"steel production, from natural gas-based DRI, with CCS [2]","steel, low-alloyed",kilogram
+"steel production, electric, low-alloyed, secondary steel, using scrap iron","steel, low-alloyed",kilogram
+"steel production, converter, low-alloyed, only primary steel","steel, low-alloyed",kilogram
+"steel production, from hydrogen-based DRI","steel, low-alloyed",kilogram
+"steel production, from natural gas-based DRI","steel, low-alloyed",kilogram
+"steel production, from molten oxide electrolysis","steel, low-alloyed",kilogram
+"steel production, electric, low-alloyed, secondary steel, using scrap iron","steel, low-alloyed",kilogram
+"market group for electricity, high voltage (SPS)","electricity, high voltage",kilowatt hour
+"market group for electricity, medium voltage (SPS)","electricity, medium voltage",kilowatt hour
+"market group for electricity, low voltage (SPS)","electricity, low voltage",kilowatt hour
+"market for steel, low-alloyed (SPS)","steel, low-alloyed",kilogram
+"market for steel, unalloyed (SPS)","steel, unalloyed",kilogram
+"steel production, converter, low-alloyed (SPS)","steel, low-alloyed",kilogram
+"steel production, converter, unalloyed (SPS)","steel, unalloyed",kilogram
+market for ammonia (SPS),"ammonia, anhydrous, liquid",kilogram
+market for ammonia (SPS),"ammonia, anhydrous, liquid",kilogram
+market for ammonia (SPS),"ammonia, anhydrous, liquid",kilogram
+market for ammonia (SPS),"ammonia, anhydrous, liquid",kilogram
+market for ammonia (SPS),"ammonia, anhydrous, liquid",kilogram
+market for ammonia (SPS),"ammonia, anhydrous, liquid",kilogram
+market for ammonia (SPS),"ammonia, anhydrous, liquid",kilogram
+market for ammonia (SPS),"ammonia, anhydrous, liquid",kilogram
+market for ammonia (SPS),"ammonia, anhydrous, liquid",kilogram
+market for ammonia (SPS),"ammonia, anhydrous, liquid",kilogram
+market for ammonia (SPS),"ammonia, anhydrous, liquid",kilogram
+market for ammonia (SPS),"ammonia, anhydrous, liquid",kilogram
+market for ammonia (SPS),"ammonia, anhydrous, liquid",kilogram
+market for ammonia (SPS),"ammonia, anhydrous, liquid",kilogram
+market for ammonia (SPS),"ammonia, anhydrous, liquid",kilogram
+market for ammonia (SPS),"ammonia, anhydrous, liquid",kilogram
+market for ammonia (SPS),"ammonia, anhydrous, liquid",kilogram
+market for ammonia (SPS),"ammonia, anhydrous, liquid",kilogram
+market for ammonia (SPS),"ammonia, anhydrous, liquid",kilogram
+market for methanol (SPS),methanol,kilogram
+market for methanol (SPS),methanol,kilogram
+market for methanol (SPS),methanol,kilogram
+market for methanol (SPS),methanol,kilogram
+market for methanol (SPS),methanol,kilogram
