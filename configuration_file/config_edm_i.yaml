@@ -2,31 +2,37 @@
 ---
 regionalize:
   datasets:
-    - name: steel production, converter, low-alloyed, only primary steel
+    - name: steel production, electric, low-alloyed
       reference product: steel, low-alloyed
-      exists in original database: False    
-    - name: steel production, converter, low-alloyed, primary, with CCS
+      exists in original database: True  
+    - name: steel production, blast furnace-basic oxygen furnace, low-alloyed
       reference product: steel, low-alloyed
-      exists in original database: False   
-    - name: steel production, electric, low-alloyed, secondary steel, using scrap iron
+      exists in original database: True  
+    - name: steel production, blast furnace-basic oxygen furnace, with carbon capture and storage, low-alloyed
       reference product: steel, low-alloyed
-      exists in original database: False   
-    - name: steel production, from hydrogen-based DRI
+      exists in original database: True  
+    - name: steel production, hydrogen-based direct reduction iron-electric arc furnace, low-alloyed
       reference product: steel, low-alloyed
-      exists in original database: False     
-    - name: steel production, from natural gas-based DRI
+      exists in original database: True  
+    - name: steel production, natural gas-based direct reduction iron-electric arc furnace, low-alloyed
       reference product: steel, low-alloyed
-      exists in original database: False     
-    - name: steel production, from molten oxide electrolysis
+      exists in original database: True  
+    - name: steel production, natural gas-based direct reduction iron-electric arc furnace, low-alloyed
       reference product: steel, low-alloyed
-      exists in original database: False     
+      exists in original database: True  
+    - name: steel production, natural gas-based direct reduction iron-electric arc furnace, with carbon capture and storage, low-alloyed
+      reference product: steel, low-alloyed
+      exists in original database: True  
+    - name: steel production, electrowinning-electric arc furnace, low-alloyed
+      reference product: steel, low-alloyed
+      exists in original database: True  
 
 production pathways:
   steel_secondary:
     production volume:
       variable: Production|Steel|Secondary steel
     ecoinvent alias:
-      name: steel production, electric, low-alloyed, secondary steel, using scrap iron
+      name: steel production, electric, low-alloyed
       reference product: steel, low-alloyed
       exists in original database: True
 
@@ -34,7 +40,7 @@ production pathways:
     production volume:
       variable: Production|Steel|BF/BOF
     ecoinvent alias:
-      name: steel production, converter, low-alloyed, only primary steel
+      name: steel production, blast furnace-basic oxygen furnace, low-alloyed
       reference product: steel, low-alloyed
       exists in original database: True
 
@@ -42,41 +48,41 @@ production pathways:
     production volume:
       variable: Production|Steel|BF/BOF_CCS
     ecoinvent alias:
-      name: steel production, converter, low-alloyed, primary, with CCS
+      name: steel production, blast furnace-basic oxygen furnace, with carbon capture and storage, low-alloyed
       reference product: steel, low-alloyed
-      exists in original database: False     
+      exists in original database: True    
 
   steel_primary_dri_h2:
     production volume:
       variable: Production|Steel|DRI_H2
     ecoinvent alias:
-      name: steel production, from hydrogen-based DRI
+      name: steel production, hydrogen-based direct reduction iron-electric arc furnace, low-alloyed
       reference product: steel, low-alloyed
-      exists in original database: False     
+      exists in original database: True     
 
   steel_primary_dri_ng:
     production volume:
       variable: Production|Steel|DRI_NG
     ecoinvent alias:
-      name: steel production, from natural gas-based DRI
+      name: steel production, natural gas-based direct reduction iron-electric arc furnace, low-alloyed
       reference product: steel, low-alloyed
-      exists in original database: False    
+      exists in original database: True    
 
-  #steel_primary_dri_ng_ccs:
-  #  production volume:
-  #    variable: Production|Steel|DRI/EAF_NG_CCS
-  #  ecoinvent alias:
-  #    name: steel production, from natural gas-based DRI, with CCS
-  #    reference product: steel, low-alloyed
-  #    exists in original database: False    
+  steel_primary_dri_ng_ccs:
+    production volume:
+      variable: Production|Steel|DRI/EAF_NG_CCS
+    ecoinvent alias:
+      name: steel production, natural gas-based direct reduction iron-electric arc furnace, with carbon capture and storage, low-alloyed
+      reference product: steel, low-alloyed
+      exists in original database: True  
 
   steel_primary_mo_electrolysis:
     production volume:
       variable: Production|Steel|Electrolysis
     ecoinvent alias:
-      name: steel production, from molten oxide electrolysis
+      name: steel production, electrowinning-electric arc furnace, low-alloyed
       reference product: steel, low-alloyed
-      exists in original database: False    
+      exists in original database: True
 
 markets:
   - name: market for steel, low-alloyed (SPS)
@@ -89,7 +95,7 @@ markets:
       - steel_primary_dri_h2
       - steel_primary_dri_ng
       - steel_primary_mo_electrolysis
-      #- steel_primary_dri_ng_ccs
+      - steel_primary_dri_ng_ccs
 
     replaces:
       - name: market for steel, low-alloyed
@@ -125,7 +131,7 @@ markets:
       - steel_primary_dri_h2
       - steel_primary_dri_ng
       - steel_primary_mo_electrolysis
-      #- steel_primary_dri_ng_ccs
+      - steel_primary_dri_ng_ccs
 
     replaces:
       - name: market for steel, unalloyed
@@ -162,7 +168,7 @@ markets:
       - steel_primary_dri_h2
       - steel_primary_dri_ng
       - steel_primary_mo_electrolysis
-      #- steel_primary_dri_ng_ccs
+      - steel_primary_dri_ng_ccs
 
     replaces:
       - name: steel production, converter, low-alloyed
@@ -192,7 +198,7 @@ markets:
       - steel_primary_dri_h2
       - steel_primary_dri_ng
       - steel_primary_mo_electrolysis
-      #- steel_primary_dri_ng_ccs
+      - steel_primary_dri_ng_ccs
 
     replaces:
       - name: steel production, converter, unalloyed
