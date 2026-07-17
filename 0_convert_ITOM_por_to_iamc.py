@@ -1,27 +1,6 @@
-"""
-TRANSIENCE – IAMC export (single sheet) + category flag + LCI mapping candidate helper
-
-What this script does (to avoid LCA double counting mistakes later):
-- Exports ONE IAMC-style table (wide years) for Production variables from ITOM for the PoR scenario
-- Adds an extra column `product_category` to flag each variable as:
-    - "final_output" (products with exogenous demand, i.e., functional unit candidates)
-    - "intermediate" (internal flows; do NOT put in final demand)
-    - "energy" (electricity/steam/HT_heat; usually not final demand here)
-    - "skip" (CO2/ETS bookkeeping etc.; should not be mapped to LCI)
-
-Then:
-- Generates `mapping_candidates.csv` with candidate ecoinvent activities for rows that are not "skip".
-
-IMPORTANT:
-IAMC has no official "product_category" column, but adding it is a practical and safe extension
-for QA and for driving your later LCA workflow.
-"""
-
 from __future__ import annotations
 
-import re
 import pandas as pd
-from pathlib import Path
 
 
 # ----------------------------
@@ -31,22 +10,18 @@ from pathlib import Path
 ENERGY_PRODUCTS_TJ = {"electricity", "steam", "HT_heat"}
 
 DEFAULT_REGION_MAP = {
-    "Rotterdam": "NL",  # or "West"
+    "Rotterdam": "NL",
 }
 
-# Products with defined quantitative demand ("outputs" in your documentation).
-# Use EXACT names as they appear in your PRODUCT column.
 OUTPUT_PRODUCTS = {
-    # Polymers
-    "HDPE", "LDPE", "LLDPE", "PVC", 'polyvinyl_chloride', 
-    "PS", "PS-E", "PET", "PC", "PA 6", "PA 6.6", #"PTA",
-    "ABS", "PMMA", "PBR", "SBR", "PUR", "polyols", "TDI", "MDI", "nylon_6_6", "PLA",
-
-    # Demanded intermediates
-    "acrylonitrile", "adipic_acid", "ethylene_oxide", "isopropanol", 'polypropylene'
+    "HDPE", "LDPE", "LLDPE", "PVC", "polyvinyl_chloride",
+    "PS", "PS-E", "PET", "PC", "PA 6", "PA 6.6",
+    "ABS", "PMMA", "PBR", "SBR", "PUR", "polyols", "TDI", "MDI",
+    "nylon_6_6", "PLA",
+    "acrylonitrile", "adipic_acid", "ethylene_oxide",
+    "isopropanol", "polypropylene",
 }
 
-# Bookkeeping / dummy products that you typically do NOT map to ecoinvent
 SKIP_PRODUCTS = {
     "CO2_allowance",
     "avoided_incineration_CO2",
@@ -65,28 +40,8 @@ SKIP_PRODUCTS = {
 # ----------------------------
 
 def infer_unit_from_product(product: str) -> str:
-    """Return IAMC unit string based on product naming convention."""
     return "TJ/yr" if str(product) in ENERGY_PRODUCTS_TJ else "kt/yr"
 
-
-def classify_product_category(product: str, technology: str | None = None) -> str:
-    """
-    Category flag used to prevent LCA mistakes later.
-    - skip: bookkeeping, ETS, CO2 accounting
-    - energy: electricity/steam/HT_heat carriers
-    - final_output: products with exogenous demand
-    - intermediate: everything else (internal chain flows by default)
-    """
-    p = str(product)
-    t = str(technology) if technology is not None else ""
-
-    if p in SKIP_PRODUCTS or t == "EU_ETS":
-        return "skip"
-    if p in ENERGY_PRODUCTS_TJ:
-        return "energy"
-    if p in OUTPUT_PRODUCTS:
-        return "final_output"
-    return "intermediate"
 
 def build_variable(
     product: str,
@@ -95,13 +50,9 @@ def build_variable(
     location: str | None,
     include_mode: bool,
     include_location_in_variable: bool,
-    product_type_map: dict[str, str],          # FIXED type
-    output_products: set[str] | None = None,   # optional fallback
+    product_type_map: dict[str, str],
+    output_products: set[str] | None = None,
 ) -> str:
-    """
-    Production|<Category>|<product>|<technology>[|Mode x][|<location>]
-    Category is primarily derived from product_type_map (your products sheet).
-    """
 
     ptype = (product_type_map.get(product) or "").strip()
 
@@ -118,25 +69,30 @@ def build_variable(
     elif ptype == "CO2-related":
         category = "CO2 Related"
     else:
-        # fallback if missing
-        category = "Final Product" if (output_products and product in output_products) else "Intermediate Product"
+        category = (
+            "Final Product"
+            if output_products and product in output_products
+            else "Intermediate Product"
+        )
 
     base = f"{category}|{product}|{technology}"
 
     if include_mode and mode is not None:
         base += f"|Mode {mode}"
+
     if include_location_in_variable and location is not None:
         base += f"|{location}"
 
     return base
 
+
 # ----------------------------
-# IAMC export (single sheet with category column)
+# Production IAMC export
 # ----------------------------
 
 def to_iamc_production_volume(
     df: pd.DataFrame,
-    product_type_map: dict[str, str],          # <-- ADD THIS (FIX)
+    product_type_map: dict[str, str],
     value_col: str = "LocalProductionByMode",
     location_col: str = "LOCATION",
     tech_col: str = "TECHNOLOGY",
@@ -160,7 +116,7 @@ def to_iamc_production_volume(
 
     missing = required - set(df.columns)
     if missing:
-        raise ValueError(f"Missing required columns: {sorted(missing)}")
+        raise ValueError(f"Missing required production columns: {sorted(missing)}")
 
     d = df.copy()
     d[year_col] = pd.to_numeric(d[year_col], errors="raise").astype(int)
@@ -172,7 +128,6 @@ def to_iamc_production_volume(
     d["region"] = d[location_col].map(region_map).fillna(d[location_col])
     d["unit"] = d[product_col].apply(infer_unit_from_product)
 
-    # FIX: pass product_type_map; REMOVE unsupported kwargs
     d["variables"] = d.apply(
         lambda r: build_variable(
             product=r[product_col],
@@ -187,17 +142,12 @@ def to_iamc_production_volume(
         axis=1,
     )
 
-    d["product_category"] = d.apply(
-        lambda r: classify_product_category(r[product_col], r[tech_col]),
-        axis=1,
-    )
-
     d["model"] = model
     d["scenario"] = f"{scenario}|{run_id}" if run_id else scenario
 
     iamc = (
         d.pivot_table(
-            index=["model", "scenario", "region", "variables", "unit"],#, "product_category"],
+            index=["model", "scenario", "region", "variables", "unit"],
             columns=year_col,
             values=value_col,
             aggfunc="sum",
@@ -210,33 +160,142 @@ def to_iamc_production_volume(
 
 
 # ----------------------------
+# Trade / transport IAMC export
+# ----------------------------
+
+def to_iamc_trade_volume(
+    df: pd.DataFrame,
+    value_col: str = "Transport",
+    product_col: str = "PRODUCT",
+    year_col: str = "YEAR",
+    model: str = "Petchem",
+    scenario: str = "Carbon Looping (CL)",
+    run_id: str | None = "Petchem_CL_240826_11",
+    region: str = "NL",
+    annualize_time_step_years: int = 5,
+    trade_direction: str = "To PoR",
+) -> pd.DataFrame:
+
+    required = {product_col, year_col, value_col}
+    missing = required - set(df.columns)
+    if missing:
+        raise ValueError(f"Missing required trade columns: {sorted(missing)}")
+
+    d = df.copy()
+    d[year_col] = pd.to_numeric(d[year_col], errors="raise").astype(int)
+    d[value_col] = pd.to_numeric(d[value_col], errors="coerce")
+
+    # Exports from PoR are negative
+    if trade_direction.lower() == "from por":
+        d[value_col] *= -1
+
+    if annualize_time_step_years and annualize_time_step_years != 1:
+        d[value_col] = d[value_col] / float(annualize_time_step_years)
+
+    d["model"] = model
+    d["scenario"] = f"{scenario}|{run_id}" if run_id else scenario
+    d["region"] = region
+    d["unit"] = "kt/yr"
+
+    # Important:
+    # We only keep product-level trade variables.
+    # LOCATION_1, LOCATION_2 and TRANSPORTMODE are intentionally excluded,
+    # so all routes and carriers are summed together.
+    d["variables"] = (
+        "Trade|"
+        + trade_direction
+        + "|"
+        + d[product_col].astype(str)
+    )
+
+    iamc_trade = (
+        d.pivot_table(
+            index=["model", "scenario", "region", "variables", "unit"],
+            columns=year_col,
+            values=value_col,
+            aggfunc="sum",
+        )
+        .reset_index()
+    )
+
+    year_cols = sorted([c for c in iamc_trade.columns if isinstance(c, int)])
+    return iamc_trade[["model", "scenario", "region", "variables", "unit"] + year_cols]
+
+
+# ----------------------------
 # Main
 # ----------------------------
 
 if __name__ == "__main__":
-    # ---- 1) Build IAMC (single sheet, with product_category column)
-    INPUT_XLSX = "scenario_data/TRANSIENCE-WP8_ITOM-petchem_data_CL-scenario_2026-02-19.xlsx"
-    SHEET = "production_volume"
 
-    df = pd.read_excel(INPUT_XLSX, sheet_name=SHEET)
+    INPUT_XLSX = "scenario_data/TRANSIENCE-WP8_ITOM-petchem_data_CL-scenario_2026-04-15.xlsx"
+
+    PRODUCTION_SHEET = "production_volume"
+    TRADE_TO_POR_SHEET = "transport_to_PoR"
+    TRADE_FROM_POR_SHEET = "transport_from_PoR"
+
+    MODEL = "Petchem"
+    SCENARIO = "Carbon Looping (CL)"
+    RUN_ID = "Petchem_CL_240826_11"
+
+    df_prod = pd.read_excel(INPUT_XLSX, sheet_name=PRODUCTION_SHEET)
+
     products_df = pd.read_excel(INPUT_XLSX, sheet_name="products")
     product_type_map = dict(zip(products_df["PRODUCT"], products_df["type"]))
 
-    iamc = to_iamc_production_volume(
-        df,
-        product_type_map=product_type_map,   # <-- FIX
+    iamc_prod = to_iamc_production_volume(
+        df_prod,
+        product_type_map=product_type_map,
         region_map=DEFAULT_REGION_MAP,
         include_mode=False,
         include_location_in_variable=False,
         annualize_time_step_years=5,
-        model="Petchem",
-        scenario="Carbon Looping (CL)",
-        run_id="Petchem_CL_240826_11",
+        model=MODEL,
+        scenario=SCENARIO,
+        run_id=RUN_ID,
     )
+
+    df_trade_to_por = pd.read_excel(INPUT_XLSX, sheet_name=TRADE_TO_POR_SHEET)
+
+    iamc_trade_to_por = to_iamc_trade_volume(
+        df_trade_to_por,
+        model=MODEL,
+        scenario=SCENARIO,
+        run_id=RUN_ID,
+        region="NL",
+        annualize_time_step_years=5,
+        trade_direction="To PoR",
+    )
+
+    df_trade_from_por = pd.read_excel(INPUT_XLSX, sheet_name=TRADE_FROM_POR_SHEET)
+
+    iamc_trade_from_por = to_iamc_trade_volume(
+        df_trade_from_por,
+        model=MODEL,
+        scenario=SCENARIO,
+        run_id=RUN_ID,
+        region="NL",
+        annualize_time_step_years=5,
+        trade_direction="From PoR",
+    )
+
+    iamc = pd.concat(
+        [iamc_prod, iamc_trade_to_por, iamc_trade_from_por],
+        ignore_index=True,
+        sort=False,
+    )
+
     iamc = iamc.fillna(0)
 
-    iamc["scenario"] = iamc["scenario"].replace({"Carbon Looping (CL)|Petchem_CL_240826_11": "CL"})
+    iamc["scenario"] = iamc["scenario"].replace({
+        "Carbon Looping (CL)|Petchem_CL_240826_11": "CL"
+    })
 
     IAMC_OUT = "scenario_data/scenario_data_itom_por.csv"
     iamc.to_csv(IAMC_OUT, index=False)
+
     print(f"Wrote {IAMC_OUT}")
+    print(f"Production variables: {len(iamc_prod)}")
+    print(f"Trade-to-PoR variables: {len(iamc_trade_to_por)}")
+    print(f"Trade-from-PoR variables: {len(iamc_trade_from_por)}")
+    print(f"Total IAMC rows: {len(iamc)}")

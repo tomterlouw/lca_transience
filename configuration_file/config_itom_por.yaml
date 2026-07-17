@@ -294,6 +294,14 @@ production pathways:
       reference product: propylene
       exists in original database: True
 
+  propylene_trade_import:
+     production volume:
+      variable: Trade|To PoR|propylene
+     ecoinvent alias:
+      name: propylene, imported
+      reference product: propylene
+      exists in original database: False
+      
   #propylene_naphtha_steam_cracker_default_default:
   #  production volume:
   #    variable: Intermediate Product|propylene|naphtha_steam_cracker_default_default
@@ -363,6 +371,14 @@ production pathways:
       reference product: benzene
       exists in original database: False
 
+  raw_benzene_trade_import:
+     production volume:
+      variable: Trade|To PoR|raw_benzene
+     ecoinvent alias:
+      name: benzene, imported
+      reference product: benzene
+      exists in original database: False
+
 #Intermediate Product|raw_toluene|atmospheric_crude_oil_distillation_default
 #Intermediate Product|raw_toluene|naphtha_steam_cracker_default_default
 #Intermediate Product|raw_toluene|retrofit_MTA_with_loop
@@ -399,6 +415,14 @@ production pathways:
       name: BTX production, from pyrolysis gas, average, retrofit
       reference product: toluene, liquid
       exists in original database: False
+
+  raw_toluene_trade_import:
+      production volume:
+        variable: Trade|To PoR|raw_toluene
+      ecoinvent alias:
+        name: toluene, imported
+        reference product: toluene
+        exists in original database: False
 
 # p-xylene pathways (market supply routes)
 #Intermediate Product|raw_para_xylene|atmospheric_crude_oil_distillation_default
@@ -438,6 +462,14 @@ production pathways:
       name: BTX production, from pyrolysis gas, average, retrofit
       reference product: p-xylene
       exists in original database: False
+
+  raw_para_xylene_trade_import:
+      production volume:
+        variable: Trade|To PoR|raw_para_xylene
+      ecoinvent alias:
+        name: p-xylene, imported
+        reference product: p-xylene
+        exists in original database: False
 
 #Intermediate Product|cracker_butadiene|naphtha_steam_cracker_default_default
 #Intermediate Product|cracker_butadiene|retrofit_gasoil_cracker
@@ -544,6 +576,34 @@ production pathways:
       reference product: polymethyl methacrylate
       exists in original database: False
 
+
+# FINAL PRODUCT DEMAND/OUTPUT, for PoR [NL]
+#x Final Product|MDI|MDI_default
+#x Final Product|PBR|PBR
+#x Final Product|PBS|polybutylene_succinate_(PBS)
+#x Final Product|PET|polyethylene_terephthalate_(PET)_default
+#x Final Product|PLA|PLA_from_sugar
+#x Final Product|PMMA|PMMA_default
+#x Final Product|nylon_6_6|nylon_6_6_default
+#x Final Product|polyols|polyol_default
+#x Final Product|polyols|polyol_from_lignin
+#x Final Product|polyols|retrofit_polyol_BAT
+#x Final Product|polypropylene|polypropylene_(PP)_default
+
+#Trade|To PoR|MDI
+#Trade|To PoR|PET
+#Trade|To PoR|PET_waste
+#Trade|To PoR|PTA
+
+  # EXPORT
+  #FE_MDI_EXPORT:
+  #  production volume:
+  #    variable: Trade|To PoR|MDI
+  #  ecoinvent alias:
+  #    name: MDI production, exported
+  #    reference product: methylene diphenyl diisocyanate
+  #    exists in original database: False
+
 markets:
   - name: market for ethylene (por)
     reference product: ethylene
@@ -587,6 +647,7 @@ markets:
       - propylene_fcc_propylene_dedicated_default
       - propylene_ft_distillation_lt_default
       - propylene_mto_with_loop
+      - propylene_trade_import
       #- propylene_naphtha_steam_cracker_default_default
       #- propylene_retrofit_mta_with_loop
       #- propylene_retrofit_gasoil_cracker
@@ -624,6 +685,7 @@ markets:
       - raw_benzene_naphtha_steam_cracker_default_default
       - raw_benzene_retrofit_mta_with_loop
       - raw_benzene_retrofit_naphtha_cracker
+      - raw_benzene_trade_import
 
     replaces:
       - name: market for benzene
@@ -657,6 +719,7 @@ markets:
       - raw_toluene_naphtha_steam_cracker_default_default
       - raw_toluene_retrofit_mta_with_loop
       - raw_toluene_retrofit_naphtha_cracker
+      - raw_toluene_trade_import
 
     replaces:
       - name: market for toluene, liquid
@@ -691,6 +754,7 @@ markets:
       - raw_para_xylene_naphtha_steam_cracker_default_default
       - raw_para_xylene_retrofit_mta_with_loop
       - raw_para_xylene_retrofit_naphtha_cracker
+      - raw_para_xylene_trade_import
 
     replaces:
       - name: market for p-xylene

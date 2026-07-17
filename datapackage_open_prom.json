@@ -13,12 +13,11 @@
         "premise": ">=2.2.1"
     },
     "ecoinvent": {
-        "version": "3.10",
+        "version": "3.12",
         "system model": "cut-off"
     },
     "scenarios": [
-        "WP1 NPI",
-        "WP1 NetZero"
+        "NDC-EI"
     ],
     "licenses": [{
     "id": "CC0-1.0",
@@ -139,12 +138,12 @@
                         "format": "default"
                     },
                     {
-                        "name": "categories",
+                        "name": "unit",
                         "type": "string",
                         "format": "default"
                     },
                     {
-                        "name": "unit",
+                        "name": "categories",
                         "type": "string",
                         "format": "default"
                     },

@@ -1,239 +1,270 @@
-# Environmental Life Cycle Assessment (LCA) Module – TRANSIENCE
+# LCA_TRANSIENCE
 
-This is the documentation for the **Environmental Life Cycle Assessment (LCA) module** developed as part of the **[TRANSIENCE](https://www.transience.eu/)** project. This module is a key component of the **MIC3** framework, enabling environmental assessment of products and services, entire industrial decarbonization pathways, and circular economy transformations. As such, it links to various MIC3 modules developed within the **MIC3** framework.
+### Prospective Life Cycle Assessment Framework for Industrial Transition Pathways
 
-Use this documentation to:
+[![Python](https://img.shields.io/badge/python-3.11+-blue.svg)]()
+[![License:
+BSD-3-Clause](https://img.shields.io/badge/License-BSD%203--Clause-blue.svg)](LICENSE)
 
-- Understand the environmental LCA module and its capabilities.
-- Install and run the module (if having access to the ecoinvent database, see next requirements).
-- Learn about integration with other MIC3 modules.
-- Calculate environmental burdens of products, services, and entire energy transformation scenarios that are consistent with the scenarios from the **MIC3** framework.
-- Perform case studies for the **Port of Rotterdam (PoR)**, enabling targeted environmental assessments of industrial systems and transitions in the Rotterdam port area.
+**LCA_TRANSIENCE** is an open and modular framework for **prospective
+Life Cycle Assessment (LCA)** of future industrial systems.
 
-Additionally, the module is also (independently) linked to two additional repositories developed within the **TRANSIENCE** project:
+Developed within the **TRANSIENCE (Horizon Europe)** project, the
+framework couples **Integrated Assessment Models (IAMs)**, **industrial
+energy system models**, and **prospective Life Cycle Inventory (LCI)
+databases** to quantify the environmental impacts of future industrial
+transition pathways.
 
-- `hydrogen_applications`: Quantifies the climate-effectiveness of planned hydrogen projects and applications using IEA data.  
-  https://github.com/tomterlouw/hydrogen_applications
+Originally developed to evaluate prospective energy system
+transformations, the framework has now been extended to support
+**regional and industrial cluster case studies**, allowing users to
+evaluate environmental implications of detailed industrial
+transformation pathways. The current implementation demonstrates this
+capability for the **Port of Rotterdam (PoR)**, although the framework
+is designed to be transferable to other industrial regions.
 
-- `Steel_CBAM`: Quantifies the alignment in terms of GHG emission accounting under the EU Carbon Border Adjustment Mechanism (CBAM) for the global steel industry.
-   https://github.com/tomterlouw/Steel_CBAM 
+------------------------------------------------------------------------
+
+# Workflow
+
+The framework consists of four main steps.
+
+## Step 1 - Prepare industrial scenario data
+
+Industrial energy system model outputs are first converted into the
+**IAMC format**, providing a standardized interface between external
+scenario models and the LCA framework.
+
+The repository currently includes converters for several TRANSIENCE
+modules. For example,
+
+``` text
+0_convert_ITOM_por_to_IAMC.py
+```
+
+converts **ITOM Port of Rotterdam** outputs into IAMC-formatted scenario
+files.
+
+The resulting scenario files are stored in:
+
+``` text
+scenario_data/
+```
+
+and contain scenario-dependent production volumes, technology
+deployment, energy demand, market shares, and other variables required
+to modify foreground life cycle inventories.
+
+------------------------------------------------------------------------
+
+## Step 2 - Generate scenario-specific datapackages
+
+Future industrial transition pathways are incorporated into the LCA
+framework by **coupling IAMC-formatted scenario outputs to Life Cycle
+Inventories (LCIs)**.
+
+This coupling is defined through modular YAML configuration files
+located in:
+
+``` text
+configuration_file/
+├── config_edm_iyaml
+├── config_forecast.yaml
+├── config_itom_por.yaml
+└── config_open_prom.yaml
+```
+
+Each YAML file specifies how IAMC variables correspond to existing
+ecoinvent activities.
+
+Example:
+
+``` yaml
+steel_primary_dri_ng_ccs:
+
+  production volume:
+    variable: Production|Steel|DRI/EAF_NG_CCS
+
+  ecoinvent alias:
+    name: steel production, natural gas-based direct reduction iron-electric arc furnace, with carbon capture and storage, low-alloyed
+    reference product: steel, low-alloyed
+    exists in original database: True
+```
+
+The YAML files can also define entirely new **scenario-dependent market
+activities**, allowing multiple production technologies to be combined
+into new foreground markets that replace default ecoinvent markets.
+
+Example:
+
+``` yaml
+markets:
+  - name: market for steel, low-alloyed (SPS)
+    reference product: steel, low-alloyed
+    unit: kilogram
+
+    includes:
+      - steel_secondary
+      - steel_primary
+      - steel_primary_ccs
+      - steel_primary_dri_h2
+      - steel_primary_dri_ng
+      - steel_primary_mo_electrolysis
+      - steel_primary_dri_ng_ccs
+
+    replaces:
+      - name: market for steel, low-alloyed
+        product: steel, low-alloyed
+        location: EUR
+
+      - name: market for steel, low-alloyed
+        product: steel, low-alloyed
+        location: RER
+
+      - name: market for steel, low-alloyed
+        product: steel, low-alloyed
+        location: NEU
+
+      - name: market for steel, low-alloyed
+        product: steel, low-alloyed
+        location: Europe without Switzerland
+```
+
+Run:
+
+``` bash
+1_export_packages.ipynb
+```
+
+to generate Brightway datapackages containing all inventory
+modifications.
+
+------------------------------------------------------------------------
+
+## Step 3 - Build prospective LCA databases
+
+Import the generated datapackages into Brightway to construct
+prospective scenario-specific LCA databases by combining the modified
+foreground inventories with **premise**-generated prospective background
+databases.
+
+------------------------------------------------------------------------
+
+## Step 4 - Calculate impacts
+
+Run:
+
+``` bash
+2_calc_impacts.ipynb
+```
+
+to calculate environmental impacts for products, industrial processes,
+supply chains, industrial clusters, multiple scenarios, future years and
+LCIA methods.
+
+------------------------------------------------------------------------
 
 ---
 
-## First Steps
+# Data Requirements
 
-1. Clone the repository:
+The framework requires:
+
+- ecoinvent database
+- premise
+- Brightway
+- IAM scenario outputs
+- Industrial model outputs (optional)
+
+Some scenario datasets are project-specific and therefore are not included in this repository.
+
+---
+
+# Installation
+
+Clone the repository
 
 ```bash
 git clone https://github.com/tomterlouw/lca_transience.git
+
 cd lca_transience
 ```
 
-2. Set up the Python environment using `lca_transience.yml`.
-
-3. Obtain required credentials:
-   - `KEY_PREMISE` (for premise)
-   - `USER_PW` (for ecoinvent)
-
-4. Run the workflows:
-
-   - `1_export_packages.ipynb` to generate scenario-specific LCA databases.
-   - `2_calc_impacts.ipynb` to calculate environmental impacts.
-
-5. Optional preprocessing:
-
-   - `0_export_act_to_excel.py` to extract activity-level data.
-   - `0_convert_to_iamc.py` to convert results from ITOM for the Port of Rotterdam to IAMC format.
-
----
-
-## Installation
-
-Dependencies and setup:
-
-- Python.
-- Required packages are listed in `lca_transience.yml`.
-
-Install via:
+Create the conda environment
 
 ```bash
 conda env create -f lca_transience.yml
+
 conda activate pathw
 ```
 
-Credentials required:
+Required credentials:
 
-- `KEY_PREMISE`: Access for premise background database transformations
-- `USER_PW`: Credentials for ecoinvent database access
-
-Note: Scenario data from MIC3 modules is not yet fully open-source.
+- ecoinvent account
+- premise access credentials
 
 ---
 
-## Tutorial
+# Applications
 
-1. Define scenarios in `1_export_packages.ipynb`:
-   - Integrate MIC3 outputs (OPEN-PROM, I-TOM, FORECAST)
+The framework can be used for:
 
-2. Export LCA packages:
-   - Scenario-specific background databases are generated and stored
-
-3. Calculate impacts in `2_calc_impacts.ipynb`:
-   - Select year, scenario, and impact categories
-   - Supports both system-wide analysis and **PoR-focused case studies**
-
-Impact categories include:
-
-- Climate change (tCO2-eq.)
-- Critical raw materials
-- Human health
-- Water consumption
+- Industrial decarbonization
+- Regional transition pathways
+- Chemical industry
+- Steel industry
+- Circular economy
+- Prospective LCA
+- Industrial cluster analysis
+- Future technology assessment
+- Policy support
+- Scenario comparison
 
 ---
 
-## Model Overview
+# Related Repositories
 
-The LCA module provides:
+### Hydrogen Applications
 
-- Prospective LCA integration using `premise`
-- Linking with energy system scenarios
-- Assessment of products and industrial transformations using `pathways`
-- Support for **Port of Rotterdam (PoR) case studies**, enabling detailed analysis of industrial clusters and transition pathways in the Rotterdam port area
-- Spatially explicit assessments (future integration with `edges`)
+Assessment of the climate effectiveness of future hydrogen deployment.
 
-### Context and Main Features
-
-- Part of the MIC3 framework for industrial decarbonization and circular economy modeling
-- Modular and flexible design
-- Supports both large-scale system assessments and regional case studies such as PoR
+https://github.com/tomterlouw/hydrogen_applications
 
 ---
 
-## Structure
+### Steel_CBAM
 
-The repository is structured as follows:
+Assessment of future greenhouse gas emissions of the global steel industry and their link to CBAM.
 
-```text
-LCA_TRANSIENCE/
-├── configuration_file/
-├── data/
-├── figs/
-├── inventories/
-├── scenario_data/
-├── stats/
-├── 0_convert_to_iamc.py
-├── 0_export_act_to_excel.py
-├── 1_export_packages.ipynb
-├── 2_calc_impacts.ipynb
-├── config.py
-├── datapackage_*.json
-├── lca_transience.yml
-├── regionalization.py
-├── README.md
-```
+https://github.com/tomterlouw/Steel_CBAM
 
 ---
 
-## Mathematical Foundation
+# Future Developments
 
-- Based on standard life cycle assessment using the Brightway 2.5 framework
-- Background database transformations are driven by `premise`
-- Scenario-dependent modifications reflect future energy and industrial transitions
+Planned extensions include:
 
----
-
-## Code Organisation
-
-- Notebooks serve as the main user interface
-- Scripts support preprocessing and data export
-- JSON datapackages define scenarios
-- Configuration files control model behavior
+- Additional industrial clusters
+- Improved regionalization
+- Dynamic material circularity
+- Automated IAM mapping
+- Additional industrial sectors
+- Expanded LCIA indicators
+- Improved visualization tools
 
 ---
 
-## Parameters
+# Contributors
 
-Defined in `config.py`, including:
+**Tom Terlouw**
 
-- Background database settings
-- Scenario selection
-- Impact categories
+Paul Scherrer Institute (PSI)
 
----
-
-## Data Inputs
-
-- Ecoinvent database (via Brightway)
-- Premise-transformed scenarios
-- MIC3 scenario outputs
-- Additional inventories
+Laboratory for Energy Systems Analysis
 
 ---
 
-## Configuration
-
-- Located in `configuration_file/`
-- Allows linking to MIC3 modules and defining **PoR-specific setups**
-
----
-
-## Constraints
-
-- Requires access to ecoinvent and premise
-- Some MIC3 scenario inputs are not publicly available
-- PoR case studies require well-defined system boundaries and regional assumptions
-
----
-
-## Data Outputs
-
-- Environmental impacts per scenario, region, and year
-- Indicators for climate change, resources, and health
-- Results for single processes, full system analyses, and **Port of Rotterdam case studies**
-
----
-
-## Integration with Other Models
-
-### Inputs from Other Modules
-
-- OPEN-PROM (electricity mix)
-- FORECAST (chemical production mixes)
-- I-TOM (steel production, Port of Rotterdam results for one scenario)
-
-### Outputs to Other Modules
-
-- Regionalized environmental indicators
-- Scenario comparison results
-
----
-
-## Example questions the module can address
-
-- What is the environmental impact of a product or service under future scenarios?
-- What are the environmental burdens of industrial transformation pathways?
-- How does decarbonization affect emissions regionally?
-- What are the environmental impacts of transition pathways in the **Port of Rotterdam**?
-- How do different industrial configurations in PoR affect emissions and resource use?
-- What is the alignemtn of emissions captured in CBAM for the steel industry (see `Steel_CBAM`)?
-- What is the climate-effectiveness of hydrogen applications (see `hydrogen_applications`)?
-
----
-
-## License and Citation
-
-Please refer to the LICENSE file. Citation details will follow with publication.
-
----
-
-## Contributing
-
-For contributions or questions:
-
-Tom Terlouw  
-tom.terlouw@psi.ch  
-
-Other contributors:
+Additional contributors
 
 - Romain Sacchi (PSI)
 - Christian Bauer (PSI)
@@ -241,9 +272,26 @@ Other contributors:
 
 ---
 
-## Acknowledgements
+# Acknowledgements
 
-- Developed as part of TRANSIENCE (Horizon Europe Project No. 101137606)
-- Supported by HADEA, SERI, and UKRI Horizon Europe Guarantee
+This work has been developed within the **TRANSIENCE** Horizon Europe project (Grant Agreement No. 101137606).
 
-Disclaimer: Results are continuously updated; full integration of MIC3 modules is ongoing.
+The framework builds upon:
+
+- Brightway
+- premise
+- ecoinvent
+
+Special thanks to all TRANSIENCE project partners for providing scenario data and industrial model outputs.
+
+---
+
+# License
+
+See the LICENSE file.
+
+---
+
+# Citation
+
+Citation information will be added following publication of the accompanying scientific work.
