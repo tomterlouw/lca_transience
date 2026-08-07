@@ -196,6 +196,10 @@ regionalize:
     - name: polyether polyols production, long chain
       reference product: polyether polyols, long chain
       exists in original database: True
+    # for PVC:
+    - name: polyvinyl chloride production, suspension polymerisation #Represents the dominant commodity PVC resin (~80–90% of production); appropriate for integrated petrochemical complexes like Rotterdam.
+      reference product: polyvinyl chloride, suspension polymerised
+      exists in original database: True
       
 # ethylene
 # Intermediate Product|ethylene|FT_distillation_LT_default
@@ -487,6 +491,7 @@ production pathways:
 #x Final Product|polyols|polyol_from_lignin
 #x Final Product|polyols|retrofit_polyol_BAT
 #x Final Product|polypropylene|polypropylene_(PP)_default
+#x Final Product|polyvinyl_chloride|polyvinyl_chloride_(PVC)_default
 
   FE_MDI:
     production volume:
@@ -576,6 +581,13 @@ production pathways:
       reference product: polymethyl methacrylate
       exists in original database: False
 
+  FE_PVC:
+    production volume:
+      variable: Final Product|polyvinyl_chloride|polyvinyl_chloride_(PVC)_default
+    ecoinvent alias:
+      name: PVC production #Represents the dominant commodity PVC resin (~80–90% of production); appropriate for integrated petrochemical complexes like Rotterdam.
+      reference product: polyvinyl chloride, suspension polymerised
+      exists in original database: False
 
 # FINAL PRODUCT DEMAND/OUTPUT, for PoR [NL]
 #x Final Product|MDI|MDI_default
@@ -588,7 +600,7 @@ production pathways:
 #x Final Product|polyols|polyol_default
 #x Final Product|polyols|polyol_from_lignin
 #x Final Product|polyols|retrofit_polyol_BAT
-#x Final Product|polypropylene|polypropylene_(PP)_default
+#x Final Product|polyvinyl_chloride|polyvinyl_chloride_(PVC)_default
 
 #Trade|To PoR|MDI
 #Trade|To PoR|PET

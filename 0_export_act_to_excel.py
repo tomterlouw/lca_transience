@@ -151,6 +151,12 @@ TARGETS = [
         "target_reference_product": "ethylene",
         "target_location": "RER w/o RU",
     },
+    {
+        "your_product": "polyvinyl chloride production, suspension polymerisation",
+        "target_name": "polyvinyl chloride production, suspension polymerisation",
+        "target_reference_product": "polyvinyl chloride, suspension polymerised",
+        "target_location": "RER",
+    },
 ]
 
 LOCATION_FALLBACKS = ["NL", "CH", "RER", "Europe without Switzerland", "RoW", "GLO"]

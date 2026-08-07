@@ -9,7 +9,7 @@ import pandas as pd
 
 replace_premise_output_file = True
 OUTPUT_DIR_PREMISE = Path("C:/Users/terlouw_t/.conda/envs/premise_pathways/Lib/site-packages/premise/data/metals")
-OUTPUT_DIR_PREMISE = Path("C:/Users/terlouw_t/.conda/envs/premise_pathways_new/Lib/site-packages/premise/data/metals")
+#OUTPUT_DIR_PREMISE = Path("C:/Users/terlouw_t/.conda/envs/premise_pathways_new/Lib/site-packages/premise/data/metals")
 
 def load_yaml(path: Path):
     with open(path, "r", encoding="utf-8") as f:
@@ -110,7 +110,7 @@ def build_outputs(
             output_dir / f"primary_secondary_split.yaml",
         )
 
-        if replace_premise_output_file and scenario == "optimistic":
+        if replace_premise_output_file and scenario == "baseline":
             # Also write the baseline scenario to the file that Premise reads from
             dump_yaml(
                 scenario_out,
