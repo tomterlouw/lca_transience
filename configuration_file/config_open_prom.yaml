@@ -340,6 +340,7 @@ markets:
       - h2_gas
       - h2_gas_ccs
 
+    # DONE for now, as for the case study we focus on low-carbon scenario and this is a NDC scenario. If we want to explore a high-carbon scenario, we can add the following:
     replaces:
       - name: market for hydrogen, gaseous, low pressure
         product: hydrogen, gaseous, low pressure

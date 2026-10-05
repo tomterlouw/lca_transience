@@ -9,6 +9,19 @@ import pandas as pd
 
 ENERGY_PRODUCTS_TJ = {"electricity", "steam", "HT_heat"}
 
+# Aggregate only storage outputs, not capture, allowances, or avoided emissions.
+# Family matching includes the different technology variants in CL and OCE.
+CCS_AGGREGATES = {
+    "CO2 Related|stored_CO2|waste_pyrolysis": {
+        "prefixes": ("plastic_waste_pyrolysis_",),
+        "technologies": (),
+    },
+    "CO2 Related|stored_CO2|gasification": {
+        "prefixes": ("gasification_of_plastic_waste_",),
+        "technologies": ("gasification_of_cracker_HFO",),
+    },
+}
+
 DEFAULT_REGION_MAP = {
     "Rotterdam": "NL",
 }
@@ -195,7 +208,7 @@ def to_iamc_trade_volume(
     d["model"] = model
     d["scenario"] = f"{scenario}|{run_id}" if run_id else scenario
     d["region"] = region
-    d["unit"] = "kt/yr"
+    d["unit"] = d[product_col].apply(infer_unit_from_product)
 
     # Important:
     # We only keep product-level trade variables.
@@ -221,81 +234,282 @@ def to_iamc_trade_volume(
     year_cols = sorted([c for c in iamc_trade.columns if isinstance(c, int)])
     return iamc_trade[["model", "scenario", "region", "variables", "unit"] + year_cols]
 
+def add_ccs_aggregates(iamc: pd.DataFrame) -> pd.DataFrame:
+    """Append annual storage totals per model/scenario/region; retain source rows.
 
+    Inputs have already been annualized by the production converter. Never
+    divide these totals by five again. Replacing previous aggregate rows makes
+    repeated calls idempotent and prevents aggregates being counted as sources.
+    """
+    metadata = ["model", "scenario", "region"]
+    years = [column for column in iamc.columns if str(column).isdigit()]
+    if iamc.empty or not years:
+        raise ValueError("Cannot aggregate CCS without scenario data and years.")
+    if iamc[metadata + ["variables", "unit"]].isna().any().any():
+        raise ValueError("Missing IAMC metadata in CCS aggregation.")
+
+    detailed = iamc.loc[~iamc["variables"].isin(CCS_AGGREGATES)].copy()
+    parts = detailed["variables"].astype(str).str.split("|")
+    products = parts.str[1]
+    technologies = parts.str[2].fillna("")
+    additions = []
+
+    for variable, selection in CCS_AGGREGATES.items():
+        selected = products.eq("stored_CO2") & (
+            technologies.str.startswith(selection["prefixes"])
+            | technologies.isin(selection["technologies"])
+        )
+        source = detailed.loc[selected].copy()
+        if not source.empty:
+            if (parts.loc[selected].str.len().ne(3).any()
+                    or parts.loc[selected].str[0].ne("CO2 Related").any()):
+                raise ValueError(
+                    f"{variable}: fix classification/mode aggregation before summing."
+                )
+            if source["unit"].ne("kt/yr").any():
+                raise ValueError(f"{variable}: storage sources must use kt/yr.")
+            if source.duplicated(metadata + ["variables"]).any():
+                raise ValueError(f"{variable}: duplicate storage source rows.")
+            source[years] = source[years].apply(pd.to_numeric, errors="raise")
+            if source[years].isna().any().any():
+                raise ValueError(f"{variable}: missing storage quantities.")
+
+        totals = source.groupby(metadata, sort=False)[years].sum()
+        contexts = detailed[metadata].drop_duplicates().itertuples(index=False, name=None)
+        for context in contexts:
+            values = totals.loc[context].to_dict() if context in totals.index else {
+                year: 0.0 for year in years
+            }
+            additions.append({
+                **dict(zip(metadata, context)),
+                "variables": variable,
+                "unit": "kt/yr",
+                **values,
+            })
+
+    return pd.concat([detailed, pd.DataFrame(additions)], ignore_index=True)
+
+
+def ensure_required_fe_variables(iamc, config_path):
+    import yaml
+
+    with open(config_path, encoding="utf-8") as stream:
+        config = yaml.safe_load(stream)
+
+    required = {}
+    for alias, settings in config["production pathways"].items():
+        if not alias.startswith("FE_"):
+            continue
+
+        variable = settings["production volume"]["variable"]
+        # FE_CC_ pathways are storage-service demands, not polymer outputs.
+        expected_prefix = (
+            "CO2 Related|stored_CO2|" if alias.startswith("FE_CC_")
+            else "Final Product|"
+        )
+        if not isinstance(variable, str) or not variable.startswith(expected_prefix):
+            raise ValueError(
+                f"Unexpected FE mapping for {alias}: {variable}; "
+                f"expected prefix {expected_prefix}"
+            )
+
+        required[alias] = variable
+
+    if not required:
+        raise ValueError(f"No FE_ production pathways found in {config_path}")
+
+    metadata = ["model", "scenario", "region"]
+    years = [column for column in iamc.columns if str(column).isdigit()]
+
+    if iamc.empty or not years:
+        raise ValueError(
+            "Cannot complete FE variables without scenario data and year columns."
+        )
+
+    if iamc[metadata + ["variables", "unit"]].isna().any().any():
+        raise ValueError(
+            "Missing IAMC metadata; check conversion before adding zero rows."
+        )
+
+    additions = []
+
+    for group_key, group in iamc.groupby(metadata, sort=False):
+        context = dict(zip(metadata, group_key))
+
+        for alias, variable in required.items():
+            matches = group.loc[group["variables"] == variable]
+            product = variable.split("|")[1]
+            expected_unit = infer_unit_from_product(product)
+
+            if not matches.empty:
+                if len(matches) != 1 or matches["unit"].iloc[0] != expected_unit:
+                    raise ValueError(
+                        f"{context}: duplicate rows or incorrect unit for {alias}"
+                    )
+                continue
+
+            # Do not mistake a classification/mode mismatch for zero production.
+            suffix = variable.split("|", 1)[1]
+            comparable = (
+                group["variables"].astype(str).str.split("|", n=1).str[-1]
+            )
+
+            if (
+                comparable.eq(suffix)
+                | comparable.str.startswith(suffix + "|")
+            ).any():
+                raise ValueError(
+                    f"{context}: {alias} exists under another variable format. "
+                    "Fix its classification/mode aggregation instead of adding zero."
+                )
+
+            additions.append({
+                **context,
+                "variables": variable,
+                "unit": expected_unit,
+                **{year: 0.0 for year in years},
+            })
+
+            print(
+                f"[{context['scenario']}/{context['region']}] "
+                f"Added {alias}: {variable} = 0 for all exported years"
+            )
+
+    if additions:
+        iamc = pd.concat(
+            [iamc, pd.DataFrame(additions)],
+            ignore_index=True,
+        )
+
+    return iamc
 # ----------------------------
 # Main
 # ----------------------------
+# ----------------------------
+# Main: convert both scenarios
+# ----------------------------
 
-if __name__ == "__main__":
+from pathlib import Path
 
-    INPUT_XLSX = "scenario_data/TRANSIENCE-WP8_ITOM-petchem_data_CL-scenario_2026-04-15.xlsx"
+SCENARIO_INPUTS = {
+    "CL": "TRANSIENCE-WP8_ITOM-petchem_data_CL-scenario_2026-04-15.xlsx",
+    "OCE": "TRANSIENCE-WP8_ITOM-petchem_data_OCE-scenario_2026-08-19.xlsx",
+}
 
-    PRODUCTION_SHEET = "production_volume"
-    TRADE_TO_POR_SHEET = "transport_to_PoR"
-    TRADE_FROM_POR_SHEET = "transport_from_PoR"
 
-    MODEL = "Petchem"
-    SCENARIO = "Carbon Looping (CL)"
-    RUN_ID = "Petchem_CL_240826_11"
+def main():
+    # Resolve paths relative to this script.
+    base_dir = Path(__file__).resolve().parent
+    data_dir = base_dir / "scenario_data"
 
-    df_prod = pd.read_excel(INPUT_XLSX, sheet_name=PRODUCTION_SHEET)
+    # Check both inputs before starting.
+    for scenario, filename in SCENARIO_INPUTS.items():
+        path = data_dir / filename
+        if not path.is_file():
+            raise FileNotFoundError(f"{scenario} input not found: {path}")
 
-    products_df = pd.read_excel(INPUT_XLSX, sheet_name="products")
-    product_type_map = dict(zip(products_df["PRODUCT"], products_df["type"]))
+    scenario_outputs = {}
 
-    iamc_prod = to_iamc_production_volume(
-        df_prod,
-        product_type_map=product_type_map,
-        region_map=DEFAULT_REGION_MAP,
-        include_mode=False,
-        include_location_in_variable=False,
-        annualize_time_step_years=5,
-        model=MODEL,
-        scenario=SCENARIO,
-        run_id=RUN_ID,
-    )
+    for scenario, filename in SCENARIO_INPUTS.items():
+        sheets = pd.read_excel(
+            data_dir / filename,
+            sheet_name=[
+                "products",
+                "production_volume",
+                "transport_to_PoR",
+                "transport_from_PoR",
+            ],
+        )
 
-    df_trade_to_por = pd.read_excel(INPUT_XLSX, sheet_name=TRADE_TO_POR_SHEET)
+        # Use classifications from this scenario's own workbook.
+        products = sheets["products"].dropna(subset=["PRODUCT"])
+        product_type_map = dict(
+            zip(products["PRODUCT"], products["type"].fillna(""))
+        )
 
-    iamc_trade_to_por = to_iamc_trade_volume(
-        df_trade_to_por,
-        model=MODEL,
-        scenario=SCENARIO,
-        run_id=RUN_ID,
-        region="NL",
-        annualize_time_step_years=5,
-        trade_direction="To PoR",
-    )
+        common_options = {
+            "model": "Petchem",
+            "scenario": scenario,
+            "run_id": None,  # Keep scenario labels exactly CL and OCE.
+            "annualize_time_step_years": 5,
+        }
 
-    df_trade_from_por = pd.read_excel(INPUT_XLSX, sheet_name=TRADE_FROM_POR_SHEET)
+        production = to_iamc_production_volume(
+            sheets["production_volume"],
+            product_type_map=product_type_map,
+            region_map=DEFAULT_REGION_MAP,
+            include_mode=False,
+            include_location_in_variable=False,
+            **common_options,
+        )
 
-    iamc_trade_from_por = to_iamc_trade_volume(
-        df_trade_from_por,
-        model=MODEL,
-        scenario=SCENARIO,
-        run_id=RUN_ID,
-        region="NL",
-        annualize_time_step_years=5,
-        trade_direction="From PoR",
-    )
+        imports = to_iamc_trade_volume(
+            sheets["transport_to_PoR"],
+            region="NL",
+            trade_direction="To PoR",
+            **common_options,
+        )
 
-    iamc = pd.concat(
-        [iamc_prod, iamc_trade_to_por, iamc_trade_from_por],
+        exports = to_iamc_trade_volume(
+            sheets["transport_from_PoR"],
+            region="NL",
+            trade_direction="From PoR",
+            **common_options,
+        )
+
+        iamc = pd.concat(
+            [production, imports, exports],
+            ignore_index=True,
+            sort=False,
+        )
+
+        iamc["scenario"] = scenario
+        scenario_outputs[scenario] = iamc
+
+    # Assemble both scenarios before writing any outputs.
+    combined = pd.concat(
+        list(scenario_outputs.values()),
         ignore_index=True,
         sort=False,
     )
 
-    iamc = iamc.fillna(0)
+    metadata_columns = ["model", "scenario", "region", "variables", "unit"]
+    year_columns = sorted(
+        (column for column in combined.columns if str(column).isdigit()),
+        key=int,
+    )
 
-    iamc["scenario"] = iamc["scenario"].replace({
-        "Carbon Looping (CL)|Petchem_CL_240826_11": "CL"
-    })
+    combined = combined[metadata_columns + year_columns]
+    combined[year_columns] = combined[year_columns].fillna(0)
 
-    IAMC_OUT = "scenario_data/scenario_data_itom_por.csv"
-    iamc.to_csv(IAMC_OUT, index=False)
+    # Sum annualized storage flows while retaining the detailed technology rows.
+    combined = add_ccs_aggregates(combined)
 
-    print(f"Wrote {IAMC_OUT}")
-    print(f"Production variables: {len(iamc_prod)}")
-    print(f"Trade-to-PoR variables: {len(iamc_trade_to_por)}")
-    print(f"Trade-from-PoR variables: {len(iamc_trade_from_por)}")
-    print(f"Total IAMC rows: {len(iamc)}")
+    # Add missing final-product/storage pathways independently per scenario/region.
+    combined = ensure_required_fe_variables(
+        combined,
+        base_dir / "configuration_file" / "config_itom_por.yaml",
+    )
+
+    combined = combined[metadata_columns + year_columns].sort_values(
+        ["scenario", "region", "variables", "unit"]
+    ).reset_index(drop=True)
+
+    if set(combined["scenario"]) != set(SCENARIO_INPUTS):
+        raise ValueError("Combined output must contain both CL and OCE.")
+
+    # Write one CSV per scenario.
+    for scenario in SCENARIO_INPUTS:
+        output = data_dir / f"scenario_data_itom_por_{scenario}.csv"
+        scenario_data = combined.loc[combined["scenario"] == scenario]
+        scenario_data.to_csv(output, index=False)
+        print(f"Wrote {output.name}: {len(scenario_data)} rows")
+
+    # Write the combined CSV.
+    output = data_dir / "scenario_data_itom_por.csv"
+    combined.to_csv(output, index=False)
+    print(f"Wrote {output.name}: {len(combined)} rows (CL + OCE)")
+
+
+if __name__ == "__main__":
+    main()

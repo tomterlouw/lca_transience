@@ -599,6 +599,9 @@ petroleum refinery operation,diesel,CPC,33360: Gas oil
 "market for furnace, logs, hardwood storage area, 100kW","furnace, logs, hardwood storage area, 100kW",ISIC rev.4 ecoinvent,"2815:Manufacture of ovens, furnaces and furnace burners"
 "market for furnace, logs, hardwood storage area, 100kW","furnace, logs, hardwood storage area, 100kW",EcoSpold01Categories,wood energy/heating systems
 "market for furnace, logs, hardwood storage area, 100kW","furnace, logs, hardwood storage area, 100kW",CPC,"43420: Industrial or laboratory furnaces and ovens, except non-electric bakery ovens; other industrial or laboratory […]"
+"heat and power co-generation, oil","heat, district or industrial, other than natural gas",ISIC rev.4 ecoinvent,"3510:Electric power generation, transmission and distribution"
+"heat and power co-generation, oil","heat, district or industrial, other than natural gas",EcoSpold01Categories,hard coal/power plants
+"heat and power co-generation, oil","heat, district or industrial, other than natural gas",CPC,17300: Steam and hot water
 "market for cast iron removed by drilling, conventional","cast iron removed by drilling, conventional",EcoSpold01Categories,metals/chipping
 "market for cast iron removed by drilling, conventional","cast iron removed by drilling, conventional",ISIC rev.4 ecoinvent,2592:Treatment and coating of metals; machining
 "market for cast iron removed by drilling, conventional","cast iron removed by drilling, conventional",CPC,"39310: Slag, dross, scalings and other waste from the manufacture of iron or steel"
@@ -1768,9 +1771,6 @@ market for NMC622 hydroxide,NMC622 hydroxide,CPC,34220: Zinc oxide; zinc peroxid
 "market for wooden board factory, cement bonded boards","wooden board factory, cement bonded boards",CPC,53269: Other constructions for manufacturing
 "market for wheat grain, Swiss integrated production","wheat grain, Swiss integrated production",ISIC rev.4 ecoinvent,"0111:Growing of cereals (except rice), leguminous crops and oil seeds"
 "market for wheat grain, Swiss integrated production","wheat grain, Swiss integrated production",CPC,"01112: Wheat, other"
-"heat and power co-generation, oil","heat, district or industrial, other than natural gas",EcoSpold01Categories,hard coal/power plants
-"heat and power co-generation, oil","heat, district or industrial, other than natural gas",ISIC rev.4 ecoinvent,"3510:Electric power generation, transmission and distribution"
-"heat and power co-generation, oil","heat, district or industrial, other than natural gas",CPC,17300: Steam and hot water
 "acetic acid production, from naphtha oxidation",succinic acid,EcoSpold01Categories,chemicals/organics
 "acetic acid production, from naphtha oxidation",succinic acid,ISIC rev.4 ecoinvent,2011:Manufacture of basic chemicals
 "acetic acid production, from naphtha oxidation",succinic acid,CPC,"34140: Carboxylic acids and their anhydrides, halides, peroxides and peroxyacids and their halogenated, sulphonated, […]"
@@ -4996,6 +4996,8 @@ market for maize grain,maize grain,CPC,"01122: Maize (corn), other"
 "uranium production, diffusion, enriched 3.0%","uranium, enriched 3.0%, per separative work unit",CPC,"33620: Uranium enriched in U235 and its compounds; plutonium and its compounds; alloys, dispersions, ceramic products[…]"
 "cathode production, NMC111, for Li-ion battery","cathode, NMC111, for Li-ion battery",ISIC rev.4 ecoinvent,2720:Manufacture of batteries and accumulators
 "cathode production, NMC111, for Li-ion battery","cathode, NMC111, for Li-ion battery",CPC,"46430: Parts of primary cells, primary batteries and electric accumulators (including separators)"
+"hydrogen production, coal gasification","hydrogen, gaseous, low pressure",ISIC rev.4 ecoinvent,3520:Manufacture of gas; distribution of gaseous fuels through mains
+"hydrogen production, coal gasification","hydrogen, gaseous, low pressure",CPC,"34210: Hydrogen, nitrogen, oxygen, carbon dioxide and rare gases; inorganic oxygen compounds of non-metals n.e.c."
 "sulfate pulp production, from hardwood, bleached","heat, district or industrial, other than natural gas",ISIC rev.4 ecoinvent,"1701:Manufacture of pulp, paper and paperboard"
 "sulfate pulp production, from hardwood, bleached","heat, district or industrial, other than natural gas",CPC,17300: Steam and hot water
 market for potato,potato,ISIC rev.4 ecoinvent,"0113:Growing of vegetables and melons, roots and tubers"
@@ -16483,8 +16485,6 @@ maneb production,maneb,CPC,34662: Fungicides
 "market for furnace, wood chips, average storage area, 50kW","furnace, wood chips, average storage area, 50kW",ISIC rev.4 ecoinvent,"2815:Manufacture of ovens, furnaces and furnace burners"
 "market for furnace, wood chips, average storage area, 50kW","furnace, wood chips, average storage area, 50kW",EcoSpold01Categories,wood energy/heating systems
 "market for furnace, wood chips, average storage area, 50kW","furnace, wood chips, average storage area, 50kW",CPC,"43420: Industrial or laboratory furnaces and ovens, except non-electric bakery ovens; other industrial or laboratory […]"
-"hydrogen production, coal gasification","hydrogen, gaseous, low pressure",ISIC rev.4 ecoinvent,3520:Manufacture of gas; distribution of gaseous fuels through mains
-"hydrogen production, coal gasification","hydrogen, gaseous, low pressure",CPC,"34210: Hydrogen, nitrogen, oxygen, carbon dioxide and rare gases; inorganic oxygen compounds of non-metals n.e.c."
 "grass production, Swiss integrated production, intensive","grass, Swiss integrated production",ISIC rev.4 ecoinvent,0119:Growing of other non-perennial crops
 "grass production, Swiss integrated production, intensive","grass, Swiss integrated production",CPC,"01919: Forage products, n.e.c."
 market for ammonium carbonate,ammonium carbonate,EcoSpold01Categories,chemicals/organics

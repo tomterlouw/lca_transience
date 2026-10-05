@@ -80,8 +80,8 @@ TARGETS = [
     },
     {
         "your_product": "PBR",
-        "target_name": "butadiene rubber production",
-        "target_reference_product": "butadiene rubber",
+        "target_name": "polybutadiene production, solution polymerization",
+        "target_reference_product": "polybutadiene",
         "target_location": "RER",
     },
     {
@@ -157,6 +157,30 @@ TARGETS = [
         "target_reference_product": "polyvinyl chloride, suspension polymerised",
         "target_location": "RER",
     },
+    {
+        "your_product": "methanol distillation, hydrogen from electrolysis, CO2 from DAC",
+        "target_name": "methanol distillation, hydrogen from electrolysis, CO2 from DAC",
+        "target_reference_product": "methanol, purified",
+        "target_location": "RER",
+    },
+    {
+        "your_product": "methanol synthesis, hydrogen from electrolysis, CO2 from DAC",
+        "target_name": "methanol synthesis, hydrogen from electrolysis, CO2 from DAC",
+        "target_reference_product": "methanol, unpurified",
+        "target_location": "RER",
+    },
+    {
+        "your_product": "carbon dioxide, captured, with a sorbent-based direct air capture system, 100ktCO2, with heat pump heat, and grid electricity",
+        "target_name": "carbon dioxide, captured, with a sorbent-based direct air capture system, 100ktCO2, with heat pump heat, and grid electricity",
+        "target_reference_product": "carbon dioxide, captured",
+        "target_location": "RER",
+    },
+    {
+        "your_product": "carbon dioxide compression, transport and storage",
+        "target_name": "carbon dioxide compression, transport and storage",
+        "target_reference_product": "carbon dioxide, stored",
+        "target_location": "RER",
+    }
 ]
 
 LOCATION_FALLBACKS = ["NL", "CH", "RER", "Europe without Switzerland", "RoW", "GLO"]

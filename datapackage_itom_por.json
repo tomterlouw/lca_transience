@@ -17,7 +17,8 @@
         "system model": "cut-off"
     },
     "scenarios": [
-        "CL"
+        "CL",
+        "OCE"
     ],
     "licenses": [{
     "id": "CC0-1.0",

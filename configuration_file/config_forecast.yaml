@@ -11,12 +11,6 @@ regionalize:
     - name: methanol production, from natural gas reforming
       reference product: methanol
       exists in original database: True
-    - name: methanol distillation, hydrogen from electrolysis, CO2 from DAC
-      reference product: methanol, purified
-      exists in original database: True
-    - name: methanol synthesis, hydrogen from electrolysis, CO2 from DAC
-      reference product: methanol, unpurified
-      exists in original database: True
 
 production pathways:
   # Ammonia H2
