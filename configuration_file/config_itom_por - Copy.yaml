@@ -390,48 +390,13 @@ production pathways:
       reference product: benzene
       exists in original database: False
 
-  raw_benzene_trade_import_eu:
-    production volume:
+  raw_benzene_trade_import:
+     production volume:
       variable: Trade|To PoR|raw_benzene
-    ecoinvent alias:
-      name: raw benzene, imported from EU (por)
-      reference product: raw benzene
-      exists in original database: False
-
-  benzene_trade_import_eu:
-    production volume:
-      variable: Trade|To PoR|benzene
-    ecoinvent alias:
-      name: benzene, imported from EU (por)
+     ecoinvent alias:
+      name: benzene, imported
       reference product: benzene
       exists in original database: False
-
-  benzene_hda:
-    production volume:
-      variable: Intermediate Product|benzene|HDA
-    ecoinvent alias:
-      name: benzene production, via toluene hydrodealkylation (por)
-      reference product: benzene
-      exists in original database: False
-
-  # benzene_terminal_BAT produces purified benzene and therefore
-  # bypasses the raw-benzene upgrading activity.
-  benzene_terminal_import_row:
-    production volume:
-      variable: Intermediate Product|benzene|benzene_terminal_BAT
-    ecoinvent alias:
-      name: benzene, imported from outside EU (por)
-      reference product: benzene
-      exists in original database: False
-
-  benzene_from_raw_upgrading:
-    production volume:
-      variable: Intermediate Product|benzene|benzene_extraction
-    ecoinvent alias:
-      name: benzene production, from raw benzene upgrading (por)
-      reference product: benzene
-      exists in original database: False
-      new dataset: True
 
 #Intermediate Product|raw_toluene|atmospheric_crude_oil_distillation_default
 #Intermediate Product|raw_toluene|naphtha_steam_cracker_default_default
@@ -470,59 +435,13 @@ production pathways:
       reference product: toluene, liquid
       exists in original database: False
 
-  raw_toluene_trade_import_eu:
+  raw_toluene_trade_import:
       production volume:
         variable: Trade|To PoR|raw_toluene
       ecoinvent alias:
-        name: raw toluene, imported from EU (por)
-        reference product: raw toluene
+        name: toluene, imported
+        reference product: toluene
         exists in original database: False
-
-  toluene_from_raw_upgrading:
-    production volume:
-      variable: Intermediate Product|toluene|toluene_extraction
-    ecoinvent alias:
-      name: toluene production, from raw toluene upgrading (por)
-      reference product: toluene, liquid
-      exists in original database: False
-      new dataset: True
-
-  ###METHANOL
-  methanol_trade_import_eu:
-    production volume:
-      variable: Trade|To PoR|methanol
-    ecoinvent alias:
-      name: methanol, imported from EU (por)
-      reference product: methanol
-      exists in original database: False
-
-  # Imported DAC methanol from outside EU27+3
-  methanol_dac_terminal_row:
-    production volume:
-      variable: Material Input|methanol|DAC_methanol_terminal_BATplus
-    ecoinvent alias:
-      name: methanol, DAC-based, imported outside EU (por)
-      reference product: methanol
-      # True only when the FORECAST package has already imported this activity.
-      exists in original database: True
-
-  # Local PoR methane-GSR production
-  methanol_methane_gsr:
-    production volume:
-      variable: Material Input|methanol|methanol_synthesis_from_methane_GSR
-    ecoinvent alias:
-      name: methanol production, from methane GSR (por)
-      reference product: methanol
-      exists in original database: False
-
-  # Local PoR syngas-based production
-  methanol_from_syngas:
-    production volume:
-      variable: Material Input|methanol|methanol_synthesis_from_syngas
-    ecoinvent alias:
-      name: methanol production, from syngas (por)
-      reference product: methanol
-      exists in original database: False
 
 # p-xylene pathways (market supply routes)
 #Intermediate Product|raw_para_xylene|atmospheric_crude_oil_distillation_default
@@ -563,40 +482,13 @@ production pathways:
       reference product: p-xylene
       exists in original database: False
 
-  #imports
-  raw_para_xylene_trade_import_eu:
-    production volume:
-      variable: Trade|To PoR|raw_para_xylene
-    ecoinvent alias:
-      name: raw p-xylene, imported from EU (por)
-      reference product: raw p-xylene
-      exists in original database: False
-
-  raw_para_xylene_terminal_import_row:
-    production volume:
-      variable: Intermediate Product|raw_para_xylene|para_xylene_terminal_BAT
-    ecoinvent alias:
-      name: raw p-xylene, imported from outside EU (por)
-      reference product: raw p-xylene
-      exists in original database: False
-
-  # Already-purified European import; no upgrading is applied.
-  para_xylene_trade_import_eu:
-    production volume:
-      variable: Trade|To PoR|para_xylene
-    ecoinvent alias:
-      name: p-xylene, imported from EU (por)
-      reference product: p-xylene
-      exists in original database: False
-
-  para_xylene_from_raw_upgrading:
-    production volume:
-      variable: Intermediate Product|para_xylene|para_xylene_extraction
-    ecoinvent alias:
-      name: p-xylene production, from raw p-xylene upgrading (por)
-      reference product: p-xylene
-      exists in original database: False
-      new dataset: True
+  raw_para_xylene_trade_import:
+      production volume:
+        variable: Trade|To PoR|raw_para_xylene
+      ecoinvent alias:
+        name: p-xylene, imported
+        reference product: p-xylene
+        exists in original database: False
 
 #Intermediate Product|cracker_butadiene|naphtha_steam_cracker_default_default
 #Intermediate Product|cracker_butadiene|retrofit_gasoil_cracker
@@ -738,6 +630,33 @@ production pathways:
       reference product: carbon dioxide, stored
       exists in original database: False
 
+  # auxiliary energy carriers for PoR
+  steam_por:
+    production volume:
+      variable: Energy Input|steam|by_product_heat_use
+    ecoinvent alias:
+      name: steam production, as energy carrier, in chemical industry (por)
+      reference product: heat, from steam, in chemical industry
+      exists in original database: True
+
+# FINAL PRODUCT DEMAND/OUTPUT, for PoR [NL]
+#x Final Product|MDI|MDI_default
+#x Final Product|PBR|PBR
+#x Final Product|PBS|polybutylene_succinate_(PBS)
+#x Final Product|PET|polyethylene_terephthalate_(PET)_default
+#x Final Product|PLA|PLA_from_sugar
+#x Final Product|PMMA|PMMA_default
+#x Final Product|nylon_6_6|nylon_6_6_default
+#x Final Product|polyols|polyol_default
+#x Final Product|polyols|polyol_from_lignin
+#x Final Product|polyols|retrofit_polyol_BAT
+#x Final Product|polyvinyl_chloride|polyvinyl_chloride_(PVC)_default
+
+#Trade|To PoR|MDI
+#Trade|To PoR|PET
+#Trade|To PoR|PET_waste
+#Trade|To PoR|PTA
+
 markets:
   - name: market for ethylene (por)
     reference product: ethylene
@@ -811,45 +730,15 @@ markets:
     replaces in:
       - location: NL
 
-  # ==========================================================
-  # BENZENE UPGRADING
-  # ==========================================================
-
-  - name: benzene production, from raw benzene upgrading (por)
+  - name: market for benzene (por)
     reference product: benzene
     unit: kilogram
-
     includes:
       - raw_benzene_atmospheric_crude_oil_distillation_default
       - raw_benzene_naphtha_steam_cracker_default_default
       - raw_benzene_retrofit_mta_with_loop
       - raw_benzene_retrofit_naphtha_cracker
-      - raw_benzene_trade_import_eu
-
-    add:
-      # 0.1 MJ electricity/kg = 0.0277778 kWh/kg.
-      - name: market for electricity, medium voltage
-        reference product: electricity, medium voltage
-        amount: 0.027777778
-
-      # ITOM steam input: 2 TJ/kt = 2 MJ/kg.
-      - name: steam production, as energy carrier, in chemical industry (por)
-        reference product: heat, from steam, in chemical industry
-        amount: 2.0
-
-  # ==========================================================
-  # PURIFIED BENZENE MARKET
-  # ==========================================================
-
-  - name: market for benzene (por)
-    reference product: benzene
-    unit: kilogram
-
-    includes:
-      - benzene_from_raw_upgrading
-      - benzene_trade_import_eu
-      - benzene_terminal_import_row
-      - benzene_hda
+      - raw_benzene_trade_import
 
     replaces:
       - name: market for benzene
@@ -875,48 +764,15 @@ markets:
     replaces in:
       - location: NL
 
-  # ==========================================================
-  # TOLUENE UPGRADING
-  # ==========================================================
-
-  - name: toluene production, from raw toluene upgrading (por)
+  - name: market for toluene (por)
     reference product: toluene, liquid
     unit: kilogram
-
     includes:
       - raw_toluene_atmospheric_crude_oil_distillation_default
       - raw_toluene_naphtha_steam_cracker_default_default
       - raw_toluene_retrofit_mta_with_loop
       - raw_toluene_retrofit_naphtha_cracker
-      - raw_toluene_trade_import_eu
-
-    add:
-      # 0.1 MJ electricity/kg = 0.0277778 kWh/kg.
-      - name: market for electricity, medium voltage
-        reference product: electricity, medium voltage
-        amount: 0.027777778
-
-      # ITOM steam input: 2 TJ/kt = 2 MJ/kg.
-      - name: steam production, as energy carrier, in chemical industry (por)
-        reference product: heat, from steam, in chemical industry
-        amount: 2.0
-
-      # ITOM also produces 0.04361687 kg hydrogen/kg toluene.
-      # No hydrogen credit is added here because the allocation or
-      # substitution treatment has not yet been confirmed.
-
-  # ==========================================================
-  # PURIFIED TOLUENE MARKET
-  # ==========================================================
-
-  - name: market for toluene (por)
-    reference product: toluene, liquid
-    unit: kilogram
-
-    includes:
-      # No Trade|To PoR|toluene or active toluene_terminal_BAT
-      # variable exists in the current CL/OCE scenario data.
-      - toluene_from_raw_upgrading
+      - raw_toluene_trade_import
 
     replaces:
       - name: market for toluene, liquid
@@ -942,21 +798,7 @@ markets:
     replaces in:
       - location: NL
 
-  # ==========================================================
-  # RAW PARA-XYLENE UPGRADING
-  # ==========================================================
-  #
-  # Although this is constructed through the premise "markets"
-  # section, it acts as a conversion activity:
-  #
-  #   1 kg raw p-xylene
-  #   + electricity
-  #   + HT heat
-  #   -> 1 kg purified p-xylene
-  #
-  # The raw suppliers are normalized to one kg of input.
-
-  - name: p-xylene production, from raw p-xylene upgrading (por)
+  - name: market for p-xylene (por)
     reference product: p-xylene
     unit: kilogram
 
@@ -965,43 +807,7 @@ markets:
       - raw_para_xylene_naphtha_steam_cracker_default_default
       - raw_para_xylene_retrofit_mta_with_loop
       - raw_para_xylene_retrofit_naphtha_cracker
-      #imports
-      - raw_para_xylene_trade_import_eu
-      - raw_para_xylene_terminal_import_row
-
-    add:
-      # ITOM: 0.2 TJ electricity per kt p-xylene
-      #       = 0.2 MJ/kg
-      #       = 0.0555556 kWh/kg
-      - name: market for electricity, medium voltage
-        reference product: electricity, medium voltage
-        amount: 0.055555556
-
-      # ITOM: 0.8 TJ HT heat per kt p-xylene
-      #       = 0.8 MJ/kg
-      #
-      # This activity must exist or be replaced by a documented
-      # high-temperature-heat proxy.
-      - name: market group for heat, district or industrial, natural gas
-        reference product: heat, district or industrial, natural gas
-        amount: 0.8
-
-  # ==========================================================
-  # PURIFIED PARA-XYLENE MARKET
-  # ==========================================================
-
-  - name: market for p-xylene (por)
-    reference product: p-xylene
-    unit: kilogram
-
-    includes:
-      # Purified output obtained from raw-material upgrading.
-      # The share is driven by:
-      # Intermediate Product|para_xylene|para_xylene_extraction
-      - para_xylene_from_raw_upgrading
-
-      # Already-purified European import.
-      - para_xylene_trade_import_eu
+      - raw_para_xylene_trade_import
 
     replaces:
       - name: market for p-xylene
@@ -1027,19 +833,30 @@ markets:
     replaces in:
       - location: NL
 
-  - name: market for methanol (por)
-    reference product: methanol
-    unit: kilogram
+  # I want to replace older steam markets with steam markets, as the those are not provided in the ITOM model.
+  - name: market for steam (por)
+    reference product: heat, from steam, in chemical industry
+    unit: megajoule
 
     includes:
-      - methanol_dac_terminal_row
-      - methanol_methane_gsr
-      - methanol_from_syngas
-      - methanol_trade_import_eu
+      - steam_por
 
     replaces:
-      - name: market for methanol
-        product: methanol
+      - name: market for heat, from steam, in chemical industry
+        product: heat, from steam, in chemical industry
+        location: RER
+
+      - name: market for heat, from steam, in chemical industry
+        product: heat, from steam, in chemical industry
+        location: RoW
+
+      - name: steam production, as energy carrier, in chemical industry
+        product: heat, from steam, in chemical industry
+        location: RER
+
+      - name: steam production, as energy carrier, in chemical industry
+        product: heat, from steam, in chemical industry
+        location: RoW
 
     replaces in:
       - location: NL

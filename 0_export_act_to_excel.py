@@ -180,6 +180,12 @@ TARGETS = [
         "target_name": "carbon dioxide compression, transport and storage",
         "target_reference_product": "carbon dioxide, stored",
         "target_location": "RER",
+    },
+    {
+        "your_product": "steam production, as energy carrier, in chemical industry",
+        "target_name": "steam production, as energy carrier, in chemical industry",
+        "target_reference_product": "heat, from steam, in chemical industry",
+        "target_location": "RER",
     }
 ]
 

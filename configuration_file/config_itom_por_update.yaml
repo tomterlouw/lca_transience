@@ -1,0 +1,151 @@
+production pathways:
+# p-xylene pathways (market supply routes)
+#Intermediate Product|raw_para_xylene|atmospheric_crude_oil_distillation_default
+#Intermediate Product|raw_para_xylene|naphtha_steam_cracker_default_default
+#Intermediate Product|raw_para_xylene|para_xylene_terminal_BAT
+#Intermediate Product|raw_para_xylene|retrofit_MTA_with_loop
+#Intermediate Product|raw_para_xylene|retrofit_naphtha_cracker
+
+  raw_para_xylene_atmospheric_crude_oil_distillation_default:
+    production volume:
+      variable: Intermediate Product|raw_para_xylene|atmospheric_crude_oil_distillation_default
+    ecoinvent alias:
+      name: BTX production, from reformate, average
+      reference product: p-xylene
+      exists in original database: True
+
+  raw_para_xylene_naphtha_steam_cracker_default_default:
+    production volume:
+      variable: Intermediate Product|raw_para_xylene|naphtha_steam_cracker_default_default
+    ecoinvent alias:
+      name: BTX production, from pyrolysis gas, average
+      reference product: p-xylene
+      exists in original database: True
+
+  raw_para_xylene_retrofit_mta_with_loop:
+    production volume:
+      variable: Intermediate Product|raw_para_xylene|retrofit_MTA_with_loop
+    ecoinvent alias:
+      name: p-xylene, via methanol-to-aromatics, mass allocation
+      reference product: p-xylene
+      exists in original database: False
+
+  raw_para_xylene_retrofit_naphtha_cracker:
+    production volume:
+      variable: Intermediate Product|raw_para_xylene|retrofit_naphtha_cracker
+    ecoinvent alias:
+      name: BTX production, from pyrolysis gas, average, retrofit
+      reference product: p-xylene
+      exists in original database: False
+
+  #imports
+  raw_para_xylene_trade_import_eu:
+    production volume:
+      variable: Trade|To PoR|raw_para_xylene
+    ecoinvent alias:
+      name: raw p-xylene, imported from EU (por)
+      reference product: raw p-xylene
+      exists in original database: False
+
+  raw_para_xylene_terminal_import_row:
+    production volume:
+      variable: Intermediate Product|raw_para_xylene|para_xylene_terminal_BAT
+    ecoinvent alias:
+      name: raw p-xylene, imported from outside EU (por)
+      reference product: raw p-xylene
+      exists in original database: False
+
+  # Already-purified European import; no upgrading is applied.
+  para_xylene_trade_import_eu:
+    production volume:
+      variable: Trade|To PoR|para_xylene
+    ecoinvent alias:
+      name: p-xylene, imported from EU (por)
+      reference product: p-xylene
+      exists in original database: False
+
+markets:
+  # ==========================================================
+  # RAW PARA-XYLENE UPGRADING
+  # ==========================================================
+  #
+  # Although this is constructed through the premise "markets"
+  # section, it acts as a conversion activity:
+  #
+  #   1 kg raw p-xylene
+  #   + electricity
+  #   + HT heat
+  #   -> 1 kg purified p-xylene
+  #
+  # The raw suppliers are normalized to one kg of input.
+
+  - name: p-xylene production, from raw p-xylene upgrading (por)
+    reference product: p-xylene
+    unit: kilogram
+
+    includes:
+      - raw_para_xylene_atmospheric_crude_oil_distillation_default
+      - raw_para_xylene_naphtha_steam_cracker_default_default
+      - raw_para_xylene_retrofit_mta_with_loop
+      - raw_para_xylene_retrofit_naphtha_cracker
+      #imports
+      - raw_para_xylene_trade_import_eu
+      - raw_para_xylene_terminal_import_row
+
+    add:
+      # ITOM: 0.2 TJ electricity per kt p-xylene
+      #       = 0.2 MJ/kg
+      #       = 0.0555556 kWh/kg
+      - name: market for electricity, medium voltage
+        reference product: electricity, medium voltage
+        amount: 0.055555556
+
+      # ITOM: 0.8 TJ HT heat per kt p-xylene
+      #       = 0.8 MJ/kg
+      #
+      # This activity must exist or be replaced by a documented
+      # high-temperature-heat proxy.
+      - name: market group for heat, district or industrial, natural gas
+        reference product: heat, district or industrial, natural gas
+        amount: 0.8
+
+  # ==========================================================
+  # PURIFIED PARA-XYLENE MARKET
+  # ==========================================================
+
+  - name: market for p-xylene (por)
+    reference product: p-xylene
+    unit: kilogram
+
+    includes:
+      # Purified output obtained from raw-material upgrading.
+      # The share is driven by:
+      # Intermediate Product|para_xylene|para_xylene_extraction
+      - p-xylene production, from raw p-xylene upgrading (por)
+
+      # Already-purified European import.
+      - para_xylene_trade_import_eu
+
+    replaces:
+      - name: market for p-xylene
+        product: p-xylene
+        location: RER
+
+      - name: market for p-xylene
+        product: p-xylene
+        location: NL
+
+      - name: market for p-xylene
+        product: p-xylene
+        location: RoW
+
+      - name: market for p-xylene
+        product: p-xylene
+        location: EUR
+
+      - name: market for p-xylene
+        product: p-xylene
+        location: RER w/o RU
+
+    replaces in:
+      - location: NL
