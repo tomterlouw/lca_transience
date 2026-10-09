@@ -2,14 +2,8 @@
 ---
 regionalize:
   datasets:
-    - name: synthetic fuel production, from coal, high temperature Fischer-Tropsch operations
-      reference product: ethylene
-      exists in original database: True 
     - name: light olefins production, from methanol-to-olefins conversion, ethylene-to-propylene ratio of 1.51
       reference product: ethylene
-      exists in original database: True 
-    - name: synthetic fuel production, from coal, high temperature Fischer-Tropsch operations
-      reference product: propylene
       exists in original database: True 
     - name: light olefins production, from methanol-to-olefins conversion, ethylene-to-propylene ratio of 0.67
       reference product: propylene
@@ -32,12 +26,6 @@ regionalize:
     - name: BTX production, from pyrolysis gas, average
       reference product: p-xylene
       exists in original database: True
-    #- name: methanol distillation, hydrogen from electrolysis, CO2 from DAC
-    #  reference product: methanol, purified
-    #  exists in original database: True
-    #- name: methanol synthesis, hydrogen from electrolysis, CO2 from DAC
-    #  reference product: methanol, unpurified
-    #  exists in original database: True
     # MDI, regionalize for this polymer
     - name: nitrobenzene production
       reference product: nitrobenzene
@@ -51,6 +39,19 @@ regionalize:
     - name: market for aniline
       reference product: aniline
       exists in original database: True
+    - name: market for hydrogen, gaseous, medium pressure, merchant
+      reference product: hydrogen, gaseous, medium pressure, merchant
+      exists in original database: True
+    - name: hydrogen compression, from low to medium pressure
+      reference product: hydrogen, gaseous, medium pressure, merchant
+      exists in original database: True
+    - name: market for nitric acid, without water, in 50% solution state
+      reference product: nitric acid, without water, in 50% solution state
+      exists in original database: True
+    - name: nitric acid production, product in 50% solution state
+      reference product: nitric acid, without water, in 50% solution state
+      exists in original database: True
+
     # PBS, regionalize for this polymer
     - name: 1,4-butanediol production
       reference product: 1,4-butanediol
@@ -145,6 +146,24 @@ regionalize:
     - name: methyl methacrylate production, acetone cyanohydrin process, with ammonium sulfate recovery
       reference product: methyl methacrylate
       exists in original database: True
+    - name: market for acetone, liquid
+      reference product: acetone, liquid
+      exists in original database: True
+    - name: phenol production, cumene oxidation
+      reference product: acetone, liquid
+      exists in original database: True 
+    - name: market for cumene
+      reference product: cumene
+      exists in original database: True
+    - name: p-diisopropylbenzene purification, distillation of crude p-diisopropylbenzene
+      reference product: cumene
+      exists in original database: True
+    - name: cumene production, benzene alkylation, UOP process
+      reference product: cumene
+      exists in original database: True
+    - name: cumene production, benzene alkylation, zeolite process
+      reference product: cumene
+      exists in original database: True
     # PBR, regionalize for this polymer
     - name: unsaturated hydrocarbons production, steam cracking operation, average
       reference product: C4 hydrocarbon mixture
@@ -215,6 +234,25 @@ regionalize:
     - name: market for chlorine, gaseous
       reference product: chlorine, gaseous
       exists in original database: True
+    #nylon 6.6
+    - name: adipic acid production
+      reference product: adipic acid
+      exists in original database: True
+    - name: hexamethylenediamine production
+      reference product: hexamethylenediamine
+      exists in original database: True
+    - name: market for cyclohexane
+      reference product: cyclohexane
+      exists in original database: True
+    - name: cyclohexane production, benzene hydrogenation, liquid phase process
+      reference product: cyclohexane
+      exists in original database: True
+    - name: market for adiponitrile
+      reference product: adiponitrile
+      exists in original database: True
+    - name: adiponitrile production
+      reference product: adiponitrile
+      exists in original database: True
 
 # ethylene
 # Intermediate Product|ethylene|FT_distillation_LT_default
@@ -227,22 +265,23 @@ regionalize:
 production pathways:
   # Ethylene pathways
   ethylene_ft_distillation_lt_default:
+    # ITOM mode 1. Natural-gas FT light-gas proxy approved as provisional.
+    # No FT inputs/utilities in ITOM; see docs/por_ft_lt_inventory.md.
     production volume:
       variable: Intermediate Product|ethylene|FT_distillation_LT_default
     ecoinvent alias:
-    # synthetic fuel production, from coal, high temperature Fischer-Tropsch
-      name: synthetic fuel production, from coal, high temperature Fischer-Tropsch operations
+      name: ethylene production, LT FT distillation, mode 1, natural gas proxy (por)
       reference product: ethylene
-      exists in original database: True
+      exists in original database: False
 
-  ethylene_mto_with_loop: 
-  # light olefins production, from methanol-to-olefins conversion, ethylene-to-propylene ratio of 1.51
+  ethylene_mto_with_loop:
+    # ITOM mode 2, aligned with propylene; storage service is embedded without a CO2 credit.
     production volume:
       variable: Intermediate Product|ethylene|MTO_with_loop
     ecoinvent alias:
-      name: light olefins production, from methanol-to-olefins conversion, ethylene-to-propylene ratio of 1.51
+      name: ethylene production, MTO with loop, mode 2, allocated (por)
       reference product: ethylene
-      exists in original database: True
+      exists in original database: False
 
   ethylene_naphtha_steam_cracker_default_default:
   # hydrocarbons production, steam cracking operation 
@@ -292,26 +331,27 @@ production pathways:
     production volume:
       variable: Intermediate Product|propylene|FCC_propylene_dedicated_default
     ecoinvent alias:
-      name: unsaturated hydrocarbons production, steam cracking operation, average
+      name: propylene production, FCC dedicated, allocated (por)
       reference product: propylene
-      exists in original database: True
+      exists in original database: False
 
   propylene_ft_distillation_lt_default:
+    # Same joint light-gas proxy and allocation boundary as the ethylene route.
     production volume:
       variable: Intermediate Product|propylene|FT_distillation_LT_default
     ecoinvent alias:
-      name: synthetic fuel production, from coal, high temperature Fischer-Tropsch operations
+      name: propylene production, LT FT distillation, mode 1, natural gas proxy (por)
       reference product: propylene
-      exists in original database: True
+      exists in original database: False
 
   propylene_mto_with_loop:
-  # methanol-to-olefins, ethylene-to-propylene ratio of 0.67
+    # ITOM mode 2; captured CO2 has a positive embedded storage-service exchange.
     production volume:
       variable: Intermediate Product|propylene|MTO_with_loop
     ecoinvent alias:
-      name: light olefins production, from methanol-to-olefins conversion, ethylene-to-propylene ratio of 0.67
+      name: propylene production, MTO with loop, mode 2, allocated (por)
       reference product: propylene
-      exists in original database: True
+      exists in original database: False
 
   propylene_trade_import:
      production volume:
@@ -321,37 +361,53 @@ production pathways:
       reference product: propylene
       exists in original database: False
       
-  #propylene_naphtha_steam_cracker_default_default:
-  #  production volume:
-  #    variable: Intermediate Product|propylene|naphtha_steam_cracker_default_default
-  #  ecoinvent alias:
-  #    name: hydrocarbons production, steam cracking operation
-  #    reference product: propylene
-  #    exists in original database: False
+  propylene_naphtha_steam_cracker_default_default:
+    production volume:
+      variable: Intermediate Product|propylene|naphtha_steam_cracker_default_default
+    ecoinvent alias:
+      name: propylene production, naphtha cracker default, allocated (por)
+      reference product: propylene
+      exists in original database: False
 
-  #propylene_retrofit_mta_with_loop:
-  #  production volume:
-  #    variable: Intermediate Product|propylene|retrofit_MTA_with_loop
-  #  ecoinvent alias:
-  #    name: methanol-to-olefins, ethylene-to-propylene ratio of 0.67
-  #    reference product: propylene
-  #    exists in original database: False
+  propylene_retrofit_mta_with_loop_mode1:
+    production volume:
+      variable: Intermediate Product|propylene|retrofit_MTA_with_loop|mode1
+    ecoinvent alias:
+      name: propylene production, MTA retrofit, mode 1, allocated (por)
+      reference product: propylene
+      exists in original database: False
 
-  #propylene_retrofit_gasoil_cracker:
-  #  production volume:
-  #    variable: Intermediate Product|propylene|retrofit_gasoil_cracker
-  #  ecoinvent alias:
-  #    name: hydrocarbons production, steam cracking operation
-  #    reference product: propylene
-  #    exists in original database: False
+  propylene_retrofit_mta_with_loop_mode2:
+    production volume:
+      variable: Intermediate Product|propylene|retrofit_MTA_with_loop|mode2
+    ecoinvent alias:
+      name: propylene production, MTA retrofit, mode 2, allocated (por)
+      reference product: propylene
+      exists in original database: False
 
-  #propylene_retrofit_naphtha_cracker:
-  #  production volume:
-  #    variable: Intermediate Product|propylene|retrofit_naphtha_cracker
-  #  ecoinvent alias:
-  #    name: hydrocarbons production, steam cracking operation
-  #    reference product: propylene
-  #    exists in original database: False
+  propylene_retrofit_gasoil_cracker:
+    production volume:
+      variable: Intermediate Product|propylene|retrofit_gasoil_cracker
+    ecoinvent alias:
+      name: propylene production, gasoil cracker retrofit, waste oil proxy, allocated (por)
+      reference product: propylene
+      exists in original database: False
+
+  propylene_retrofit_naphtha_cracker_mode1:
+    production volume:
+      variable: Intermediate Product|propylene|retrofit_naphtha_cracker|mode1
+    ecoinvent alias:
+      name: propylene production, naphtha cracker retrofit, fossil mode, allocated (por)
+      reference product: propylene
+      exists in original database: False
+
+  propylene_retrofit_naphtha_cracker_mode2:
+    production volume:
+      variable: Intermediate Product|propylene|retrofit_naphtha_cracker|mode2
+    ecoinvent alias:
+      name: propylene production, naphtha cracker retrofit, FT mode, allocated (por)
+      reference product: propylene
+      exists in original database: False
 
 #Intermediate Product|raw_benzene|atmospheric_crude_oil_distillation_default
 #Intermediate Product|raw_benzene|naphtha_steam_cracker_default_default
@@ -368,25 +424,41 @@ production pathways:
 
   raw_benzene_naphtha_steam_cracker_default_default:
     production volume:
-      variable: Intermediate Product|raw_benzene|naphtha_steam_cracker_default_default
+      variable: Intermediate Product|raw_benzene|naphtha_steam_cracker_default_default|mode1
     ecoinvent alias:
-      name: BTX production, from pyrolysis gas, average
-      reference product: benzene
-      exists in original database: True
-
-  raw_benzene_retrofit_mta_with_loop:
-    production volume:
-      variable: Intermediate Product|raw_benzene|retrofit_MTA_with_loop
-    ecoinvent alias:
-      name: benzene, via methanol-to-aromatics, mass allocation
+      name: raw benzene stream, naphtha cracker default, mode 1, allocated (por)
       reference product: benzene
       exists in original database: False
 
-  raw_benzene_retrofit_naphtha_cracker:
+  raw_benzene_retrofit_mta_with_loop_mode1:
     production volume:
-      variable: Intermediate Product|raw_benzene|retrofit_naphtha_cracker
+      variable: Intermediate Product|raw_benzene|retrofit_MTA_with_loop|mode1
     ecoinvent alias:
-      name: BTX production, from pyrolysis gas, average, retrofit
+      name: raw benzene stream, MTA retrofit, mode 1, allocated (por)
+      reference product: benzene
+      exists in original database: False
+
+  raw_benzene_retrofit_mta_with_loop_mode2:
+    production volume:
+      variable: Intermediate Product|raw_benzene|retrofit_MTA_with_loop|mode2
+    ecoinvent alias:
+      name: raw benzene stream, MTA retrofit, mode 2, allocated (por)
+      reference product: benzene
+      exists in original database: False
+
+  raw_benzene_retrofit_naphtha_cracker_mode1:
+    production volume:
+      variable: Intermediate Product|raw_benzene|retrofit_naphtha_cracker|mode1
+    ecoinvent alias:
+      name: raw benzene stream, naphtha cracker retrofit, mode 1, allocated (por)
+      reference product: benzene
+      exists in original database: False
+
+  raw_benzene_retrofit_naphtha_cracker_mode2:
+    production volume:
+      variable: Intermediate Product|raw_benzene|retrofit_naphtha_cracker|mode2
+    ecoinvent alias:
+      name: raw benzene stream, naphtha cracker retrofit, mode 2, allocated (por)
       reference product: benzene
       exists in original database: False
 
@@ -448,25 +520,33 @@ production pathways:
 
   raw_toluene_naphtha_steam_cracker_default_default:
     production volume:
-      variable: Intermediate Product|raw_toluene|naphtha_steam_cracker_default_default
+      variable: Intermediate Product|raw_toluene|naphtha_steam_cracker_default_default|mode1
     ecoinvent alias:
-      name: BTX production, from pyrolysis gas, average
+      name: raw toluene stream, naphtha cracker default, mode 1, allocated (por)
       reference product: toluene, liquid
-      exists in original database: True
-
-  raw_toluene_retrofit_mta_with_loop:
-    production volume:
-      variable: Intermediate Product|raw_toluene|retrofit_MTA_with_loop
-    ecoinvent alias:
-      name: toluene, via methanol-to-aromatics, mass allocation
-      reference product: toluene
       exists in original database: False
 
-  raw_toluene_retrofit_naphtha_cracker:
+  raw_toluene_retrofit_mta_with_loop_mode1:
     production volume:
-      variable: Intermediate Product|raw_toluene|retrofit_naphtha_cracker
+      variable: Intermediate Product|raw_toluene|retrofit_MTA_with_loop|mode1
     ecoinvent alias:
-      name: BTX production, from pyrolysis gas, average, retrofit
+      name: raw toluene stream, MTA retrofit, mode 1, allocated (por)
+      reference product: toluene, liquid
+      exists in original database: False
+
+  raw_toluene_retrofit_mta_with_loop_mode2:
+    production volume:
+      variable: Intermediate Product|raw_toluene|retrofit_MTA_with_loop|mode2
+    ecoinvent alias:
+      name: raw toluene stream, MTA retrofit, mode 2, allocated (por)
+      reference product: toluene, liquid
+      exists in original database: False
+
+  raw_toluene_retrofit_naphtha_cracker_mode1:
+    production volume:
+      variable: Intermediate Product|raw_toluene|retrofit_naphtha_cracker|mode1
+    ecoinvent alias:
+      name: raw toluene stream, naphtha cracker retrofit, mode 1, allocated (por)
       reference product: toluene, liquid
       exists in original database: False
 
@@ -497,14 +577,15 @@ production pathways:
       exists in original database: False
 
   # Imported DAC methanol from outside EU27+3
+  # Workbook assumption: MA production; 50% solar/50% wind operating power,
+  # including dedicated PEM hydrogen. Auxiliary supplies need no ITOM variables.
   methanol_dac_terminal_row:
     production volume:
       variable: Material Input|methanol|DAC_methanol_terminal_BATplus
     ecoinvent alias:
       name: methanol, DAC-based, imported outside EU (por)
       reference product: methanol
-      # True only when the FORECAST package has already imported this activity.
-      exists in original database: True
+      exists in original database: False
 
   # Local PoR methane-GSR production
   methanol_methane_gsr:
@@ -541,25 +622,33 @@ production pathways:
 
   raw_para_xylene_naphtha_steam_cracker_default_default:
     production volume:
-      variable: Intermediate Product|raw_para_xylene|naphtha_steam_cracker_default_default
+      variable: Intermediate Product|raw_para_xylene|naphtha_steam_cracker_default_default|mode1
     ecoinvent alias:
-      name: BTX production, from pyrolysis gas, average
-      reference product: p-xylene
-      exists in original database: True
-
-  raw_para_xylene_retrofit_mta_with_loop:
-    production volume:
-      variable: Intermediate Product|raw_para_xylene|retrofit_MTA_with_loop
-    ecoinvent alias:
-      name: p-xylene, via methanol-to-aromatics, mass allocation
+      name: raw p-xylene stream, naphtha cracker default, mode 1, allocated (por)
       reference product: p-xylene
       exists in original database: False
 
-  raw_para_xylene_retrofit_naphtha_cracker:
+  raw_para_xylene_retrofit_mta_with_loop_mode1:
     production volume:
-      variable: Intermediate Product|raw_para_xylene|retrofit_naphtha_cracker
+      variable: Intermediate Product|raw_para_xylene|retrofit_MTA_with_loop|mode1
     ecoinvent alias:
-      name: BTX production, from pyrolysis gas, average, retrofit
+      name: raw p-xylene stream, MTA retrofit, mode 1, allocated (por)
+      reference product: p-xylene
+      exists in original database: False
+
+  raw_para_xylene_retrofit_mta_with_loop_mode2:
+    production volume:
+      variable: Intermediate Product|raw_para_xylene|retrofit_MTA_with_loop|mode2
+    ecoinvent alias:
+      name: raw p-xylene stream, MTA retrofit, mode 2, allocated (por)
+      reference product: p-xylene
+      exists in original database: False
+
+  raw_para_xylene_retrofit_naphtha_cracker_mode1:
+    production volume:
+      variable: Intermediate Product|raw_para_xylene|retrofit_naphtha_cracker|mode1
+    ecoinvent alias:
+      name: raw p-xylene stream, naphtha cracker retrofit, mode 1, allocated (por)
       reference product: p-xylene
       exists in original database: False
 
@@ -649,10 +738,12 @@ production pathways:
       exists in original database: False
 
   FE_nylon:
+    # Resin-only reconstruction with explicit monomers/utilities; no moulding.
+    # Provisional assumptions and HMDA background check: docs/por_nylon66_inventory.md.
     production volume:
       variable: Final Product|nylon_6_6|nylon_6_6_default
     ecoinvent alias:
-      name: nylon 6-6 production
+      name: nylon 6-6 production, explicit monomers, reconstructed (por)
       reference product: nylon 6-6
       exists in original database: False
 
@@ -712,32 +803,6 @@ production pathways:
       reference product: polyvinyl chloride, suspension polymerised
       exists in original database: False
 
-  FE_CC_MTO_with_loop:
-    production volume:
-      variable: CO2 Related|stored_CO2|MTO_with_loop
-    ecoinvent alias:
-      name: carbon dioxide compression, transport and storage, with credit, MTO with loop
-      reference product: carbon dioxide, stored
-      exists in original database: False
-
-  # Totals are generated by add_ccs_aggregates in the ITOM converter.
-  FE_CC_waste_pyrolysis:
-    production volume:
-      variable: CO2 Related|stored_CO2|waste_pyrolysis
-    ecoinvent alias:
-      name: carbon dioxide compression, transport and storage, with credit, plastic waste pyrolysis
-      reference product: carbon dioxide, stored
-      exists in original database: False
-
-  # Includes cracker-HFO gasification
-  FE_CC_gasification:
-    production volume:
-      variable: CO2 Related|stored_CO2|gasification
-    ecoinvent alias:
-      name: carbon dioxide compression, transport and storage, with credit, gasification with plastic waste
-      reference product: carbon dioxide, stored
-      exists in original database: False
-
 markets:
   - name: market for ethylene (por)
     reference product: ethylene
@@ -782,10 +847,12 @@ markets:
       - propylene_ft_distillation_lt_default
       - propylene_mto_with_loop
       - propylene_trade_import
-      #- propylene_naphtha_steam_cracker_default_default
-      #- propylene_retrofit_mta_with_loop
-      #- propylene_retrofit_gasoil_cracker
-      #- propylene_retrofit_naphtha_cracker
+      - propylene_naphtha_steam_cracker_default_default
+      - propylene_retrofit_mta_with_loop_mode1
+      - propylene_retrofit_mta_with_loop_mode2
+      - propylene_retrofit_gasoil_cracker
+      - propylene_retrofit_naphtha_cracker_mode1
+      - propylene_retrofit_naphtha_cracker_mode2
 
     replaces:
       - name: market for propylene
@@ -814,6 +881,9 @@ markets:
   # ==========================================================
   # BENZENE UPGRADING
   # ==========================================================
+  # The new raw-aromatic LCIs stop before extraction; this market adds
+  # purification energy once. Their ecoinvent reference products are
+  # equivalents used for market compatibility, not purified-material claims.
 
   - name: benzene production, from raw benzene upgrading (por)
     reference product: benzene
@@ -822,8 +892,10 @@ markets:
     includes:
       - raw_benzene_atmospheric_crude_oil_distillation_default
       - raw_benzene_naphtha_steam_cracker_default_default
-      - raw_benzene_retrofit_mta_with_loop
-      - raw_benzene_retrofit_naphtha_cracker
+      - raw_benzene_retrofit_mta_with_loop_mode1
+      - raw_benzene_retrofit_mta_with_loop_mode2
+      - raw_benzene_retrofit_naphtha_cracker_mode1
+      - raw_benzene_retrofit_naphtha_cracker_mode2
       - raw_benzene_trade_import_eu
 
     add:
@@ -833,7 +905,7 @@ markets:
         amount: 0.027777778
 
       # ITOM steam input: 2 TJ/kt = 2 MJ/kg.
-      - name: steam production, as energy carrier, in chemical industry (por)
+      - name: steam production, as energy carrier, in chemical industry, for por
         reference product: heat, from steam, in chemical industry
         amount: 2.0
 
@@ -886,8 +958,9 @@ markets:
     includes:
       - raw_toluene_atmospheric_crude_oil_distillation_default
       - raw_toluene_naphtha_steam_cracker_default_default
-      - raw_toluene_retrofit_mta_with_loop
-      - raw_toluene_retrofit_naphtha_cracker
+      - raw_toluene_retrofit_mta_with_loop_mode1
+      - raw_toluene_retrofit_mta_with_loop_mode2
+      - raw_toluene_retrofit_naphtha_cracker_mode1
       - raw_toluene_trade_import_eu
 
     add:
@@ -897,7 +970,7 @@ markets:
         amount: 0.027777778
 
       # ITOM steam input: 2 TJ/kt = 2 MJ/kg.
-      - name: steam production, as energy carrier, in chemical industry (por)
+      - name: steam production, as energy carrier, in chemical industry, for por
         reference product: heat, from steam, in chemical industry
         amount: 2.0
 
@@ -963,8 +1036,9 @@ markets:
     includes:
       - raw_para_xylene_atmospheric_crude_oil_distillation_default
       - raw_para_xylene_naphtha_steam_cracker_default_default
-      - raw_para_xylene_retrofit_mta_with_loop
-      - raw_para_xylene_retrofit_naphtha_cracker
+      - raw_para_xylene_retrofit_mta_with_loop_mode1
+      - raw_para_xylene_retrofit_mta_with_loop_mode2
+      - raw_para_xylene_retrofit_naphtha_cracker_mode1
       #imports
       - raw_para_xylene_trade_import_eu
       - raw_para_xylene_terminal_import_row
@@ -1039,6 +1113,9 @@ markets:
 
     replaces:
       - name: market for methanol
+        product: methanol
+
+      - name: market for methanol (SPS)
         product: methanol
 
     replaces in:

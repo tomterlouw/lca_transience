@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+import re
+from pathlib import Path
+
 import pandas as pd
 
 
@@ -91,7 +94,11 @@ def build_variable(
     base = f"{category}|{product}|{technology}"
 
     if include_mode and mode is not None:
-        base += f"|Mode {mode}"
+        # Keep a stable, machine-readable suffix matching config_itom_por.yaml.
+        mode_number = int(mode)
+        if float(mode) != mode_number:
+            raise ValueError(f"Non-integer operating mode: {mode}")
+        base += f"|mode{mode_number}"
 
     if include_location_in_variable and location is not None:
         base += f"|{location}"
@@ -382,14 +389,75 @@ def ensure_required_fe_variables(iamc, config_path):
         )
 
     return iamc
+
+
+def add_mode_aware_rows(iamc: pd.DataFrame, mode_detail: pd.DataFrame,
+                        config_path: Path) -> pd.DataFrame:
+    """Add only the operating-mode variables used by the PoR configuration.
+
+    The existing aggregated rows remain in the IAMC file for backward
+    compatibility. Each mapped product/technology must reconcile to the sum
+    of its modes; a newly active, unmapped mode is an error, not a silent loss.
+    """
+    import yaml
+
+    with config_path.open(encoding="utf-8") as stream:
+        pathways = yaml.safe_load(stream)["production pathways"]
+    mapped = {
+        settings["production volume"]["variable"]
+        for settings in pathways.values()
+        if re.search(r"\|mode\d+$", settings["production volume"]["variable"])
+    }
+    if not mapped:
+        raise ValueError("No mode-aware pathways found in PoR configuration.")
+
+    metadata = ["model", "scenario", "region"]
+    years = [column for column in iamc.columns if str(column).isdigit()]
+    mapped_bases = {variable.rsplit("|", 1)[0] for variable in mapped}
+    mode_detail = mode_detail.copy()
+    mode_detail[years] = mode_detail[years].fillna(0)
+    all_related = mode_detail["variables"].str.rsplit("|", n=1).str[0].isin(mapped_bases)
+    unexpected = set(mode_detail.loc[all_related, "variables"]) - mapped
+    if unexpected:
+        raise ValueError(f"Active operating modes lack PoR pathways: {sorted(unexpected)}")
+    selected = mode_detail.loc[mode_detail["variables"].isin(mapped)].copy()
+    if selected.duplicated(metadata + ["variables", "unit"]).any():
+        raise ValueError("Duplicate mode-aware IAMC variables.")
+
+    additions = []
+    for context in iamc[metadata].drop_duplicates().itertuples(index=False, name=None):
+        context_mask = selected[metadata].eq(context).all(axis=1)
+        existing = set(selected.loc[context_mask, "variables"])
+        for variable in mapped - existing:
+            additions.append({
+                **dict(zip(metadata, context)),
+                "variables": variable,
+                "unit": infer_unit_from_product(variable.split("|")[1]),
+                **{year: 0.0 for year in years},
+            })
+    if additions:
+        selected = pd.concat([selected, pd.DataFrame(additions)], ignore_index=True)
+
+    for base in mapped_bases:
+        mode_totals = selected.loc[
+            selected["variables"].str.startswith(base + "|mode")
+        ].groupby(metadata, sort=False)[years].sum()
+        aggregate = iamc.loc[iamc["variables"].eq(base)].set_index(metadata)
+        for context, totals in mode_totals.iterrows():
+            expected = (aggregate.loc[context, years]
+                        if context in aggregate.index else pd.Series(0.0, index=years))
+            if isinstance(expected, pd.DataFrame):
+                raise ValueError(f"Duplicate aggregate IAMC rows: {base}, {context}")
+            if not (totals.astype(float) - expected.astype(float)).abs().le(1e-8).all():
+                raise ValueError(f"Mode rows do not reconcile with {base}, {context}")
+
+    return pd.concat([iamc, selected], ignore_index=True, sort=False)
 # ----------------------------
 # Main
 # ----------------------------
 # ----------------------------
 # Main: convert both scenarios
 # ----------------------------
-
-from pathlib import Path
 
 SCENARIO_INPUTS = {
     "CL": "TRANSIENCE-WP8_ITOM-petchem_data_CL-scenario_2026-04-15.xlsx",
@@ -409,6 +477,7 @@ def main():
             raise FileNotFoundError(f"{scenario} input not found: {path}")
 
     scenario_outputs = {}
+    mode_outputs = []
 
     for scenario, filename in SCENARIO_INPUTS.items():
         sheets = pd.read_excel(
@@ -442,6 +511,15 @@ def main():
             include_location_in_variable=False,
             **common_options,
         )
+
+        mode_outputs.append(to_iamc_production_volume(
+            sheets["production_volume"],
+            product_type_map=product_type_map,
+            region_map=DEFAULT_REGION_MAP,
+            include_mode=True,
+            include_location_in_variable=False,
+            **common_options,
+        ))
 
         imports = to_iamc_trade_volume(
             sheets["transport_to_PoR"],
@@ -481,6 +559,13 @@ def main():
 
     combined = combined[metadata_columns + year_columns]
     combined[year_columns] = combined[year_columns].fillna(0)
+
+    mode_detail = pd.concat(mode_outputs, ignore_index=True, sort=False)
+    mode_detail = mode_detail[metadata_columns + year_columns]
+    combined = add_mode_aware_rows(
+        combined, mode_detail,
+        base_dir / "configuration_file" / "config_itom_por.yaml",
+    )
 
     # Sum annualized storage flows while retaining the detailed technology rows.
     combined = add_ccs_aggregates(combined)

@@ -3,24 +3,6 @@ EXT - 0 - methanol_h2:
   - name: methanol distillation, hydrogen from electrolysis, CO2 from DAC
     reference product: methanol, purified
     unit: kilogram
-EXT - 1 - FE_CC_MTO_with_loop:
-  dataset:
-  - name: carbon dioxide compression, transport and storage, with credit, MTO with
-      loop
-    reference product: carbon dioxide, stored
-    unit: kilogram
-EXT - 1 - FE_CC_gasification:
-  dataset:
-  - name: carbon dioxide compression, transport and storage, with credit, gasification
-      with plastic waste
-    reference product: carbon dioxide, stored
-    unit: kilogram
-EXT - 1 - FE_CC_waste_pyrolysis:
-  dataset:
-  - name: carbon dioxide compression, transport and storage, with credit, plastic
-      waste pyrolysis
-    reference product: carbon dioxide, stored
-    unit: kilogram
 EXT - 1 - FE_MDI:
   dataset:
   - name: MDI production
@@ -63,7 +45,7 @@ EXT - 1 - FE_PVC:
     unit: kilogram
 EXT - 1 - FE_nylon:
   dataset:
-  - name: nylon 6-6 production
+  - name: nylon 6-6 production, explicit monomers, reconstructed (por)
     reference product: nylon 6-6
     unit: kilogram
 EXT - 1 - FE_polyols:
@@ -100,6 +82,16 @@ EXT - 1 - benzene_trade_import_eu:
   dataset:
   - name: benzene, imported from EU (por)
     reference product: benzene
+    unit: kilogram
+EXT - 1 - ethylene_ft_distillation_lt_default:
+  dataset:
+  - name: ethylene production, LT FT distillation, mode 1, natural gas proxy (por)
+    reference product: ethylene
+    unit: kilogram
+EXT - 1 - ethylene_mto_with_loop:
+  dataset:
+  - name: ethylene production, MTO with loop, mode 2, allocated (por)
+    reference product: ethylene
     unit: kilogram
 EXT - 1 - ethylene_retrofit_gasoil_cracker:
   dataset:
@@ -149,6 +141,52 @@ EXT - 1 - para_xylene_trade_import_eu:
   - name: p-xylene, imported from EU (por)
     reference product: p-xylene
     unit: kilogram
+EXT - 1 - propylene_fcc_propylene_dedicated_default:
+  dataset:
+  - name: propylene production, FCC dedicated, allocated (por)
+    reference product: propylene
+    unit: kilogram
+EXT - 1 - propylene_ft_distillation_lt_default:
+  dataset:
+  - name: propylene production, LT FT distillation, mode 1, natural gas proxy (por)
+    reference product: propylene
+    unit: kilogram
+EXT - 1 - propylene_mto_with_loop:
+  dataset:
+  - name: propylene production, MTO with loop, mode 2, allocated (por)
+    reference product: propylene
+    unit: kilogram
+EXT - 1 - propylene_naphtha_steam_cracker_default_default:
+  dataset:
+  - name: propylene production, naphtha cracker default, allocated (por)
+    reference product: propylene
+    unit: kilogram
+EXT - 1 - propylene_retrofit_gasoil_cracker:
+  dataset:
+  - name: propylene production, gasoil cracker retrofit, waste oil proxy, allocated
+      (por)
+    reference product: propylene
+    unit: kilogram
+EXT - 1 - propylene_retrofit_mta_with_loop_mode1:
+  dataset:
+  - name: propylene production, MTA retrofit, mode 1, allocated (por)
+    reference product: propylene
+    unit: kilogram
+EXT - 1 - propylene_retrofit_mta_with_loop_mode2:
+  dataset:
+  - name: propylene production, MTA retrofit, mode 2, allocated (por)
+    reference product: propylene
+    unit: kilogram
+EXT - 1 - propylene_retrofit_naphtha_cracker_mode1:
+  dataset:
+  - name: propylene production, naphtha cracker retrofit, fossil mode, allocated (por)
+    reference product: propylene
+    unit: kilogram
+EXT - 1 - propylene_retrofit_naphtha_cracker_mode2:
+  dataset:
+  - name: propylene production, naphtha cracker retrofit, FT mode, allocated (por)
+    reference product: propylene
+    unit: kilogram
 EXT - 1 - propylene_trade_import:
   dataset:
   - name: propylene, imported
@@ -159,14 +197,29 @@ EXT - 1 - raw_benzene_atmospheric_crude_oil_distillation_default:
   - name: BTX production, from reformate, average
     reference product: benzene
     unit: kilogram
-EXT - 1 - raw_benzene_retrofit_mta_with_loop:
+EXT - 1 - raw_benzene_naphtha_steam_cracker_default_default:
   dataset:
-  - name: benzene, via methanol-to-aromatics, mass allocation
+  - name: raw benzene stream, naphtha cracker default, mode 1, allocated (por)
     reference product: benzene
     unit: kilogram
-EXT - 1 - raw_benzene_retrofit_naphtha_cracker:
+EXT - 1 - raw_benzene_retrofit_mta_with_loop_mode1:
   dataset:
-  - name: BTX production, from pyrolysis gas, average, retrofit
+  - name: raw benzene stream, MTA retrofit, mode 1, allocated (por)
+    reference product: benzene
+    unit: kilogram
+EXT - 1 - raw_benzene_retrofit_mta_with_loop_mode2:
+  dataset:
+  - name: raw benzene stream, MTA retrofit, mode 2, allocated (por)
+    reference product: benzene
+    unit: kilogram
+EXT - 1 - raw_benzene_retrofit_naphtha_cracker_mode1:
+  dataset:
+  - name: raw benzene stream, naphtha cracker retrofit, mode 1, allocated (por)
+    reference product: benzene
+    unit: kilogram
+EXT - 1 - raw_benzene_retrofit_naphtha_cracker_mode2:
+  dataset:
+  - name: raw benzene stream, naphtha cracker retrofit, mode 2, allocated (por)
     reference product: benzene
     unit: kilogram
 EXT - 1 - raw_benzene_trade_import_eu:
@@ -179,14 +232,24 @@ EXT - 1 - raw_para_xylene_atmospheric_crude_oil_distillation_default:
   - name: BTX production, from reformate, average
     reference product: p-xylene
     unit: kilogram
-EXT - 1 - raw_para_xylene_retrofit_mta_with_loop:
+EXT - 1 - raw_para_xylene_naphtha_steam_cracker_default_default:
   dataset:
-  - name: p-xylene, via methanol-to-aromatics, mass allocation
+  - name: raw p-xylene stream, naphtha cracker default, mode 1, allocated (por)
     reference product: p-xylene
     unit: kilogram
-EXT - 1 - raw_para_xylene_retrofit_naphtha_cracker:
+EXT - 1 - raw_para_xylene_retrofit_mta_with_loop_mode1:
   dataset:
-  - name: BTX production, from pyrolysis gas, average, retrofit
+  - name: raw p-xylene stream, MTA retrofit, mode 1, allocated (por)
+    reference product: p-xylene
+    unit: kilogram
+EXT - 1 - raw_para_xylene_retrofit_mta_with_loop_mode2:
+  dataset:
+  - name: raw p-xylene stream, MTA retrofit, mode 2, allocated (por)
+    reference product: p-xylene
+    unit: kilogram
+EXT - 1 - raw_para_xylene_retrofit_naphtha_cracker_mode1:
+  dataset:
+  - name: raw p-xylene stream, naphtha cracker retrofit, mode 1, allocated (por)
     reference product: p-xylene
     unit: kilogram
 EXT - 1 - raw_para_xylene_terminal_import_row:
@@ -204,14 +267,24 @@ EXT - 1 - raw_toluene_atmospheric_crude_oil_distillation_default:
   - name: BTX production, from reformate, average
     reference product: toluene, liquid
     unit: kilogram
-EXT - 1 - raw_toluene_retrofit_mta_with_loop:
+EXT - 1 - raw_toluene_naphtha_steam_cracker_default_default:
   dataset:
-  - name: toluene, via methanol-to-aromatics, mass allocation
-    reference product: toluene
+  - name: raw toluene stream, naphtha cracker default, mode 1, allocated (por)
+    reference product: toluene, liquid
     unit: kilogram
-EXT - 1 - raw_toluene_retrofit_naphtha_cracker:
+EXT - 1 - raw_toluene_retrofit_mta_with_loop_mode1:
   dataset:
-  - name: BTX production, from pyrolysis gas, average, retrofit
+  - name: raw toluene stream, MTA retrofit, mode 1, allocated (por)
+    reference product: toluene, liquid
+    unit: kilogram
+EXT - 1 - raw_toluene_retrofit_mta_with_loop_mode2:
+  dataset:
+  - name: raw toluene stream, MTA retrofit, mode 2, allocated (por)
+    reference product: toluene, liquid
+    unit: kilogram
+EXT - 1 - raw_toluene_retrofit_naphtha_cracker_mode1:
+  dataset:
+  - name: raw toluene stream, naphtha cracker retrofit, mode 1, allocated (por)
     reference product: toluene, liquid
     unit: kilogram
 EXT - 1 - raw_toluene_trade_import_eu:
@@ -396,11 +469,11 @@ FE - final energy - Industry - Cement - SNG:
     unit: megajoule
 FE - final energy - Industry - Cement - Solid biomass:
   dataset:
-  - name: heat production, softwood chips from forest, at furnace 1000kW, state-of-the-art
-      2014
+  - name: heat production, softwood chips from forest, at furnace 1000kW
     reference product: heat, district or industrial, other than natural gas
     unit: megajoule
-  - name: heat production, softwood chips from forest, at furnace 1000kW
+  - name: heat production, softwood chips from forest, at furnace 1000kW, state-of-the-art
+      2014
     reference product: heat, district or industrial, other than natural gas
     unit: megajoule
 FE - final energy - Industry - Cement - Solid coal:
@@ -455,11 +528,11 @@ FE - final energy - Industry - Chemicals - Chemicals - SNG:
     unit: megajoule
 FE - final energy - Industry - Chemicals - Chemicals - Solid Biomass:
   dataset:
-  - name: heat production, softwood chips from forest, at furnace 1000kW, state-of-the-art
-      2014
+  - name: heat production, softwood chips from forest, at furnace 1000kW
     reference product: heat, district or industrial, other than natural gas
     unit: megajoule
-  - name: heat production, softwood chips from forest, at furnace 1000kW
+  - name: heat production, softwood chips from forest, at furnace 1000kW, state-of-the-art
+      2014
     reference product: heat, district or industrial, other than natural gas
     unit: megajoule
 FE - final energy - Industry - Chemicals - Chemicals - Solid coal:
@@ -530,13 +603,19 @@ FE - final energy - Industry - Non-energy use - Solid coal:
   - lhv:
       unit: megajoule
       value: 24.2
-    name: hard coal mine operation, open cast, truck and shovel
+    name: hard coal mine operation, open cast, dragline
     reference product: hard coal, run-of-mine
     unit: kilogram
   - lhv:
       unit: megajoule
       value: 24.2
     name: hard coal mine operation
+    reference product: hard coal, run-of-mine
+    unit: kilogram
+  - lhv:
+      unit: megajoule
+      value: 24.2
+    name: hard coal mine operation, open cast, truck and shovel
     reference product: hard coal, run-of-mine
     unit: kilogram
   - lhv:
@@ -549,12 +628,6 @@ FE - final energy - Industry - Non-energy use - Solid coal:
       unit: megajoule
       value: 24.2
     name: hard coal mine operation, underground
-    reference product: hard coal, run-of-mine
-    unit: kilogram
-  - lhv:
-      unit: megajoule
-      value: 24.2
-    name: hard coal mine operation, open cast, dragline
     reference product: hard coal, run-of-mine
     unit: kilogram
 FE - final energy - Industry - Non-energy use - Syn Fuel:
@@ -2377,35 +2450,35 @@ SE - cdr - synthetic fuels, with CCS:
     unit: kilogram
 SE - cement - cement, dry feed rotary kiln:
   dataset:
-  - name: clinker production
+  - name: clinker production, average
     reference product: clinker
     unit: kilogram
-  - name: clinker production, average
+  - name: clinker production
     reference product: clinker
     unit: kilogram
 SE - cement - cement, dry feed rotary kiln, efficient, with MEA CCS:
   dataset:
+  - name: clinker production, average
+    reference product: clinker
+    unit: kilogram
   - name: clinker production, dry feed rotary kiln, efficient, with MEA CCS
     reference product: clinker
     unit: kilogram
   - name: clinker production
     reference product: clinker
     unit: kilogram
-  - name: clinker production, average
-    reference product: clinker
-    unit: kilogram
 SE - electricity - Biomass CHP:
   dataset:
-  - name: heat and power co-generation, wood chips, 2000 kW
+  - name: heat and power co-generation, wood chips, 2000 kW, state-of-the-art 2014
     reference product: electricity, high voltage
     unit: kilowatt hour
-  - name: heat and power co-generation, wood chips, 2000 kW, state-of-the-art 2014
+  - name: heat and power co-generation, wood chips, 6667 kW
     reference product: electricity, high voltage
     unit: kilowatt hour
   - name: heat and power co-generation, wood chips, 6667 kW, state-of-the-art 2014
     reference product: electricity, high voltage
     unit: kilowatt hour
-  - name: heat and power co-generation, wood chips, 6667 kW
+  - name: heat and power co-generation, wood chips, 2000 kW
     reference product: electricity, high voltage
     unit: kilowatt hour
 SE - electricity - Biomass IGCC:
@@ -2437,11 +2510,11 @@ SE - electricity - Coal IGCC:
     unit: kilowatt hour
 SE - electricity - Coal IGCC CCS:
   dataset:
-  - name: electricity production, at hard coal-fired IGCC power plant, pre, pipeline
+  - name: electricity production, at lignite-fired IGCC power plant, pre, pipeline
       200km, storage 1000m
     reference product: electricity, high voltage
     unit: kilowatt hour
-  - name: electricity production, at lignite-fired IGCC power plant, pre, pipeline
+  - name: electricity production, at hard coal-fired IGCC power plant, pre, pipeline
       200km, storage 1000m
     reference product: electricity, high voltage
     unit: kilowatt hour
@@ -2491,13 +2564,13 @@ SE - electricity - Geothermal:
     unit: kilowatt hour
 SE - electricity - Hydro:
   dataset:
+  - name: electricity production, hydro, reservoir, tropical region
+    reference product: electricity, high voltage
+    unit: kilowatt hour
   - name: electricity production, hydro, reservoir, alpine region
     reference product: electricity, high voltage
     unit: kilowatt hour
   - name: electricity production, hydro, reservoir, non-alpine region
-    reference product: electricity, high voltage
-    unit: kilowatt hour
-  - name: electricity production, hydro, reservoir, tropical region
     reference product: electricity, high voltage
     unit: kilowatt hour
   - name: electricity production, hydro, run-of-river
@@ -2505,13 +2578,13 @@ SE - electricity - Hydro:
     unit: kilowatt hour
 SE - electricity - Nuclear:
   dataset:
-  - name: electricity production, nuclear, boiling water reactor
+  - name: electricity production, nuclear, pressure water reactor, heavy water moderated
     reference product: electricity, high voltage
     unit: kilowatt hour
   - name: electricity production, nuclear, pressure water reactor
     reference product: electricity, high voltage
     unit: kilowatt hour
-  - name: electricity production, nuclear, pressure water reactor, heavy water moderated
+  - name: electricity production, nuclear, boiling water reactor
     reference product: electricity, high voltage
     unit: kilowatt hour
 SE - electricity - Oil ST:
@@ -2545,17 +2618,23 @@ SE - electricity - Wind Offshore:
     unit: kilowatt hour
 SE - electricity - Wind Onshore:
   dataset:
-  - name: electricity production, wind, >3MW turbine, onshore
-    reference product: electricity, high voltage
-    unit: kilowatt hour
   - name: electricity production, wind, <1MW turbine, onshore
     reference product: electricity, high voltage
     unit: kilowatt hour
   - name: electricity production, wind, 1-3MW turbine, onshore
     reference product: electricity, high voltage
     unit: kilowatt hour
+  - name: electricity production, wind, >3MW turbine, onshore
+    reference product: electricity, high voltage
+    unit: kilowatt hour
 SE - fuels - biodiesel, from oil crops:
   dataset:
+  - lhv:
+      unit: megajoule
+      value: 38
+    name: biodiesel production, via transesterification, from palm oil, energy allocation
+    reference product: biodiesel, from palm oil
+    unit: kilogram
   - lhv:
       unit: megajoule
       value: 38
@@ -2568,12 +2647,6 @@ SE - fuels - biodiesel, from oil crops:
     name: biodiesel production, via transesterification, from rapeseed oil, energy
       allocation
     reference product: biodiesel, from rapeseed oil
-    unit: kilogram
-  - lhv:
-      unit: megajoule
-      value: 38
-    name: biodiesel production, via transesterification, from palm oil, energy allocation
-    reference product: biodiesel, from palm oil
     unit: kilogram
 SE - fuels - biodiesel, from oil crops, with CCS:
   dataset:
@@ -2589,8 +2662,8 @@ SE - fuels - bioethanol, from grain:
   - lhv:
       unit: megajoule
       value: 26.5
-    name: ethanol production, via fermentation, from wheat grains, energy allocation
-    reference product: ethanol, from wheat grains
+    name: ethanol production, via fermentation, from corn, energy allocation
+    reference product: ethanol, from corn
     unit: kilogram
   - lhv:
       unit: megajoule
@@ -2601,8 +2674,8 @@ SE - fuels - bioethanol, from grain:
   - lhv:
       unit: megajoule
       value: 26.5
-    name: ethanol production, via fermentation, from corn, energy allocation
-    reference product: ethanol, from corn
+    name: ethanol production, via fermentation, from wheat grains, energy allocation
+    reference product: ethanol, from wheat grains
     unit: kilogram
   - lhv:
       unit: megajoule
@@ -2615,25 +2688,19 @@ SE - fuels - bioethanol, from grain, with CCS:
   - lhv:
       unit: megajoule
       value: 26.5
-    name: ethanol production, via fermentation, from wheat, with carbon capture and
-      storage
-    reference product: ethanol, from wheat grains
-    unit: kilogram
-  - lhv:
-      unit: megajoule
-      value: 26.5
     name: ethanol production, via fermentation, from corn, with carbon capture and
       storage, energy allocation
     reference product: ethanol, from corn
     unit: kilogram
-SE - fuels - bioethanol, from grass:
-  dataset:
   - lhv:
       unit: megajoule
       value: 26.5
-    name: ethanol production, via fermentation, from switchgrass, energy allocation
-    reference product: ethanol, from switchgrass
+    name: ethanol production, via fermentation, from wheat, with carbon capture and
+      storage
+    reference product: ethanol, from wheat grains
     unit: kilogram
+SE - fuels - bioethanol, from grass:
+  dataset:
   - lhv:
       unit: megajoule
       value: 26.5
@@ -2643,14 +2710,20 @@ SE - fuels - bioethanol, from grass:
   - lhv:
       unit: megajoule
       value: 26.5
-    name: ethanol production from grass
-    reference product: ethanol, without water, in 95% solution state, from fermentation
+    name: ethanol production, via fermentation, from switchgrass, energy allocation
+    reference product: ethanol, from switchgrass
     unit: kilogram
   - lhv:
       unit: megajoule
       value: 26.5
     name: ethanol production, via fermentation, from miscanthus, energy allocation
     reference product: ethanol, from miscanthus
+    unit: kilogram
+  - lhv:
+      unit: megajoule
+      value: 26.5
+    name: ethanol production from grass
+    reference product: ethanol, without water, in 95% solution state, from fermentation
     unit: kilogram
 SE - fuels - bioethanol, from grass, with CCS:
   dataset:
@@ -2681,26 +2754,26 @@ SE - fuels - bioethanol, from sugar:
   - lhv:
       unit: megajoule
       value: 26.5
-    name: ethanol production from sugar beet molasses
-    reference product: ethanol, without water, in 95% solution state, from fermentation
-    unit: kilogram
-  - lhv:
-      unit: megajoule
-      value: 26.5
     name: ethanol production, via fermentation, from sugarcane, energy allocation
     reference product: ethanol, from sugarcane
     unit: kilogram
   - lhv:
       unit: megajoule
       value: 26.5
-    name: ethanol production, via fermentation, from sugarbeet, energy allocation
-    reference product: ethanol, from sugarbeet
+    name: ethanol production from sugar beet
+    reference product: ethanol, without water, in 95% solution state, from fermentation
     unit: kilogram
   - lhv:
       unit: megajoule
       value: 26.5
-    name: ethanol production from sugar beet
+    name: ethanol production from sugar beet molasses
     reference product: ethanol, without water, in 95% solution state, from fermentation
+    unit: kilogram
+  - lhv:
+      unit: megajoule
+      value: 26.5
+    name: ethanol production, via fermentation, from sugarbeet, energy allocation
+    reference product: ethanol, from sugarbeet
     unit: kilogram
 SE - fuels - bioethanol, from sugar, with CCS:
   dataset:
@@ -2731,31 +2804,19 @@ SE - fuels - bioethanol, from wood, with CCS:
   - lhv:
       unit: megajoule
       value: 26.5
-    name: ethanol production, via fermentation, from eucalyptus, with carbon capture
-      and storage
-    reference product: ethanol, from eucalyptus
-    unit: kilogram
-  - lhv:
-      unit: megajoule
-      value: 26.5
     name: ethanol production, via fermentation, from poplar, with carbon capture and
       storage, energy allocation
     reference product: ethanol, from poplar
     unit: kilogram
+  - lhv:
+      unit: megajoule
+      value: 26.5
+    name: ethanol production, via fermentation, from eucalyptus, with carbon capture
+      and storage
+    reference product: ethanol, from eucalyptus
+    unit: kilogram
 SE - fuels - biogas:
   dataset:
-  - lhv:
-      unit: megajoule
-      value: 22.73
-    name: anaerobic digestion of manure
-    reference product: biogas
-    unit: cubic meter
-  - lhv:
-      unit: megajoule
-      value: 47.5
-    name: biomethane production, from biogas upgrading, using amine scrubbing
-    reference product: biomethane, from biogas upgrading, using amine scrubbing
-    unit: kilogram
   - lhv:
       unit: megajoule
       value: 22.73
@@ -2771,13 +2832,25 @@ SE - fuels - biogas:
   - lhv:
       unit: megajoule
       value: 22.73
-    name: treatment of used vegetable cooking oil by anaerobic digestion
+    name: anaerobic digestion of manure
+    reference product: biogas
+    unit: cubic meter
+  - lhv:
+      unit: megajoule
+      value: 47.5
+    name: biomethane production, from biogas upgrading, using amine scrubbing
+    reference product: biomethane, from biogas upgrading, using amine scrubbing
+    unit: kilogram
+  - lhv:
+      unit: megajoule
+      value: 22.73
+    name: treatment of sewage sludge by anaerobic digestion
     reference product: biogas
     unit: cubic meter
   - lhv:
       unit: megajoule
       value: 22.73
-    name: treatment of sewage sludge by anaerobic digestion
+    name: treatment of used vegetable cooking oil by anaerobic digestion
     reference product: biogas
     unit: cubic meter
 SE - fuels - biomass:
@@ -2785,13 +2858,13 @@ SE - fuels - biomass:
   - lhv:
       unit: megajoule
       value: 16.2
-    name: hemp hurd to generic market for wood chips, dry, measured as dry mass
-    reference product: wood chips, dry, measured as dry mass
+    name: market for wood chips and particles, willow, dry, measured as dry mass
+    reference product: wood chips and particles, willow, dry, measured as dry mass
     unit: kilogram
   - lhv:
       unit: megajoule
       value: 16.2
-    name: flax shive to generic market for wood chips, dry, measured as dry mass
+    name: hemp hurd to generic market for wood chips, dry, measured as dry mass
     reference product: wood chips, dry, measured as dry mass
     unit: kilogram
   - lhv:
@@ -2803,14 +2876,14 @@ SE - fuels - biomass:
   - lhv:
       unit: megajoule
       value: 16.2
-    name: market for wood chips and particles, willow, dry, measured as dry mass
-    reference product: wood chips and particles, willow, dry, measured as dry mass
+    name: market for wood chips, dry, measured as dry mass
+    reference product: wood chips, dry, measured as dry mass
     unit: kilogram
   - lhv:
       unit: megajoule
       value: 16.2
-    name: market for wood chips, dry, measured as dry mass
-    reference product: wood chips, dry, measured as dry mass
+    name: market for wood chips, green, measured as dry mass
+    reference product: wood chips, green, measured as dry mass
     unit: kilogram
   - lhv:
       unit: megajoule
@@ -2827,15 +2900,15 @@ SE - fuels - biomass:
   - lhv:
       unit: megajoule
       value: 16.2
-    name: market for wood chips, green, measured as dry mass
-    reference product: wood chips, green, measured as dry mass
+    name: flax shive to generic market for wood chips, dry, measured as dry mass
+    reference product: wood chips, dry, measured as dry mass
     unit: kilogram
 SE - fuels - diesel:
   dataset:
   - lhv:
       unit: megajoule
       value: 43.0
-    name: diesel production, low-sulfur
+    name: diesel production, low-sulfur, petroleum refinery operation
     reference product: diesel, low-sulfur
     unit: kilogram
   - lhv:
@@ -2853,7 +2926,7 @@ SE - fuels - diesel:
   - lhv:
       unit: megajoule
       value: 43.0
-    name: diesel production, low-sulfur, petroleum refinery operation
+    name: diesel production, low-sulfur
     reference product: diesel, low-sulfur
     unit: kilogram
 SE - fuels - diesel, synthetic, from coal:
@@ -2971,8 +3044,8 @@ SE - fuels - ethanol:
   - lhv:
       unit: megajoule
       value: 26.5
-    name: market for ethanol, without water, in 99.7% solution state, from fermentation
-    reference product: ethanol, without water, in 99.7% solution state, from fermentation
+    name: market for ethanol, without water, in 99.7% solution state, from ethylene
+    reference product: ethanol, without water, in 99.7% solution state, from ethylene
     unit: kilogram
   - lhv:
       unit: megajoule
@@ -2983,21 +3056,21 @@ SE - fuels - ethanol:
   - lhv:
       unit: megajoule
       value: 26.5
-    name: market for ethanol, without water, in 99.7% solution state, from ethylene
-    reference product: ethanol, without water, in 99.7% solution state, from ethylene
+    name: market for ethanol, without water, in 99.7% solution state, from fermentation
+    reference product: ethanol, without water, in 99.7% solution state, from fermentation
     unit: kilogram
 SE - fuels - ethyl tert-butyl ether:
   dataset:
   - lhv:
       unit: megajoule
       value: 37.97
-    name: ethyl tert-butyl ether production, from bioethanol and isobutene etherification
+    name: market for ethyl tert-butyl ether
     reference product: ethyl tert-butyl ether
     unit: kilogram
   - lhv:
       unit: megajoule
       value: 37.97
-    name: market for ethyl tert-butyl ether
+    name: ethyl tert-butyl ether production, from bioethanol and isobutene etherification
     reference product: ethyl tert-butyl ether
     unit: kilogram
 SE - fuels - gasoline:
@@ -3005,8 +3078,8 @@ SE - fuels - gasoline:
   - lhv:
       unit: megajoule
       value: 42.6
-    name: petrol production, unleaded, petroleum refinery operation
-    reference product: petrol, unleaded
+    name: petrol production, low-sulfur
+    reference product: petrol, low-sulfur
     unit: kilogram
   - lhv:
       unit: megajoule
@@ -3017,8 +3090,8 @@ SE - fuels - gasoline:
   - lhv:
       unit: megajoule
       value: 42.6
-    name: petrol production, low-sulfur
-    reference product: petrol, low-sulfur
+    name: petrol production, unleaded, petroleum refinery operation
+    reference product: petrol, unleaded
     unit: kilogram
 SE - fuels - hard coal:
   dataset:
@@ -3031,7 +3104,7 @@ SE - fuels - hard coal:
   - lhv:
       unit: megajoule
       value: 26.4
-    name: hard coal, run-of-mine to market for hard coal
+    name: hard coal mine operation and hard coal preparation
     reference product: hard coal
     unit: kilogram
   - lhv:
@@ -3043,7 +3116,7 @@ SE - fuels - hard coal:
   - lhv:
       unit: megajoule
       value: 26.4
-    name: hard coal mine operation and hard coal preparation
+    name: hard coal, run-of-mine to market for hard coal
     reference product: hard coal
     unit: kilogram
 SE - fuels - heavy fuel oil:
@@ -3051,13 +3124,13 @@ SE - fuels - heavy fuel oil:
   - lhv:
       unit: megajoule
       value: 38.5
-    name: petroleum refinery operation
+    name: heavy fuel oil production, petroleum refinery operation
     reference product: heavy fuel oil
     unit: kilogram
   - lhv:
       unit: megajoule
       value: 38.5
-    name: heavy fuel oil production, petroleum refinery operation
+    name: petroleum refinery operation
     reference product: heavy fuel oil
     unit: kilogram
 SE - fuels - hydrogen, from biogas:
@@ -3285,15 +3358,15 @@ SE - fuels - kerosene, synthetic, from coal, economic allocation, with CCS:
   - lhv:
       unit: megajoule
       value: 43
-    name: kerosene production, synthetic, Fischer Tropsch process, hydrogen from coal
-      gasification, with CCS, economic allocation
+    name: kerosene production, from methanol, hydrogen from coal gasification, with
+      CCS, economic allocation
     reference product: kerosene, synthetic
     unit: kilogram
   - lhv:
       unit: megajoule
       value: 43
-    name: kerosene production, from methanol, hydrogen from coal gasification, with
-      CCS, economic allocation
+    name: kerosene production, synthetic, Fischer Tropsch process, hydrogen from coal
+      gasification, with CCS, economic allocation
     reference product: kerosene, synthetic
     unit: kilogram
 SE - fuels - kerosene, synthetic, from coal, energy allocation:
@@ -3328,15 +3401,15 @@ SE - fuels - kerosene, synthetic, from electrolysis, energy allocation:
   - lhv:
       unit: megajoule
       value: 43
-    name: kerosene production, synthetic, Fischer Tropsch process, hydrogen from electrolysis,
-      energy allocation
+    name: kerosene production, from methanol, hydrogen from electrolysis, CO2 from
+      DAC, energy allocation
     reference product: kerosene, synthetic
     unit: kilogram
   - lhv:
       unit: megajoule
       value: 43
-    name: kerosene production, from methanol, hydrogen from electrolysis, CO2 from
-      DAC, energy allocation
+    name: kerosene production, synthetic, Fischer Tropsch process, hydrogen from electrolysis,
+      energy allocation
     reference product: kerosene, synthetic
     unit: kilogram
 SE - fuels - kerosene, synthetic, from natural gas, energy allocation:
@@ -3362,13 +3435,13 @@ SE - fuels - light fuel oil:
   - lhv:
       unit: megajoule
       value: 42.6
-    name: light fuel oil production, petroleum refinery operation
+    name: petroleum refinery operation
     reference product: light fuel oil
     unit: kilogram
   - lhv:
       unit: megajoule
       value: 42.6
-    name: petroleum refinery operation
+    name: light fuel oil production, petroleum refinery operation
     reference product: light fuel oil
     unit: kilogram
 SE - fuels - lignite:
@@ -3384,13 +3457,13 @@ SE - fuels - liquefied petroleum gas:
   - lhv:
       unit: megajoule
       value: 45.5
-    name: market for liquefied petroleum gas
+    name: liquefied petroleum gas production, petroleum refinery operation
     reference product: liquefied petroleum gas
     unit: kilogram
   - lhv:
       unit: megajoule
       value: 45.5
-    name: liquefied petroleum gas production, petroleum refinery operation
+    name: market for liquefied petroleum gas
     reference product: liquefied petroleum gas
     unit: kilogram
 SE - fuels - liquefied petroleum gas, synthetic, from biomass:
@@ -3453,6 +3526,12 @@ SE - fuels - meat and bone meal:
       unit: megajoule
       value: 14.3
     name: meat and bone meal to generic market for protein feed
+    reference product: protein feed, 100% crude
+    unit: kilogram
+  - lhv:
+      unit: megajoule
+      value: 14.3
+    name: meat and bone meal to generic market for protein feed
     reference product: energy feed, gross
     unit: megajoule
   - lhv:
@@ -3461,19 +3540,32 @@ SE - fuels - meat and bone meal:
     name: market for meat and bone meal
     reference product: meat and bone meal
     unit: kilogram
-  - lhv:
-      unit: megajoule
-      value: 14.3
-    name: meat and bone meal to generic market for protein feed
-    reference product: protein feed, 100% crude
-    unit: kilogram
 SE - fuels - methane, from biomass:
   dataset:
   - lhv:
       unit: megajoule
       value: 47.5
+    name: biomethane production, high pressure from synthetic gas, wood, fixed bed
+      technology
+    reference product: biomethane, high pressure
+    unit: cubic meter
+  - lhv:
+      unit: megajoule
+      value: 47.5
     name: biomethane production, from biogas upgrading, using amine scrubbing
     reference product: biomethane, from biogas upgrading, using amine scrubbing
+    unit: kilogram
+  - lhv:
+      unit: megajoule
+      value: 47.5
+    name: mixed natural gas and biomethane production, high pressure
+    reference product: mixed natural gas and biomethane, high pressure
+    unit: cubic meter
+  - lhv:
+      unit: megajoule
+      value: 47.5
+    name: biomethane production, high pressure, vehicle grade
+    reference product: biomethane, high pressure, vehicle grade
     unit: kilogram
   - lhv:
       unit: megajoule
@@ -3490,29 +3582,10 @@ SE - fuels - methane, from biomass:
   - lhv:
       unit: megajoule
       value: 47.5
-    name: biomethane production, high pressure from synthetic gas, wood, fixed bed
-      technology
-    reference product: biomethane, high pressure
-    unit: cubic meter
-  - lhv:
-      unit: megajoule
-      value: 47.5
-    name: mixed natural gas and biomethane production, high pressure
-    reference product: mixed natural gas and biomethane, high pressure
-    unit: cubic meter
-  - lhv:
-      unit: megajoule
-      value: 47.5
     name: biomethane production, high pressure from synthetic gas, wood, fluidised
       technology
     reference product: biomethane, high pressure
     unit: cubic meter
-  - lhv:
-      unit: megajoule
-      value: 47.5
-    name: biomethane production, high pressure, vehicle grade
-    reference product: biomethane, high pressure, vehicle grade
-    unit: kilogram
 SE - fuels - methanol, from grass:
   dataset:
   - lhv:
@@ -3550,26 +3623,14 @@ SE - fuels - natural gas:
   - lhv:
       unit: megajoule
       value: 36
-    name: petroleum and gas production, offshore
-    reference product: natural gas, high pressure
-    unit: cubic meter
-  - lhv:
-      unit: megajoule
-      value: 36
-    name: drying, natural gas
-    reference product: drying, natural gas
-    unit: cubic meter
-  - lhv:
-      unit: megajoule
-      value: 36
     name: sweetening, natural gas
     reference product: sweetening, natural gas
     unit: cubic meter
   - lhv:
       unit: megajoule
       value: 36
-    name: petroleum and gas production, onshore
-    reference product: natural gas, high pressure
+    name: natural gas production, liquefied
+    reference product: natural gas, liquefied
     unit: cubic meter
   - lhv:
       unit: megajoule
@@ -3580,17 +3641,23 @@ SE - fuels - natural gas:
   - lhv:
       unit: megajoule
       value: 36
-    name: natural gas production, liquefied
-    reference product: natural gas, liquefied
+    name: petroleum and gas production, offshore
+    reference product: natural gas, high pressure
+    unit: cubic meter
+  - lhv:
+      unit: megajoule
+      value: 36
+    name: petroleum and gas production, onshore
+    reference product: natural gas, high pressure
+    unit: cubic meter
+  - lhv:
+      unit: megajoule
+      value: 36
+    name: drying, natural gas
+    reference product: drying, natural gas
     unit: cubic meter
 SE - fuels - nuclear fuel element, for boiling water reactor:
   dataset:
-  - lhv:
-      unit: megajoule
-      value: 4147200
-    name: market for uranium, enriched 3.8%, per separative work unit
-    reference product: uranium, enriched 3.8%, per separative work unit
-    unit: unit
   - lhv:
       unit: megajoule
       value: 4147200
@@ -3598,6 +3665,12 @@ SE - fuels - nuclear fuel element, for boiling water reactor:
     reference product: nuclear fuel element, for boiling water reactor, UO2 4.0% &
       MOX
     unit: kilogram
+  - lhv:
+      unit: megajoule
+      value: 4147200
+    name: market for uranium, enriched 3.8%, per separative work unit
+    reference product: uranium, enriched 3.8%, per separative work unit
+    unit: unit
   - lhv:
       unit: megajoule
       value: 4147200
@@ -3609,24 +3682,10 @@ SE - fuels - nuclear fuel element, for pressure water reactor:
   - lhv:
       unit: megajoule
       value: 4579200
-    name: market for nuclear fuel element, for pressure water reactor, UO2 3.8% &
+    name: market for nuclear fuel element, for pressure water reactor, UO2 4.2% &
       MOX
-    reference product: nuclear fuel element, for pressure water reactor, UO2 3.8%
-      & MOX
-    unit: kilogram
-  - lhv:
-      unit: megajoule
-      value: 4579200
-    name: market for uranium hexafluoride
-    reference product: uranium hexafluoride
-    unit: kilogram
-  - lhv:
-      unit: megajoule
-      value: 4579200
-    name: market for nuclear fuel element, for pressure water reactor, UO2 4.2% centrifuge
-      & MOX
     reference product: nuclear fuel element, for pressure water reactor, UO2 4.2%
-      centrifuge & MOX
+      & MOX
     unit: kilogram
   - lhv:
       unit: megajoule
@@ -3639,9 +3698,15 @@ SE - fuels - nuclear fuel element, for pressure water reactor:
   - lhv:
       unit: megajoule
       value: 4579200
-    name: market for nuclear fuel element, for pressure water reactor, UO2 4.2% &
+    name: market for uranium hexafluoride
+    reference product: uranium hexafluoride
+    unit: kilogram
+  - lhv:
+      unit: megajoule
+      value: 4579200
+    name: market for nuclear fuel element, for pressure water reactor, UO2 3.8% &
       MOX
-    reference product: nuclear fuel element, for pressure water reactor, UO2 4.2%
+    reference product: nuclear fuel element, for pressure water reactor, UO2 3.8%
       & MOX
     unit: kilogram
   - lhv:
@@ -3651,6 +3716,14 @@ SE - fuels - nuclear fuel element, for pressure water reactor:
       MOX
     reference product: nuclear fuel element, for pressure water reactor, UO2 3.9%
       & MOX
+    unit: kilogram
+  - lhv:
+      unit: megajoule
+      value: 4579200
+    name: market for nuclear fuel element, for pressure water reactor, UO2 4.2% centrifuge
+      & MOX
+    reference product: nuclear fuel element, for pressure water reactor, UO2 4.2%
+      centrifuge & MOX
     unit: kilogram
 SE - fuels - petrol, 5% ethanol:
   dataset:
@@ -3692,13 +3765,13 @@ SE - fuels - petroleum coke:
   - lhv:
       unit: megajoule
       value: 31.3
-    name: petroleum coke production, petroleum refinery operation
+    name: market for petroleum coke
     reference product: petroleum coke
     unit: kilogram
   - lhv:
       unit: megajoule
       value: 31.3
-    name: market for petroleum coke
+    name: petroleum coke production, petroleum refinery operation
     reference product: petroleum coke
     unit: kilogram
 SE - fuels - pulverised lignite:
@@ -3714,45 +3787,87 @@ SE - fuels - syngas:
   - lhv:
       unit: megajoule
       value: 23.9
+    name: syngas, RWGS, Production, for Fischer Tropsch process, hydrogen from coal
+      gasification
+    reference product: syngas, RWGS, Production
+    unit: kilogram
+  - lhv:
+      unit: megajoule
+      value: 23.9
+    name: syngas, RWGS, Production, for Fischer Tropsch process, hydrogen from wood
+      gasification, with CCS
+    reference product: syngas, RWGS, Production
+    unit: kilogram
+  - lhv:
+      unit: megajoule
+      value: 23.9
+    name: syngas, RWGS, Production, for Fischer Tropsch process, hydrogen from coal
+      gasification, with CCS
+    reference product: syngas, RWGS, Production
+    unit: kilogram
+  - lhv:
+      unit: megajoule
+      value: 23.9
+    name: syngas, RWGS, Production, for Fischer Tropsch process, hydrogen from wood
+      gasification
+    reference product: syngas, RWGS, Production
+    unit: kilogram
+  - lhv:
+      unit: megajoule
+      value: 23.9
     name: syngas, RWGS, Production, for Fischer Tropsch process, hydrogen from electrolysis
     reference product: syngas, RWGS, Production, for Fischer Tropsch process, hydrogen
       from electrolysis
-    unit: kilogram
-  - lhv:
-      unit: megajoule
-      value: 23.9
-    name: syngas, RWGS, Production, for Fischer Tropsch process, hydrogen from coal
-      gasification, with CCS
-    reference product: syngas, RWGS, Production
-    unit: kilogram
-  - lhv:
-      unit: megajoule
-      value: 23.9
-    name: syngas, RWGS, Production, for Fischer Tropsch process, hydrogen from wood
-      gasification, with CCS
-    reference product: syngas, RWGS, Production
-    unit: kilogram
-  - lhv:
-      unit: megajoule
-      value: 23.9
-    name: syngas, RWGS, Production, for Fischer Tropsch process, hydrogen from wood
-      gasification
-    reference product: syngas, RWGS, Production
-    unit: kilogram
-  - lhv:
-      unit: megajoule
-      value: 23.9
-    name: syngas, RWGS, Production, for Fischer Tropsch process, hydrogen from coal
-      gasification
-    reference product: syngas, RWGS, Production
     unit: kilogram
 SE - fuels - waste:
   dataset:
   - lhv:
       unit: megajoule
       value: 17
+    name: market for waste plastic, mixture
+    reference product: waste plastic, mixture
+    unit: kilogram
+  - lhv:
+      unit: megajoule
+      value: 17
+    name: market for sewage sludge, 70% water, WWT-SLF, waste plastic, mixture
+    reference product: sewage sludge, 70% water, WWT-SLF, waste plastic, mixture
+    unit: kilogram
+  - lhv:
+      unit: megajoule
+      value: 17
+    name: market for residues, MSWI, waste plastic, mixture
+    reference product: residues, MSWI, waste plastic, mixture
+    unit: kilogram
+  - lhv:
+      unit: megajoule
+      value: 17
+    name: market group for waste plastic, mixture
+    reference product: waste plastic, mixture
+    unit: kilogram
+  - lhv:
+      unit: megajoule
+      value: 17
+    name: market for residues, MSWI-WWT-SLF, waste plastic, mixture
+    reference product: residues, MSWI-WWT-SLF, waste plastic, mixture
+    unit: kilogram
+  - lhv:
+      unit: megajoule
+      value: 17
     name: market for sewage sludge, 97% water, WWT-SLF, waste plastic, mixture
     reference product: sewage sludge, 97% water, WWT-SLF, waste plastic, mixture
+    unit: kilogram
+  - lhv:
+      unit: megajoule
+      value: 17
+    name: clinker production
+    reference product: waste plastic, mixture
+    unit: kilogram
+  - lhv:
+      unit: megajoule
+      value: 17
+    name: market for bottom ash, MSWI-WWT-SLF, waste plastic, mixture
+    reference product: bottom ash, MSWI-WWT-SLF, waste plastic, mixture
     unit: kilogram
   - lhv:
       unit: megajoule
@@ -3769,32 +3884,14 @@ SE - fuels - waste:
   - lhv:
       unit: megajoule
       value: 17
-    name: market for bottom ash, MSWI-WWT-SLF, waste plastic, mixture
-    reference product: bottom ash, MSWI-WWT-SLF, waste plastic, mixture
-    unit: kilogram
+    name: market for leachate, SLF, waste plastic, mixture
+    reference product: leachate, SLF, waste plastic, mixture
+    unit: cubic meter
   - lhv:
       unit: megajoule
       value: 17
-    name: market for sewage sludge, 70% water, WWT-SLF, waste plastic, mixture
-    reference product: sewage sludge, 70% water, WWT-SLF, waste plastic, mixture
-    unit: kilogram
-  - lhv:
-      unit: megajoule
-      value: 17
-    name: market for residues, MSWI-WWT-SLF, waste plastic, mixture
-    reference product: residues, MSWI-WWT-SLF, waste plastic, mixture
-    unit: kilogram
-  - lhv:
-      unit: megajoule
-      value: 17
-    name: market for bottom ash, MSWI, waste plastic, mixture
-    reference product: bottom ash, MSWI, waste plastic, mixture
-    unit: kilogram
-  - lhv:
-      unit: megajoule
-      value: 17
-    name: market group for waste plastic, mixture
-    reference product: waste plastic, mixture
+    name: market for residues, MSWI[F], waste plastic, mixture
+    reference product: residues, MSWI[F], waste plastic, mixture
     unit: kilogram
   - lhv:
       unit: megajoule
@@ -3805,51 +3902,27 @@ SE - fuels - waste:
   - lhv:
       unit: megajoule
       value: 17
-    name: market for waste plastic, mixture
-    reference product: waste plastic, mixture
-    unit: kilogram
-  - lhv:
-      unit: megajoule
-      value: 17
-    name: market for residues, MSWI, waste plastic, mixture
-    reference product: residues, MSWI, waste plastic, mixture
-    unit: kilogram
-  - lhv:
-      unit: megajoule
-      value: 17
     name: clinker production, average
     reference product: waste plastic, mixture
     unit: kilogram
   - lhv:
       unit: megajoule
       value: 17
-    name: market for residues, MSWI[F], waste plastic, mixture
-    reference product: residues, MSWI[F], waste plastic, mixture
-    unit: kilogram
-  - lhv:
-      unit: megajoule
-      value: 17
-    name: market for leachate, SLF, waste plastic, mixture
-    reference product: leachate, SLF, waste plastic, mixture
-    unit: cubic meter
-  - lhv:
-      unit: megajoule
-      value: 17
-    name: clinker production
-    reference product: waste plastic, mixture
+    name: market for bottom ash, MSWI, waste plastic, mixture
+    reference product: bottom ash, MSWI, waste plastic, mixture
     unit: kilogram
 SE - fuels - wood chips:
   dataset:
   - lhv:
       unit: megajoule
       value: 16.2
-    name: hemp hurd to generic market for wood chips, dry, measured as dry mass
-    reference product: wood chips, dry, measured as dry mass
+    name: market for wood chips and particles, willow, dry, measured as dry mass
+    reference product: wood chips and particles, willow, dry, measured as dry mass
     unit: kilogram
   - lhv:
       unit: megajoule
       value: 16.2
-    name: flax shive to generic market for wood chips, dry, measured as dry mass
+    name: hemp hurd to generic market for wood chips, dry, measured as dry mass
     reference product: wood chips, dry, measured as dry mass
     unit: kilogram
   - lhv:
@@ -3861,14 +3934,14 @@ SE - fuels - wood chips:
   - lhv:
       unit: megajoule
       value: 16.2
-    name: market for wood chips and particles, willow, dry, measured as dry mass
-    reference product: wood chips and particles, willow, dry, measured as dry mass
+    name: market for wood chips, dry, measured as dry mass
+    reference product: wood chips, dry, measured as dry mass
     unit: kilogram
   - lhv:
       unit: megajoule
       value: 16.2
-    name: market for wood chips, dry, measured as dry mass
-    reference product: wood chips, dry, measured as dry mass
+    name: market for wood chips, green, measured as dry mass
+    reference product: wood chips, green, measured as dry mass
     unit: kilogram
   - lhv:
       unit: megajoule
@@ -3885,16 +3958,16 @@ SE - fuels - wood chips:
   - lhv:
       unit: megajoule
       value: 16.2
-    name: market for wood chips, green, measured as dry mass
-    reference product: wood chips, green, measured as dry mass
+    name: flax shive to generic market for wood chips, dry, measured as dry mass
+    reference product: wood chips, dry, measured as dry mass
     unit: kilogram
 SE - fuels - wood pellet:
   dataset:
   - lhv:
       unit: megajoule
       value: 16.2
-    name: market for wood pellets, dry, measured as dry mass
-    reference product: wood pellets, dry, measured as dry mass
+    name: market for lignocellulosic biomass, used as fuel
+    reference product: lignocellulosic biomass
     unit: kilogram
   - lhv:
       unit: megajoule
@@ -3905,8 +3978,8 @@ SE - fuels - wood pellet:
   - lhv:
       unit: megajoule
       value: 16.2
-    name: market for lignocellulosic biomass, used as fuel
-    reference product: lignocellulosic biomass
+    name: market for wood pellets, dry, measured as dry mass
+    reference product: wood pellets, dry, measured as dry mass
     unit: kilogram
 SE - heat - energy, for DACCS, from electricity:
   dataset:
@@ -4115,39 +4188,39 @@ SE - steel - steel - primary - H-DRI:
     unit: kilogram
 SE - steel - steel - secondary:
   dataset:
-  - name: steel production, electric, low-alloyed
-    reference product: steel, low-alloyed
-    unit: kilogram
-  - name: steel production, electric arc furnace, weathering B
-    reference product: steel, weathering B, 100% scrap
+  - name: steel production, electric arc furnace, weathering A
+    reference product: steel, weathering A, 100% scrap
     unit: kilogram
   - name: steel production, electric arc furnace, high strength low alloy
     reference product: steel, high strength low alloy, 100% scrap
     unit: kilogram
-  - name: steel production, electric arc furnace, weathering A
-    reference product: steel, weathering A, 100% scrap
+  - name: steel production, electric arc furnace, structural
+    reference product: steel, structural, 100% scrap
     unit: kilogram
   - name: steel production, electric arc furnace, case hardening
     reference product: steel, case hardening, 100% scrap
     unit: kilogram
-  - name: steel production, electric arc furnace, structural
-    reference product: steel, structural, 100% scrap
+  - name: steel production, electric arc furnace, weathering B
+    reference product: steel, weathering B, 100% scrap
     unit: kilogram
   - name: steel production, electric arc furnace, bearing
     reference product: steel, bearing, 100% scrap
+    unit: kilogram
+  - name: steel production, electric, low-alloyed
+    reference product: steel, low-alloyed
     unit: kilogram
   - name: steel production, electric arc furnace, carbon
     reference product: steel, carbon, 100% scrap
     unit: kilogram
 SE - train - train, diesel-electric:
   dataset:
-  - name: transport, freight, train, diesel, with particle filter
-    reference product: transport, freight, train, fleet average
-    unit: ton kilometer
   - name: transport, freight train, diesel-electric
     reference product: transport, freight train
     unit: ton kilometer
   - name: transport, freight, train, diesel
+    reference product: transport, freight, train, fleet average
+    unit: ton kilometer
+  - name: transport, freight, train, diesel, with particle filter
     reference product: transport, freight, train, fleet average
     unit: ton kilometer
 SE - train - train, electric:

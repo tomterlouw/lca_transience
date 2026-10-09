@@ -111,6 +111,7 @@ It does not automatically include:
 | Prospective background | Changes electricity, fuels, materials, transport, and other upstream systems over time | REMIND through `premise` | Generated inside the package workflow |
 | Impact assessment | Characterizes inventory flows and aggregates contributions | Brightway methods through `pathways` | `2_calc_impacts.ipynb` |
 | Geographic attribution | Groups contribution results by activity location | Result metadata | `3_regionalization_impacts.ipynb` |
+| Regionalized LCIA | Applies location-specific characterization, then attributes contributions geographically | EDGES through Pathways | `4_edges_regionalized_impacts.ipynb` |
 
 ### Key terminology
 
@@ -149,6 +150,7 @@ For the PoR case, the normal execution order is:
 3. Run `1_export_packages.ipynb` to assemble the prospective scenarios and create `remind-transience_por.zip` and/or Brightway databases.
 4. Run `2_calc_impacts.ipynb` to calculate and export LCA results.
 5. Run `3_regionalization_impacts.ipynb` to compare the activity-location distribution of impacts.
+6. Run `4_edges_regionalized_impacts.ipynb` for location-specific water-scarcity, particulate-matter and acidification characterization using EDGES.
 
 ## Repository structure
 
@@ -159,12 +161,14 @@ lca_transience/
 ├── 1_export_packages.ipynb         # Build prospective databases and the Pathways package
 ├── 2_calc_impacts.ipynb            # Calculate LCIA results and scenario figures
 ├── 3_regionalization_impacts.ipynb # Attribute results by activity location
+├── 4_edges_regionalized_impacts.ipynb # EDGES regionalized LCIA and geographic comparisons
 ├── config.py                       # Brightway project and ecoinvent settings
 ├── configuration_file/             # External-scenario YAML mappings
 ├── inventories/                    # Custom Excel inventory workbooks
 ├── scenario_data/                  # IAMC scenario CSVs and source model workbooks
 ├── datapackage_*.json              # External-scenario datapackage descriptors
-├── regionalization.py              # Inventory regionalization utilities
+├── supplier_resolution.py          # Shared supplier identities and active-IAM geography
+├── regionalization.py              # Legacy compatibility only; no longer used by the exporter
 ├── primary_vs_secondary_metals/    # Supporting metal-market transformation code
 ├── figs/                           # Generated figures and selected plot data
 ├── lca_transience.yml              # Conda environment specification
@@ -337,7 +341,7 @@ scenario_data/scenario_data_itom_por_OCE.csv
 scenario_data/scenario_data_itom_por.csv
 ```
 
-The combined file must contain both `CL` and `OCE`; it is the file referenced by `datapackage_itom_por.json`.
+The combined file must contain both `CL` and `OCE`; it is the file referenced by `datapackage_itom_por.json`. It retains the original technology-level aggregate rows and adds the mapped `|mode1`/`|mode2` rows for propylene and raw-aromatic routes. The converter checks that these mode rows sum to their corresponding aggregate, so a newly active but unmapped mode fails rather than disappearing from the LCA.
 
 ### 2. Inspect the scenario package inputs
 
@@ -345,7 +349,16 @@ Review these three linked resources together:
 
 - `scenario_data/scenario_data_itom_por.csv` — quantities by scenario, region, variable, unit, and year;
 - `configuration_file/config_itom_por.yaml` — scenario-to-inventory mapping;
-- `inventories/lci-itom_por.xlsx` — custom process inventories and foreground datasets.
+- `inventories/lci-itom_por-mode-aware.xlsx` — active combined inventory: the original PoR activities plus 21 mode-aware propylene and raw-aromatic activities;
+- `inventories/lci-itom_por-mode-aware-additions.xlsx` — separate copy-ready record of only those 21 additions. It is not a second datapackage resource.
+
+The original `lci-itom_por.xlsx` is retained unchanged. `datapackage_itom_por.json` points to the combined workbook because `premise` expects one `inventories` resource. Editing only the additions workbook does not update the active combined workbook. The inventory and scenario-data directories are ignored by Git in this local repository, so preserve/copy the workbooks and regenerated CSVs when moving the configuration elsewhere. See `docs/por_mode_aware_inventory.md` for route scope and unresolved assumptions.
+
+Before rebuilding the package, run:
+
+```bash
+python -m unittest discover -s tests -p test_por_mode_aware.py -v
+```
 
 Changing only one of these resources can create missing pathways, unused scenario variables, unlinked exchanges, or incorrect market shares.
 
@@ -430,6 +443,23 @@ Use it when you need to:
 
 After extraction, review every adapted dataset and place the finalized inventories in the relevant workbook under `inventories/`. Important modifications should be documented outside transient spreadsheet history, including the original exchange, new exchange or amount, reason, and source.
 
+Run the exporter in the configured Brightway environment. Its default model is REMIND and its default destination is `data/ecoinvent_312_selected_plastics.xlsx`:
+
+```powershell
+python 0_export_act_to_excel.py
+python 0_export_act_to_excel.py --model image --output export/reference_candidates_image.xlsx
+```
+
+Select the IAM used in the subsequent scenario workflow. The shared `supplier_resolution.py` reads the corresponding topology JSON relative to the repository, not the terminal's working directory. REMIND and IMAGE definitions are kept in separate namespaces: NL maps to EUR or WEU, respectively, while MA maps to MEA or NAF. A missing topology fails explicitly instead of proceeding without geographic definitions.
+
+The exporter retains the existing 26 target slots and their NL/MA destinations, and keeps the Brightway-importable `lci` worksheet layout. PET (amorphous), PLA, purified terephthalic acid, long-chain polyether polyols and PP use canonical names/products verified in the local ecoinvent 3.12 reference database; the PET/polyol grades match the existing PoR configuration. It reads only reference-database activity identities and the selected inventories' exchanges, without updating the reference database. Importing the script does not switch Brightway projects or write a workbook. All found inventories must pass preparation before writing starts; missing suppliers and ambiguous identities stop the export. Missing **targets** are warned and listed in the JSON report; `--strict-targets` makes these fatal as well. A different reference product can never be accepted just because its activity name is similar.
+
+The local reference database currently has no matching PBS or bulk-polymerised PVC target. These remain flagged, rather than being replaced with unrelated inventories or a different PVC technology. Suspension-polymerised PVC is already a separate existing target. The optional `tests/check_reference_export_readonly.py` can validate reference preparation through a read-only SQLite connection if Brightway project selection is locked by another process; it does not test project setup or replace the normal exporter.
+
+Supplier regionalization is now deterministic and 1:1. Local utilities/markets are preferred where a matching provider exists; otherwise the active IAM region or a covering reference region can be used. Explicit foreign process inputs remain pinned. No equal-share or production-volume supplier splitting is performed, and input quantities, units, biosphere flows and uncertainty fields are preserved. The electricity `market for`/`market group for` alternative is used only when an actual provider with the same product, voltage and unit exists. These rules can produce different supplier choices from the old blanket regionalization: inspect the audit before adopting the candidate inventories.
+
+Two companion files, `<output-stem>_supplier_audit.csv` and `.json`, record checked suppliers, changes, retained reference proxies, the selected model and the topology hash. A required `Database` header names the candidate workbook after its output stem so Brightway's Excel importer can parse it directly; no Brightway database is automatically written. Reference preparation does **not** construct future PoR markets or establish a renewable electricity mix; the separate post-update step does the scenario-specific linking. See `docs/por_supplier_linking.md` for both stages and the remaining legacy-package compatibility caveat.
+
 ### Step 1 — Convert industrial model outputs
 
 External model results are represented in a wide IAMC-style table with the columns:
@@ -471,7 +501,7 @@ For example, `datapackage_itom_por.json` connects:
 ```text
 scenario_data/scenario_data_itom_por.csv
 configuration_file/config_itom_por.yaml
-inventories/lci-itom_por.xlsx
+inventories/lci-itom_por-mode-aware.xlsx
 ```
 
 The descriptor also declares the supported scenarios, ecoinvent version, system model, data schema, contributor, license, and minimum `premise` version.
@@ -542,6 +572,16 @@ The exact activity `name`, `reference product`, `unit`, and `location` are part 
 
 The reference database is deliberately generated without selected prospective transformations, so it can serve as a stable source for custom inventory preparation. Do not delete or rename it while an inventory-development step depends on it.
 
+The additional PoR supplier-linking step is now maintained in `por_supplier_linking.py`. The export notebook attaches it after the normal premise update for both Brightway output and the internal builder used by `PathwaysDataPackage`. It applies explicit PoR replacement rules, protects import sourcing and the fixed renewable-power recipe, preserves exchange quantities/uncertainty, validates suppliers, and writes CSV/JSON change reports under `export/por_supplier_linking/`. The old manually added pre-market hook is disabled in memory where present; no installed package file needs editing. A scoped export guard prevents later geographic preparation from undoing validated links. See [post-update supplier linking](docs/por_supplier_linking.md) for selection, cache transactions, limits and rerun instructions.
+
+Supplier-linking policy version 2 also completes declared domestic product supply **inside regionalized background markets**. For example, `market for nitrobenzene` in NL now uses the configured NL `nitrobenzene production` counterpart rather than retaining the inherited RoW production link. Technology quantities/shares and ancillary transport remain unchanged; explicit country imports, unconfigured producers and constructed PoR market mixes are not redirected. Reports identify these corrections with `regionalized_market_product_supply`, and flag absent domestic counterparts with `unavailable_local_supplier`. This follows the specified regionalization, not a rule to select whichever supplier has the lowest impact.
+
+After updating this helper, restart the notebook kernel and rebuild Brightway databases and the Pathways ZIP through Step 4. The export guard rejects old validation tags without the current `linking_policy_version`. Existing databases, matrices, results and figures are not retroactively repaired by changing the Python source alone. Recalculate Step 5 after selecting the rebuilt package.
+
+Supplier-linking policy version 3 further regionalizes eligible **inputs inside those NL production inventories**. It uses the shared resolver even when a RoW/GLO/World link is valid: NL first, then the selected IAM region, then a matching wholly covering reference region. For example, nitrobenzene production uses EUR heat, NL medium-voltage electricity, European nitric acid/water markets and RER construction rather than inherited global proxies. The electricity market/group alias must match voltage, reference product and unit. The shared geography also loads the repo-owned additional ecoinvent 3.12 topology and recognizes `RER w/o RU`.
+
+Amounts, uncertainty, biosphere emissions and transport distances are preserved. Import/fixed-power inventories and explicit foreign material/process sourcing are protected; operational energy in copied NL plants is sourced for NL. No supplier is chosen by the lowest LCIA score, and no European provider is assumed to be universally lower-impact. Remaining eligible broad proxies without appropriate substitutes are flagged as `retained_geographic_proxy` in the audits. Version 2 validation tags must be rebuilt before exporting under version 3.
+
 ### Step 5 — Calculate environmental impacts
 
 `2_calc_impacts.ipynb` uses the generated ZIP rather than rebuilding databases for every calculation. This supports efficient calculation across scenarios, years, products, and methods.
@@ -567,6 +607,20 @@ The current aggregate PoR calculation does not enable the optional `double_accou
 - **Aggregate / unresolved geography** — datasets with locations such as `RER`, `EUR`, `GLO`, or `RoW`.
 
 This is an **activity-location attribution**, not a fully spatially resolved LCIA. An `NL` location does not distinguish the Port of Rotterdam from the rest of the Netherlands, and an aggregate European or global provider cannot be allocated to a country without additional information.
+
+### Step 7 — Calculate regionalized LCIA with EDGES
+
+`4_edges_regionalized_impacts.ipynb` recalculates the selected PoR final-product system with location-specific characterization factors. Its initial methods are AWARE 2.0 country-level water scarcity (unspecified consumption), IMPACT World+ 2.1 particulate matter formation and terrestrial acidification. These default factors are static; the inventories and production quantities remain prospective.
+
+First rebuild `remind-transience_por.zip` after inventory/config changes, then set `RUN_CALCULATION=True`. The notebook initially calculates 2025 and 2050, uses a fresh Pathways object, and passes `edges_methods=` without ordinary `methods=`. Both multiprocessing options are disabled for this Windows workflow. Set `RUN_CALCULATION=False` on later runs to load the separate `results_edges_por_*.gzip` export, or set `RESULTS_FILE` explicitly. Ordinary LCIA exports are not regionalized by postprocessing.
+
+The notebook preserves the obsolete-PBR exclusion and takes active PoR demand aliases from the YAML. Standalone CCS variables are excluded by default because MTO storage burdens are embedded in the product inventories. Review this selection if other independent CCS services are enabled. NL remains the demand region and worldwide supply-chain contributions remain included.
+
+Four figures compare scenario/year blocks, absolute geographic shares, contributing activity locations and OCE-minus-CL differences. CL/OCE share the axes; the year-block figure uses separator lines and bold scenario labels. Each indicator retains its own unit. NL, Morocco, other explicit foreign locations and aggregate/unresolved geographies are kept distinct. Positive and negative contributions are separated before geographic aggregation, and totals are checked per scenario/year/method.
+
+Outputs are written under `figs/edges_por/` as PNG/PDF figures and CSV audit tables. Calculation and plot manifests record input/result hashes, method identities, units and the selected demand boundary. The notebook supports plotting one or more scenarios; the difference figure requires both CL and OCE.
+
+The inspected Pathways 1.0.4 adapter does not pass activity classifications to EDGES. The notebook therefore rejects classification-dependent methods and initially uses AWARE's classification-independent `unspecified` variant. It also limits this workflow to biosphere-based regional methods. Aggregate-geography fallback does not reveal the underlying countries or receptor locations. Check method matching, emission compartments, country proxies and water balances before interpreting the figures.
 
 ## Data contracts and file formats
 
@@ -691,7 +745,7 @@ Use `add` only when the added exchange genuinely belongs to every unit supplied 
 
 ### Custom inventory-workbook contract
 
-The inventory workbooks use the Brightway Excel importer layout. In `lci-itom_por.xlsx`, each activity block contains metadata followed by an `Exchanges` table.
+The inventory workbooks use the Brightway Excel importer layout. In the active `lci-itom_por-mode-aware.xlsx`, each activity block contains metadata followed by an `Exchanges` table.
 
 Activity metadata normally includes:
 
@@ -973,6 +1027,8 @@ Pay special attention to unit differences in source sheets. A value reported in 
 
 For DAC methanol, retain the distinction between capture, methanol synthesis, distillation, and transport. A negative CO2 input into methanol production is not equivalent to permanent storage because the carbon can be released at product use or end of life.
 
+The current imported DAC-methanol inventory assumes Morocco and a fixed 50% solar/50% onshore-wind operating electricity mix. Dedicated supply activities in `lci-itom_por.xlsx` power synthesis, DAC, heat-pump heat, steam auxiliaries and explicit PEM electrolysis hydrogen. Steam heat retains its natural-gas proxy. The origin, energy shares, wind geography proxy and plant utilization are provisional assumptions. See [renewable power for DAC methanol](docs/por_dac_methanol_renewable_power.md) for supplier identities, retained amounts, voltage simplifications and rebuilding instructions.
+
 ### Polymer production and retrofit routes
 
 For polymer products, verify that the final product market includes all relevant local routes and imports but excludes obsolete or decommissioned capacity when that is the scenario interpretation.
@@ -1000,12 +1056,14 @@ direct CO2 emissions
 − uncompressed_CO2 used in additional_syngas_CO2
 ```
 
-Stored CO2 reported for gasification, plastic-waste pyrolysis, and MTO can arise from an integrated amine scrub already represented in those technologies' techno-economic data. These technologies are described as CCS-ready with capture integrated into the process definition. If the direct-emission balance has already excluded that stored carbon, adding a second negative storage credit in the LCI can double count the benefit.
+The subsequent ITOM clarification supplied on 7 October 2026 establishes that `MTO_with_loop` mode 2 includes MTO plus gasification of its heavy-fuel-oil by-product. Its `flue_gas_CO2` is actual CO2 emitted to air. Its `stored_CO2` is CO2 captured from syngas and compressed ready for transport; this field does not establish permanent storage. Capture/compression energy is included in ITOM, while transport/storage energy is outside its model boundary. The same stream interpretation applies to gasification and pyrolysis routes with integrated by-product gasification.
+
+The active MTO ethylene and propylene LCIs now keep the actual flue CO2 and include a positive demand for `carbon dioxide compression, transport and storage` (`carbon dioxide, stored`, `RER`). The exchange assumes all captured CO2 is durably stored; this downstream destination remains provisional. No additional negative CO2 credit is applied, and standalone `FE_CC_MTO_with_loop` demand remains disabled. The requested service includes compression, so its potential overlap with ITOM electricity remains a documented conservative proxy. See [MTO CO2 accounting](docs/por_mto_co2_accounting.md) for allocation, coefficients, limitations and rebuilding instructions.
 
 Before applying `FE_CC_gasification`, `FE_CC_waste_pyrolysis`, or another storage pathway, determine which of the following applies:
 
 1. the source process inventory reports gross emissions and the storage service must receive a negative fossil-CO2 exchange;
-2. the source inventory already reports net emissions and only compression, transport, and storage burdens should be added;
+2. the source inventory reports actual atmospheric emissions and only missing downstream service burdens should be added, with compression checked for overlap;
 3. the ITOM `stored_CO2` value is bookkeeping and should not create an additional LCA credit;
 4. the captured carbon is biogenic or atmospheric and requires a different flow and interpretation from fossil carbon.
 
@@ -1035,7 +1093,7 @@ Maintain an assumptions register alongside the analysis. At minimum, record:
 | PBR | Exclude obsolete production in the main analysis | Corrected and reoptimized ITOM outputs | Provisional |
 | Sugar | Use a European supply sensitivity rather than a single crop assumption | Feedstock composition and processing route | Provisional |
 | Plant boundary | Include the defined PoR sites | Resolve ambiguous site assignments | Provisional |
-| CCS | Separate physical capture/storage from emission bookkeeping | Exact meaning of each `stored_CO2` series | Provisional |
+| CCS | MTO has actual flue emissions plus a positive storage service; no second negative CO2 credit | Confirm downstream storage destination and separate compression from transport/injection energy; review other routes | Stream meaning confirmed for integrated routes; MTO storage destination provisional |
 | DAC methanol | Retain imported DAC methanol as a separate route | Origin, transport, and allocation | Provisional |
 
 For each item, add the source, affected files, responsible reviewer, decision date, and whether the assumption is confirmed or provisional. Do not choose 100% wind, 100% sugar beet, or renewable steam merely to fill missing information.
@@ -1044,7 +1102,7 @@ For each item, add the source, affected files, responsible reviewer, decision da
 
 | Module | Descriptor | Scenarios in descriptor | Scenario data | Mapping | Inventory | Declared ecoinvent |
 |---|---|---|---|---|---|---|
-| ITOM PoR | `datapackage_itom_por.json` | `CL`, `OCE` | `scenario_data_itom_por.csv` | `config_itom_por.yaml` | `lci-itom_por.xlsx` | 3.12 cut-off |
+| ITOM PoR | `datapackage_itom_por.json` | `CL`, `OCE` | `scenario_data_itom_por.csv` | `config_itom_por.yaml` | `lci-itom_por-mode-aware.xlsx` | 3.12 cut-off |
 | FORECAST | `datapackage_forecast.json` | `fc_nz` | `scenario_data_forecast_all.csv` | `config_forecast.yaml` | `lci-forecast.xlsx` | 3.10 cut-off |
 | EDM-I | `datapackage_edm_i.json` | `NDC_LTT`, `CBAM`, `INDEPENDENCE` | `scenario_data_edm_i.csv` | `config_edm_i.yaml` | `lci-edm-i.xlsx` | 3.10 cut-off |
 | Open-PROM | `datapackage_open_prom.json` | `NDC-EI` | `scenario_data_open_prom.csv` | `config_open_prom.yaml` | `lci-open-prom.xlsx` | 3.12 cut-off |
@@ -1457,6 +1515,20 @@ multiprocessing=False
 ```
 
 The current calculation notebook already selects `False` when more than one scenario is assessed.
+
+### `TypeError: unsupported operand type(s) for *: 'NoneType' and 'float'` in external market relinking
+
+In premise 2.3.8, `ExternalScenario.relink_to_new_datasets` creates optional `minimum` and `maximum` fields with `None` values when bounds are absent. A later replacement checks only whether the keys exist before scaling them. The FORECAST `market for methanol (SPS)` followed by the PoR `market for methanol (por)` can therefore trigger `None * float`, even when the original exchange had no uncertainty bounds.
+
+`premise_compat.py` applies a scoped runtime workaround: both guards now require a non-null bound. Numeric bounds, including zero, keep the original scaling behavior; missing bounds stay unspecified. Installed package files and inventory quantities are unchanged. `1_export_packages.ipynb` installs this workaround through `configure_por_export_support()` in the setup, Brightway-export and Pathways-package cells, so either export route is covered.
+
+Rerun the edited setup cell and the failed export cell, or restart the kernel and run the notebook in order. Create a fresh `NewDatabase` instance; do not call `ndb.update()` again on the instance whose update failed partway through. Existing scenario databases are now replaced only after the new update succeeds, and only the named export targets are removed.
+
+The regression tests extract and execute the installed premise relinking function on small in-memory inventories. They reproduce the original two-stage failure and check chained replacements, null bounds, numeric/zero-bound scaling and repeat installation:
+
+```powershell
+python -m unittest discover -s tests -p test_premise_compat.py -v
+```
 
 ### CL or OCE is available in calculations but not in figures
 

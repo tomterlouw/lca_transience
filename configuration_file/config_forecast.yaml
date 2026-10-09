@@ -147,10 +147,6 @@ markets:
       #  product: methanol
       #  operator: equals
 
-      #- name: methanol production, from natural gas reforming
-      #  product: methanol
-      #  operator: equals
-
       #- name: methanol production, biomass gasification
       #  product: methanol
-      #  #operator: equals
+      #  operator: equals
