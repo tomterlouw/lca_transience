@@ -350,6 +350,54 @@ def open_checkpoint_with_legacy_base(api, path, reader=None):
         return reader(path)
 
 
+@contextmanager
+def native_inventory_export_scope(*, api_loader=None):
+    """Keep native delta bases columnar during an otherwise unchanged export.
+
+    premise 2.3.8 has no inventory-store module. Only that exact missing module
+    is a no-op; missing dependencies and native corruption errors still fail.
+    The installed reader is restored on success and failure, including nested
+    package/builder scopes. No checkpoint files or validation rules are changed.
+    """
+    if api_loader is None:
+        from importlib import import_module
+        api_loader = lambda: import_module("premise.inventory_store")
+    try:
+        api = api_loader()
+    except ModuleNotFoundError as error:
+        if error.name != "premise.inventory_store":
+            raise
+        yield
+        return
+    with legacy_delta_base_columnar_scope(api):
+        yield
+
+
+def attach_native_inventory_export_guard(builder, *, api_loader=None):
+    """Guard this builder's native exports, without rerunning its update.
+
+    Compose with existing instance-bound metals/export validation wrappers.
+    Import the optional native API only when exporting, not when attaching.
+    """
+    changed = False
+    for name in ("write_db_to_brightway", "write_db_to_matrices", "write_db_to_simapro"):
+        original = getattr(builder, name, None)
+        if not callable(original) or getattr(original, "__repo_native_export_guard_version__", None) == 1:
+            continue
+
+        def guard(export):
+            @wraps(export)
+            def export_with_columnar_bases(*args, **kwargs):
+                with native_inventory_export_scope(api_loader=api_loader):
+                    return export(*args, **kwargs)
+            export_with_columnar_bases.__repo_native_export_guard_version__ = 1
+            return export_with_columnar_bases
+
+        setattr(builder, name, guard(original))
+        changed = True
+    return changed
+
+
 def open_inventory_store(scenario, api):
     """Current live store > freshly bound checkpoint > native open > handoff."""
     store = scenario.get("_inventory_store")

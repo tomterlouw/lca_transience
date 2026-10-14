@@ -442,7 +442,7 @@ create_dbs = True
 For routine Pathways calculations, you can set `create_dbs=False` after confirming that the package workflow works correctly.
 
 > [!CAUTION]
-> When `create_dbs=True`, the current notebook deletes databases in the active Brightway project whose names contain `remind_2050` before writing the new scenarios. Use a dedicated project, inspect the deletion cell, and back up any database that must be retained.
+> When `create_dbs=True`, the notebook replaces only the explicitly selected scenario database names, after successful updating, linking and an inventory-readability preflight. Replacement is not atomic: a later writer failure can still leave a target absent. Use a dedicated project, inspect the deletion cell, and back up any database that must be retained. The repo-owned [native export compatibility guard](docs/por_supplier_linking.md#native-brightway-checkpoint-compatibility-premise-252) handles premise 2.5.2's legacy-Arrow delta-base reader mismatch without disabling corruption checks.
 
 The notebook currently composes two scenarios from:
 

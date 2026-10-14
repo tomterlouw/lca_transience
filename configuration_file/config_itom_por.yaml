@@ -907,7 +907,7 @@ markets:
         amount: 0.027777778
 
       # ITOM steam input: 2 TJ/kt = 2 MJ/kg.
-      - name: steam production, as energy carrier, in chemical industry, for por
+      - name: steam production, as energy carrier, in chemical industry (por)
         reference product: heat, from steam, in chemical industry
         amount: 2.0
 
@@ -972,7 +972,7 @@ markets:
         amount: 0.027777778
 
       # ITOM steam input: 2 TJ/kt = 2 MJ/kg.
-      - name: steam production, as energy carrier, in chemical industry, for por
+      - name: steam production, as energy carrier, in chemical industry (por)
         reference product: heat, from steam, in chemical industry
         amount: 2.0
 

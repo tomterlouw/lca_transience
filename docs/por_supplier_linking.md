@@ -54,10 +54,11 @@ For Brightway output, the notebook attaches the helper to the new builder before
 ```python
 attach_por_supplier_linking(ndb, stage="brightway")
 ndb.update()
+preflight_por_brightway_export(ndb)  # before removing existing export targets
 ndb.write_db_to_brightway(name=scenario_names)
 ```
 
-The attached update method runs premise's normal update first, then the repo's validated post-step. Existing databases are replaced only after both steps succeed. For the Pathways ZIP, the notebook attaches it to the contained builder:
+The attached update method runs premise's normal update first, then the repo's validated post-step. Existing databases are replaced only after both steps and the inventory-readability preflight succeed. The notebook reloads the repo-owned compatibility/linking helpers before creating its Brightway builder. For the Pathways ZIP, the notebook attaches it to the contained builder:
 
 ```python
 attach_por_supplier_linking(ndb.datapackage, stage="pathways")
@@ -122,6 +123,55 @@ The package's columnar checkpoint optimization is used only when premise's
 native inventory-store API exists. Older releases such as 2.3.8 retain their
 list/pickle export path; missing dependencies of an existing native API still
 raise an error rather than silently disabling it.
+
+### Native Brightway checkpoint compatibility (premise 2.5.2)
+
+The native Brightway loader can raise `InventoryStoreCorruptionError: Scenario
+delta base is not a compact columnar checkpoint` even for a valid linked delta.
+Its normal opener reads a legacy Arrow base eagerly, but its delta reader needs
+that same base in columnar form. This is a reader-format mismatch, not a reason
+to discard the linked graph or load the unmodified reference database.
+
+`attach_por_supplier_linking()` now also installs the instance-bound
+`attach_native_inventory_export_guard()` from `premise_compat.py`. Brightway,
+matrix and SimaPro exports run unchanged under the same scoped columnar-base
+reader used by the Pathways package. Native semantic certification, checksum,
+schema and base-fingerprint checks remain enabled. The original reader is
+restored after success or failure; no installed package/checkpoint file is
+rewritten. Attaching is idempotent and imports the native API lazily. On 2.3.8
+the absent `premise.inventory_store` module is a no-op; a missing dependency of
+an existing module is still an error.
+
+Before deletion, `preflight_por_brightway_export()` reopens every persisted
+native checkpoint through the vendor's checked reader, without consuming it
+or materializing all exchanges. It does not trust a stale in-memory store in
+place of the checkpoint. Legacy list/pickle scenarios receive an availability
+check only. Normal export validation still follows. This prevents the reported
+reader/checkpoint failure from deleting an existing target first, but does
+**not** make Brightway replacement atomic or prevent every later writer error.
+
+If the update and linking succeeded and only this native reader error occurred,
+the existing builder can be retried without another expensive update, provided
+its source files, validation receipts and checkpoint files are still valid:
+
+```python
+import importlib
+import premise_compat as por_compat
+importlib.reload(por_compat)
+por_compat.attach_native_inventory_export_guard(ndb)
+ndb.write_db_to_brightway(name=bw_scenario_names)
+```
+
+Do not call `ndb.update()` again for this retry. If the old notebook already
+deleted the target database, retrying recreates it; it does not restore the old
+database or any calculation-setup entries removed by Brightway during deletion.
+For a fresh build, use the updated notebook normally.
+
+`tests/test_por_brightway_export.py` reproduces the failure with a real temporary
+legacy Arrow base and scenario delta, then exercises the unchanged native
+`load_database(..., consume_compact=True)` path. It also checks corrupted-base
+rejection, reader restoration, nested scopes, wrapper composition and legacy
+compatibility. These isolated tests do not write a production Brightway database.
 
 ### Embedded market supply correction (policy version 2)
 

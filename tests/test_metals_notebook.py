@@ -201,6 +201,7 @@ class MetalsNotebookTest(unittest.TestCase):
                                       side_effect=lambda *args, **options: events.append(("provenance",))))
             stack.enter_context(patch("por_supplier_linking.attach_por_supplier_linking",
                                       side_effect=lambda *args, **options: events.append(("por", "brightway"))))
+            stack.enter_context(patch("por_supplier_linking.preflight_por_brightway_export", return_value=[]))
             stack.enter_context(patch("por_supplier_linking.attach_por_pathways_export",
                                       side_effect=lambda *args, **options: events.append(("por", "pathways"))))
             stack.enter_context(contextlib.redirect_stdout(io.StringIO()))

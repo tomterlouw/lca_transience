@@ -46,6 +46,7 @@ tests/*
 !tests/test_metal_share_generation.py
 !tests/test_metals_share_connection.py
 !tests/test_native_inventory_access.py
+!tests/test_por_brightway_export.py
 !tests/test_por_px_terminal_purity.py
 !tests/test_por_scenario_inputs.py
 !tests/test_helper_consolidation.py

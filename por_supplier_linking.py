@@ -9,7 +9,6 @@ from __future__ import annotations
 
 import csv
 from collections import defaultdict
-from contextlib import nullcontext
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from functools import wraps
@@ -1192,6 +1191,10 @@ def attach_por_supplier_linking(builder, *, policy=None, report_dir=ROOT / "expo
                                 stage="export", install_support=True, verbose=True,
                                 load_database_func=None, dump_database_func=None):
     """Wrap one builder's update so both public export paths run the same post-step."""
+    from premise_compat import attach_native_inventory_export_guard
+    # Also upgrade an already-linked builder after reloading the repo helpers:
+    # export-reader compatibility does not require another expensive update.
+    attach_native_inventory_export_guard(builder, api_loader=_inventory_store_api)
     if getattr(builder, "_por_supplier_linking_attached", False):
         return False
     if install_support:
@@ -1257,6 +1260,54 @@ def attach_por_supplier_linking(builder, *, policy=None, report_dir=ROOT / "expo
     if verbose:
         print(f"Attached PoR supplier linking ({stage}); processing starts after premise.update().", flush=True)
     return True
+
+
+def preflight_por_brightway_export(builder):
+    """Check updated inventory readability before deleting export targets.
+
+    Reopen persisted native checkpoints with vendor checksum/schema/base checks,
+    even if an in-memory store is also present. Do not consume, fork or expand
+    the exchange graph. Legacy inventories receive an availability check only;
+    premise's normal semantic/export validation still runs in both versions.
+    This is not an atomic Brightway replacement or a guarantee against a later
+    writer failure. Never fall back to the original reference inventory.
+    """
+    from premise_compat import open_checkpoint_with_legacy_base
+    scenarios = getattr(builder, "scenarios", None)
+    if not isinstance(scenarios, list) or not scenarios:
+        raise SupplierLinkingError("No updated scenarios available for Brightway export preflight.")
+    receipts = []
+    for scenario in scenarios:
+        receipt = {"model": scenario.get("model"), "pathway": scenario.get("pathway"),
+                   "year": scenario.get("year")}
+        checkpoint = scenario.get("_inventory_checkpoint")
+        if checkpoint is not None:
+            api = _inventory_store_api()
+            reader = getattr(api.InventoryStore, "open_for_reporting", None)
+            store = open_checkpoint_with_legacy_base(api, checkpoint, reader if callable(reader) else None)
+            if len(store) == 0:
+                raise SupplierLinkingError("Updated native checkpoint is empty; refusing Brightway replacement.")
+            receipt.update(storage="inventory_checkpoint", checkpoint=str(checkpoint),
+                           activity_count=len(store), generation=getattr(store, "generation", None))
+            del store
+        elif _has_inventory_store(scenario):
+            store = scenario.get("_inventory_store")
+            if store is None:
+                store = scenario.get("_inventory_export_handoff")
+            if store is None or len(store) == 0:
+                raise SupplierLinkingError("Updated native inventory is empty; refusing Brightway replacement.")
+            receipt.update(storage="inventory_store", activity_count=len(store),
+                           generation=getattr(store, "generation", None))
+        elif scenario.get("database") is not None:
+            if not scenario["database"]:
+                raise SupplierLinkingError("Updated legacy inventory is empty; refusing Brightway replacement.")
+            receipt.update(storage="legacy_list", activity_count=len(scenario["database"]))
+        elif scenario.get("database filepath") and Path(scenario["database filepath"]).is_file():
+            receipt.update(storage="legacy_cache", checkpoint=str(scenario["database filepath"]))
+        else:
+            raise SupplierLinkingError("Updated scenario data/cache is missing; refusing Brightway replacement.")
+        receipts.append(receipt)
+    return receipts
 
 
 def attach_por_pathways_export(package, **kwargs):
@@ -1329,18 +1380,8 @@ def attach_por_pathways_export(package, **kwargs):
             raise SupplierLinkingError("The concrete package mapping guard was replaced; recreate the package builder before exporting.")
         if getattr(package._add_classifications_file, "__por_classification_guard_version__", None) != 1:
             raise SupplierLinkingError("The classification export guard was replaced; recreate the package builder.")
-        from premise_compat import legacy_delta_base_columnar_scope
-        try:
-            store_api = _inventory_store_api()
-        except ModuleNotFoundError as error:
-            # premise 2.3.8 uses list/pickle inventories, not native stores.
-            # Do not hide broken dependencies inside a present native API.
-            if error.name != "premise.inventory_store":
-                raise
-            scope = nullcontext()
-        else:
-            scope = legacy_delta_base_columnar_scope(store_api)
-        with scope:
+        from premise_compat import native_inventory_export_scope
+        with native_inventory_export_scope(api_loader=_inventory_store_api):
             return original_create(*args, **options)
 
     package.datapackage.update = update_and_preflight

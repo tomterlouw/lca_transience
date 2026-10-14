@@ -127,7 +127,7 @@ class PremiseNullBoundsTest(unittest.TestCase):
 
 
 class ExportNotebookSafetyTest(unittest.TestCase):
-    def run_export_cell(self, fail_update):
+    def run_export_cell(self, fail_update, fail_preflight=False):
         root = Path(__file__).resolve().parents[1]
         notebook = json.loads((root / "1_export_packages.ipynb").read_text(encoding="utf-8"))
         source = next("".join(cell["source"]) for cell in notebook["cells"]
@@ -163,15 +163,24 @@ class ExportNotebookSafetyTest(unittest.TestCase):
             "load_selected_metal_steel_policy": lambda: SimpleNamespace(case_suffix=""),
             "pd": SimpleNamespace(DataFrame=lambda rows: rows), "display": lambda rows: None,
         }
+        def preflight(builder):
+            events.append(("preflight", None))
+            if fail_preflight:
+                raise RuntimeError("Synthetic checkpoint failure")
+            return [{"storage": "fixture"}]
         with patch("por_supplier_linking.configure_por_export_support",
                    side_effect=lambda: events.append(("install", None))), patch(
                        "por_supplier_linking.attach_por_supplier_linking",
                        side_effect=lambda *args, **kwargs: events.append(("attach", None))
-                   ), patch("metals_scenario_policy.attach_metal_steel_policy"), patch(
+                   ), patch("por_supplier_linking.preflight_por_brightway_export", side_effect=preflight), patch(
+                       "metals_scenario_policy.attach_metal_steel_policy"), patch(
                        "importlib.reload", side_effect=lambda module: module
                    ), contextlib.redirect_stdout(io.StringIO()):
             if fail_update:
                 with self.assertRaisesRegex(RuntimeError, "Synthetic update failure"):
+                    exec(compile(source, "export_notebook_cell", "exec"), namespace)
+            elif fail_preflight:
+                with self.assertRaisesRegex(RuntimeError, "Synthetic checkpoint failure"):
                     exec(compile(source, "export_notebook_cell", "exec"), namespace)
             else:
                 exec(compile(source, "export_notebook_cell", "exec"), namespace)
@@ -185,8 +194,13 @@ class ExportNotebookSafetyTest(unittest.TestCase):
     def test_success_replaces_only_named_targets_after_update(self):
         registry, events = self.run_export_cell(fail_update=False)
         self.assertEqual(set(registry), {"target_OCE", "remind_2050_other"})
-        self.assertEqual([event[0] for event in events], ["install", "construct", "attach", "update", "delete", "write"])
+        self.assertEqual([event[0] for event in events], ["install", "construct", "attach", "update", "preflight", "delete", "write"])
         self.assertEqual(events[-1], ("write", ("target_CL",)))
+
+    def test_failed_checkpoint_preflight_preserves_existing_databases(self):
+        registry, events = self.run_export_cell(fail_update=False, fail_preflight=True)
+        self.assertEqual(set(registry), {"target_CL", "target_OCE", "remind_2050_other"})
+        self.assertEqual([event[0] for event in events], ["install", "construct", "attach", "update", "preflight"])
 
     def test_package_reruns_receive_clean_inputs_after_a_brightway_update(self):
         root = Path(__file__).resolve().parents[1]
@@ -234,6 +248,7 @@ class ExportNotebookSafetyTest(unittest.TestCase):
                          PATHWAYS_PACKAGE_BASENAME="remind-transience_por",
                          load_selected_metal_steel_policy=lambda: SimpleNamespace(case_suffix=""))
         with patch("por_supplier_linking.configure_por_export_support"), patch("por_supplier_linking.attach_por_supplier_linking"), patch(
+                "por_supplier_linking.preflight_por_brightway_export", return_value=[]), patch(
                 "por_supplier_linking.attach_por_pathways_export"), patch(
                 "metals_scenario_policy.attach_metal_steel_policy"), patch(
                 "metals_scenario_policy.attach_metal_steel_package_provenance"), patch(
