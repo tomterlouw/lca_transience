@@ -654,7 +654,7 @@ def _has_inventory_store(scenario):
 
 def _selected_store_inventory(store, policy):
     """Load background identities only; full exchanges only for linked targets."""
-    from native_inventory_access import iter_activity_metadata
+    from premise_compat import iter_activity_metadata
     fields = ("name", "reference product", "unit", "location", "code", "database")
     database, activity_ids = [], []
     for activity_id, metadata in iter_activity_metadata(store):
@@ -711,7 +711,7 @@ def _graph_baseline(store, validation):
     required = ("_iter_storage", "_stored_activity_fingerprint", "_stable_hash", "_cycle_signatures")
     if not all(callable(getattr(validation, name, None)) for name in required):
         return None
-    from native_inventory_access import iter_activity_metadata
+    from premise_compat import iter_activity_metadata
     keys, identities, identifiers = {}, defaultdict(list), {}
     for activity_id, metadata in iter_activity_metadata(store):
         key = (metadata.get("name"), metadata.get("reference product", metadata.get("product")), metadata.get("location"))
@@ -872,7 +872,7 @@ def _stage_store_linking(builder, scenario, policy, report_dir, *, progress=None
             progress(name)
     phase("loading updated inventory")
     api = _inventory_store_api()
-    from native_inventory_access import open_inventory_store
+    from premise_compat import open_inventory_store
     store = open_inventory_store(scenario, api)
     if store is None or not all(callable(getattr(store, name, None)) for name in (
         "materialize", "iter_activity_ids", "activity", "fork", "transaction", "checkpoint",
@@ -1073,7 +1073,7 @@ def _apply_por_supplier_linking(builder, *, policy=None, report_dir=ROOT / "expo
         if _has_inventory_store(scenario):
             prepared = (prepared_native or {}).get(id(scenario))
             if prepared is not None:
-                from native_inventory_access import checkpoint_token
+                from premise_compat import checkpoint_token
                 if checkpoint_token(scenario) != prepared["source_token"]:
                     raise SupplierLinkingError("Native scenario changed after live PoR linking was captured; recreate the builder.")
                 working = dict(scenario)
@@ -1202,7 +1202,7 @@ def attach_por_supplier_linking(builder, *, policy=None, report_dir=ROOT / "expo
     @wraps(original_update)
     def update_with_por_links(*args, **kwargs):
         policy.verify_sources()
-        from native_inventory_access import capture_updated_stores, checkpoint_token
+        from premise_compat import capture_updated_stores, checkpoint_token
         prepared = {}
         eligible = getattr(builder, "_metal_steel_policy_nonferrous_case", "baseline") == "baseline"
         def capture(scenario, returned_store):
@@ -1329,7 +1329,7 @@ def attach_por_pathways_export(package, **kwargs):
             raise SupplierLinkingError("The concrete package mapping guard was replaced; recreate the package builder before exporting.")
         if getattr(package._add_classifications_file, "__por_classification_guard_version__", None) != 1:
             raise SupplierLinkingError("The classification export guard was replaced; recreate the package builder.")
-        from native_inventory_access import legacy_delta_base_columnar_scope
+        from premise_compat import legacy_delta_base_columnar_scope
         try:
             store_api = _inventory_store_api()
         except ModuleNotFoundError as error:

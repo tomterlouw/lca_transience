@@ -1,0 +1,13 @@
+# Default/current modelling profile: premise 2.5.2, Python 3.11.
+# Run from the repo root: python -m pip install -r requirements.txt
+# Do not combine with requirements-legacy.txt in one environment.
+-r requirements-common.txt
+
+premise[bw25]==2.5.2
+# Both local Pathways builds report 1.0.4 but differ in source and requirements.
+# Pin the actual newer-environment source instead of the ambiguous version label.
+pathways @ git+https://github.com/polca/pathways.git@82e736438d13c7b465361914534229cf3860bf46
+bw-processing==1.5
+matrix-utils==0.8
+# premise 2.5.2 requires lxml<6 on Windows; retain the observed compatible pin.
+lxml==5.4.0

@@ -2,7 +2,7 @@
 
 ### Prospective Life Cycle Assessment Framework for Industrial Transition Pathways
 
-[![Python](https://img.shields.io/badge/python-3.11+-blue.svg)]()
+[![Python](https://img.shields.io/badge/python-3.11-blue.svg)]()
 [![License: BSD-3-Clause](https://img.shields.io/badge/License-BSD%203--Clause-blue.svg)](LICENSE)
 
 **LCA_TRANSIENCE** is an open and modular framework for **prospective life cycle assessment (LCA)** of future industrial systems. It connects scenario results from integrated assessment and industrial optimization models to foreground life cycle inventories, prospective background databases, and environmental impact calculations.
@@ -168,12 +168,37 @@ lca_transience/
 ├── scenario_data/                  # IAMC scenario CSVs and source model workbooks
 ├── datapackage_*.json              # External-scenario datapackage descriptors
 ├── supplier_resolution.py          # Shared supplier identities and active-IAM geography
-├── regionalization.py              # Legacy compatibility only; no longer used by the exporter
+├── por_supplier_linking.py         # Post-update supplier linking and export guards
+├── inventory_supplier_compat.py    # Reviewed supplier-version compatibility rules
+├── premise_compat.py               # premise compatibility and native inventory access
+├── por_classifications.py          # Classification export and complete Pathways grouping
+├── por_scenario_inputs.py          # Fresh scenario inputs and p-xylene purity reconciliation
+├── metals_scenario_policy.py       # Non-ferrous policy, update hooks and package provenance
 ├── primary_vs_secondary_metals/    # Supporting metal-market transformation code
 ├── figs/                           # Generated figures and selected plot data
-├── lca_transience.yml              # Conda environment specification
+├── requirements.txt               # Default premise 2.5.2 pip profile
+├── requirements-common.txt        # Shared reviewed numerical/runtime pins
+├── requirements-legacy.txt        # Optional premise 2.3.8 comparison profile
+├── lca_transience.yml              # Portable Conda setup for the default profile
+├── lca_transience_legacy.yml       # Separate optional legacy Conda setup
 └── README.md
 ```
+
+### Consolidated helper modules
+
+The framework has seven top-level helper modules, organized by responsibility.
+Scenario reconciliation is in `por_scenario_inputs.py`; classification export
+and Pathways grouping are in `por_classifications.py`; non-ferrous policy and
+its export workflow are in `metals_scenario_policy.py`; premise compatibility
+and certified inventory-store access are in `premise_compat.py`. Supplier
+resolution, post-update linking and reviewed inventory compatibility remain
+separate because they serve different stages of the workflow.
+
+The four former helper files are removed, not retained as forwarding wrappers.
+All repo notebooks, scripts and tests use their consolidated destinations.
+Restart long-lived notebook kernels after updating; no scenario quantities,
+LCI exchanges or modelling assumptions change merely because of this refactor.
+See [helper responsibilities and import migration](docs/helper_modules.md).
 
 ### Generated files
 
@@ -201,7 +226,16 @@ You need:
 - JupyterLab, Jupyter Notebook, or an IDE capable of running notebooks;
 - the project-specific scenario files required by the modules you activate.
 
-The supplied environment currently pins the principal modelling stack, including Brightway, `premise`, `pathways`, pandas, openpyxl, pyarrow, matplotlib, and seaborn.
+The default setup targets **premise 2.5.2**, Python 3.11 and Brightway 2.5. It pins
+the actual Pathways Git commit observed in the newer working environment, since
+the two installed builds both report 1.0.4 but contain different code. Shared
+numerical/runtime pins live in `requirements-common.txt`; `requirements.txt`
+adds the current profile. The portable `lca_transience.yml` references that same
+pip file, so pip and Conda installs do not maintain two independent package lists.
+
+The optional `requirements-legacy.txt` / `lca_transience_legacy.yml` pair preserves
+the premise 2.3.8 comparison profile in a separate environment. It is not the
+default. See [dependency files, installation and reproducibility](docs/environment_setup.md).
 
 ### Clone and create the environment
 
@@ -209,7 +243,7 @@ The supplied environment currently pins the principal modelling stack, including
 git clone https://github.com/tomterlouw/lca_transience.git
 cd lca_transience
 conda env create -f lca_transience.yml
-conda activate premise_pathways
+conda activate premise_pathways_new
 ```
 
 If you use Mamba, the equivalent creation command is:
@@ -217,6 +251,22 @@ If you use Mamba, the equivalent creation command is:
 ```bash
 mamba env create -f lca_transience.yml
 ```
+
+If `premise_pathways_new` already exists, keep the working installation and test
+a fresh environment instead: `conda env create -f lca_transience.yml -n lca_transience_252`.
+These files do not automatically modify your current environments. Run creation
+from the repository root; the requirements include paths are relative.
+
+For pip-only installation in an already-created Python 3.11 environment, use:
+
+```bash
+python -m pip install -r requirements.txt
+python -m pip check
+```
+
+Git must be available for the pinned Pathways source. Do not install current and
+legacy requirement profiles together. The setup guide includes venv activation,
+kernel registration, optional browser-notebook tools and legacy commands.
 
 ### Configure credentials
 
@@ -250,10 +300,16 @@ After activation, verify that the notebook kernel and command line resolve the s
 
 ```bash
 python --version
-python -c "import bw2data, premise, pathways, pandas, pyarrow; print('Environment imports OK')"
+python -m pip check
+python -c "import sys, importlib.metadata as m; print(sys.executable); print({p: m.version(p) for p in ('premise', 'pathways', 'bw2data', 'bw2calc', 'edges')})"
 ```
 
-The expected Python major/minor version is 3.11. If Jupyter displays a different interpreter, register or select the `premise_pathways` kernel before executing notebooks.
+The expected Python major/minor version is 3.11, with premise 2.5.2 in the default
+profile. Register the kernel with
+`python -m ipykernel install --user --name premise_pathways_new --display-name "TRANSIENCE (premise 2.5.2)"`
+and select it in VS Code/Jupyter. If you chose a custom environment name, use a
+matching kernel name. The environment display name alone does not prove that
+the running package versions or Pathways source commit match the selected profile.
 
 ### Working-directory requirement
 
@@ -274,7 +330,7 @@ Complete this checklist before a full package build. It is faster to detect an i
 
 ### Software and access
 
-- [ ] The `premise_pathways` environment is active.
+- [ ] The current `premise_pathways_new` environment (premise 2.5.2), or your explicitly selected alternative, is active.
 - [ ] The notebook kernel points to that environment.
 - [ ] `private_keys.py` exists locally and is ignored by Git.
 - [ ] The ecoinvent account can access version 3.12 cut-off.
@@ -584,7 +640,7 @@ The reference database is deliberately generated without selected prospective tr
 
 Non-ferrous metals are controlled in this same notebook through `NONFERROUS_METALS_SCENARIO`, defaulting to `"baseline"`, which preserves the active premise version's native inventory quantities and supplier links. This deliberately retains older premise's interpolated non-ferrous shares versus newer premise's existing secondary fractions; it does not force the baselines to be identical. Steel remains endogenous to the selected IAM or explicitly enabled EDM-I link: there is no additional steel scenario selector, recycled-content floor or primary-only override. No separate metals notebook, spreadsheet-generation script or edits inside `site-packages` are needed.
 
-`metals_scenario_policy.py` reads the repo-owned `configuration_file/metals_scenario_policy.yaml` and its live numeric inputs in `primary_vs_secondary_metals/scenario_data/`; `metals_policy_workflow.py` applies the same validated post-update non-ferrous policy to both export routes, before PoR linking and classification capture. Optional reference, conservative/moderate/high recycling and primary-only cases operate only on five explicitly configured refined non-ferrous products. All steel grades and unsupported ores/grades remain outside this override. Steel route quantities, regional supply weights and future inventories continue to follow the IAM/EDM-I model; DRI/electrolytic steel must not be interpreted as recycled merely because it uses electricity. The non-ferrous sensitivities retain process burdens and do not model scrap-stock feasibility or recalculate logistics.
+`metals_scenario_policy.py` reads the repo-owned `configuration_file/metals_scenario_policy.yaml` and its live numeric inputs in `primary_vs_secondary_metals/scenario_data/`, and applies the same validated post-update non-ferrous policy to both export routes, before PoR linking and classification capture. Optional reference, conservative/moderate/high recycling and primary-only cases operate only on five explicitly configured refined non-ferrous products. All steel grades and unsupported ores/grades remain outside this override. Steel route quantities, regional supply weights and future inventories continue to follow the IAM/EDM-I model; DRI/electrolytic steel must not be interpreted as recycled merely because it uses electricity. The non-ferrous sensitivities retain process burdens and do not model scrap-stock feasibility or recalculate logistics.
 
 Notebook 1 automatically prepares named conservative/baseline/optimistic share YAMLs through `primary_vs_secondary_metals.share_files`, using the raw reference YAML and evidence/mapping CSVs by default (`METALS_SHARE_SOURCE = "yaml"`). Missing/empty or stale generated files, the baseline alias, combined document and generation manifest are maintained without a separate script. Valid manual edits to named cases are retained when raw inputs are unchanged; simultaneous raw-input and named-output changes stop with a conflict. Set `FORCE_METALS_SHARE_REGENERATION = True` only to deliberately regenerate after reviewing/backing up edits. Explicit `METALS_SHARE_SOURCE = "xlsx"` instead reads the reference workbook without modifying it; independently edited extracted YAML values then require choosing YAML mode or explicit re-extraction.
 
@@ -1497,7 +1553,7 @@ Change one conceptual assumption at a time where possible. Label sensitivities s
 
 ### `ModuleNotFoundError: private_keys`
 
-Create `private_keys.py` in the repository root as shown under [Configure credentials](#configure-credentials). Confirm that the notebook kernel uses the `premise_pathways` environment and that the repository root is the working directory.
+Create `private_keys.py` in the repository root as shown under [Configure credentials](#configure-credentials). Confirm that the notebook kernel uses the current `premise_pathways_new` profile (or your explicitly selected alternative) and that the repository root is the working directory.
 
 ### Ecoinvent import or authentication fails
 

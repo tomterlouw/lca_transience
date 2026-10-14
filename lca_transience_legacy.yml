@@ -1,0 +1,14 @@
+# Optional legacy comparison environment. Default: lca_transience.yml.
+# Run from the repo root: conda env create -f lca_transience_legacy.yml
+name: premise_pathways_legacy
+channels:
+  - conda-forge
+  - nodefaults
+dependencies:
+  - python=3.11
+  - pip>=24
+  - setuptools=82.0.0
+  - wheel
+  - git
+  - pip:
+      - -r requirements-legacy.txt

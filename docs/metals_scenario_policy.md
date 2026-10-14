@@ -54,8 +54,10 @@ the shared configuration with
 `MetalSteelPolicy.from_file(METALS_POLICY_FILE, nonferrous_case=...)`.
 There is no separate scenario-generating script to run.
 
-The existing `MetalSteelPolicy` class and `metals_policy_workflow.py` module names
-are retained for compatibility; their names do not enable a steel scenario.
+The existing `MetalSteelPolicy` class and `attach_metal_steel_*` function names
+are retained in the consolidated `metals_scenario_policy.py` module; their names
+do not enable a steel scenario. The former `metals_policy_workflow.py` imports
+must use `metals_scenario_policy` instead.
 Legacy steel arguments permit native baseline only, and non-native steel
 selections are rejected rather than silently changing model outputs.
 

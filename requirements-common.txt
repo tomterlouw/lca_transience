@@ -1,0 +1,39 @@
+# Shared direct dependencies for Python 3.11.
+# Observed in the two working environments on 2026-10-14.
+# Install requirements.txt (premise 2.5.2), not this file by itself.
+# These are reviewed runtime pins, not a complete transitive/hash lockfile.
+
+# Brightway 2.5 and regionalized LCIA.
+bw2calc==2.4.0
+bw2data==4.6
+bw2io==0.9.14
+edges==1.2.2
+
+# Shared supplier geography and external scenario descriptors.
+constructive-geometries==1.0
+datapackage==1.15.4
+pycountry==26.2.16
+wurst==0.5.3
+
+# Numerical versions compatible with both supported premise profiles.
+numpy==1.26.4
+scipy==1.13.1
+pandas==2.3.3
+xarray==2024.2.0
+sparse==0.18.0
+
+# Inventory/plot data input and output.
+openpyxl==3.1.5
+XlsxWriter==3.2.9
+pyarrow==23.0.1
+PyYAML==6.0.3
+
+# Scientific figures and notebook kernel; JupyterLab is optional.
+matplotlib==3.10.8
+seaborn==0.13.2
+ipython==8.37.0
+ipykernel==7.2.0
+
+# Version/requirement parsing and compatible runtime tooling.
+packaging==26.0
+setuptools==82.0.0

@@ -6,7 +6,7 @@ import hashlib
 from pathlib import Path
 
 import pandas as pd
-from por_px_terminal_purity import (
+from por_scenario_inputs import (
     annual_raw_px_use, reconcile_px_terminal_purity, verify_px_extraction_yield,
     validate_px_source_flows,
 )

@@ -1,5 +1,6 @@
 """No production inventories needed for bounded native access/capture checks."""
 from copy import deepcopy
+import gc
 from pathlib import Path
 from types import SimpleNamespace
 import hashlib
@@ -7,7 +8,7 @@ import json
 import tempfile
 import unittest
 
-from native_inventory_access import (
+from premise_compat import (
     capture_updated_stores, checkpoint_token, iter_activity_metadata,
     legacy_delta_base_columnar_scope, open_inventory_store,
 )
@@ -226,6 +227,10 @@ class ActualNativeReaderTests(unittest.TestCase):
                 transaction.patch_exchange(exchange_id, {"amount": .7}, activity_id=0)
             self.assertEqual(reader.activity(0).to_dict()["exchanges"][1]["amount"], .8)
             self.assertEqual(writable.activity(0).to_dict()["exchanges"][1]["amount"], .7)
+            # Windows cannot remove memory-mapped Arrow fixture files while
+            # readers/forks (including the transaction variable) retain them.
+            del transaction, writable, reader, normal, original
+            gc.collect()
         self.assertEqual(database, before)
 
 

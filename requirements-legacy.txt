@@ -1,0 +1,10 @@
+# Explicit legacy comparison profile: premise 2.3.8, Python 3.11.
+# Run in a separate env: python -m pip install -r requirements-legacy.txt
+# The default requirements.txt is the current premise 2.5.2 profile.
+-r requirements-common.txt
+
+premise[bw25]==2.3.8
+pathways @ git+https://github.com/polca/pathways.git@f9187faeab92be4dd7a9fe5e90256870b33bc618
+bw-processing==1.0
+matrix-utils==0.7.0
+lxml==6.0.2

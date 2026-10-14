@@ -167,7 +167,7 @@ class ExportNotebookSafetyTest(unittest.TestCase):
                    side_effect=lambda: events.append(("install", None))), patch(
                        "por_supplier_linking.attach_por_supplier_linking",
                        side_effect=lambda *args, **kwargs: events.append(("attach", None))
-                   ), patch("metals_policy_workflow.attach_metal_steel_policy"), patch(
+                   ), patch("metals_scenario_policy.attach_metal_steel_policy"), patch(
                        "importlib.reload", side_effect=lambda module: module
                    ), contextlib.redirect_stdout(io.StringIO()):
             if fail_update:
@@ -235,8 +235,8 @@ class ExportNotebookSafetyTest(unittest.TestCase):
                          load_selected_metal_steel_policy=lambda: SimpleNamespace(case_suffix=""))
         with patch("por_supplier_linking.configure_por_export_support"), patch("por_supplier_linking.attach_por_supplier_linking"), patch(
                 "por_supplier_linking.attach_por_pathways_export"), patch(
-                "metals_policy_workflow.attach_metal_steel_policy"), patch(
-                "metals_policy_workflow.attach_metal_steel_package_provenance"), patch(
+                "metals_scenario_policy.attach_metal_steel_policy"), patch(
+                "metals_scenario_policy.attach_metal_steel_package_provenance"), patch(
                 "importlib.reload", side_effect=lambda module: module):
             exec(compile(brightway, "brightway_cell", "exec"), namespace)
             exec(compile(package, "package_cell", "exec"), namespace)

@@ -19,7 +19,7 @@ import numpy as np
 from scipy import sparse as sps
 import xarray as xr
 
-import pathways_classification_compat as compat
+import por_classifications as compat
 
 
 def native_modules():

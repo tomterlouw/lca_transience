@@ -23,7 +23,7 @@ The repository addresses both issues without editing installed packages:
 
 - `por_classifications.py` captures classification metadata before matrix export
   and supplies the populated resource to the package exporter.
-- `pathways_classification_compat.py` retains both fallback labels and checks that
+- The same `por_classifications.py` module retains both fallback labels and checks that
   category/location grouping assigns every activity column exactly once. It
   installs the same checks in Windows multiprocessing workers.
 

@@ -18,8 +18,9 @@ import zipfile
 
 import yaml
 
+import por_classifications as classifications
 from por_classifications import (
-    ClassificationError, capture_scenario_classifications,
+    capture_scenario_classifications,
     prepare_pathways_classifications, write_classification_snapshot, _project_reference_records,
 )
 
@@ -84,7 +85,7 @@ class ClassificationCaptureTest(unittest.TestCase):
         self.assertEqual(definition, {"_inventory_store": store, "year": 2050})
         self.assertIn("normalized_reference", snapshot.stats["status_counts"])
         store.generation += 1
-        with self.assertRaisesRegex(ClassificationError, "inventory changed"):
+        with self.assertRaisesRegex(classifications.ClassificationError, "inventory changed"):
             snapshot.verify_sources()
 
     def test_lazy_activity_sidecar_is_read_without_installing_metadata_overlay(self):
@@ -186,9 +187,9 @@ class ClassificationCaptureTest(unittest.TestCase):
         self.assertTrue(snapshot.classifications[("chemical production", "chemical")]["CPC"].startswith("34740:"))
 
     def test_invalid_identity_and_malformed_classification_metadata_fail(self):
-        with self.assertRaisesRegex(ClassificationError, "incomplete"):
+        with self.assertRaisesRegex(classifications.ClassificationError, "incomplete"):
             self.capture(builder([activity(product="")]))
-        with self.assertRaisesRegex(ClassificationError, "Invalid classification metadata"):
+        with self.assertRaisesRegex(classifications.ClassificationError, "Invalid classification metadata"):
             self.capture(builder([activity(classifications=[("CPC",)])]))
 
     def test_reported_petroleum_gypsum_duplicate_codes_are_audited_not_fatal(self):
@@ -268,7 +269,7 @@ class ClassificationRulesAndExportTest(unittest.TestCase):
         self.assertEqual(note["status"], "provisional")
         self.assertEqual(note["rule_id"], "foreground")
         rules.write_text("schema_version: 1\nrules: []\n", encoding="utf-8")
-        with self.assertRaisesRegex(ClassificationError, "source changed"):
+        with self.assertRaisesRegex(classifications.ClassificationError, "source changed"):
             write_classification_snapshot(SimpleNamespace(), snapshot, self.directory / "classifications.csv")
 
     def test_proxy_reference_is_audited_and_a_missing_reference_remains_undefined(self):
@@ -284,7 +285,7 @@ class ClassificationRulesAndExportTest(unittest.TestCase):
 
     def test_matching_conflicting_rules_fail(self):
         rules = self.rules([self.rule(), self.rule(id="second", classifications={"CPC": "999: Different"})])
-        with self.assertRaisesRegex(ClassificationError, "Conflicting matching"):
+        with self.assertRaisesRegex(classifications.ClassificationError, "Conflicting matching"):
             capture_scenario_classifications(builder([activity()]), rules, reference_func=lambda: ())
 
     def test_export_has_populated_resource_and_audit_with_all_unknown_pairs(self):
@@ -311,7 +312,7 @@ class ClassificationRulesAndExportTest(unittest.TestCase):
                                              audit_dir=self.directory / "audit")
         self.assertIn("341: Chemical products", path.read_text(encoding="utf-8"))
         snapshot.classifications[("chemical production", "chemical")]["CPC"] = "999: Changed"
-        with self.assertRaisesRegex(ClassificationError, "snapshot changed"):
+        with self.assertRaisesRegex(classifications.ClassificationError, "snapshot changed"):
             write_classification_snapshot(SimpleNamespace(), snapshot, path, audit_dir=self.directory / "audit")
 
     def test_reviewed_portable_reference_metadata_is_hashed_without_live_database(self):
@@ -375,7 +376,7 @@ class ClassificationRulesAndExportTest(unittest.TestCase):
 
     def test_authored_rule_duplicate_codes_still_fail(self):
         path = self.rules([self.rule(classifications=[("CPC", "33500: Wax"), ("CPC", "15200: Gypsum")])])
-        with self.assertRaisesRegex(ClassificationError, "Conflicting CPC"):
+        with self.assertRaisesRegex(classifications.ClassificationError, "Conflicting CPC"):
             capture_scenario_classifications(builder([activity()]), path, reference_func=lambda: ())
 
     def matrix_text(self):
@@ -407,7 +408,7 @@ class ClassificationRulesAndExportTest(unittest.TestCase):
         self.assertEqual(package.classifications[("chemical production", "chemical")], "Chemicals")
         self.assertIn("unclassified", package.reverse_classifications)
         path.write_text(self.matrix_text() + "another;another;kilogram;NL;3\n", encoding="utf-8")
-        with self.assertRaisesRegex(ClassificationError, "source changed"):
+        with self.assertRaisesRegex(classifications.ClassificationError, "source changed"):
             snapshot.verify_sources()
 
     def test_native_installed_fallback_is_not_treated_as_declared_package_metadata(self):
@@ -458,7 +459,7 @@ class ClassificationRulesAndExportTest(unittest.TestCase):
         self.assertEqual(package.classifications[("chemical production", "chemical")], "undefined")
         self.assertIn("package_undefined", snapshot.stats["status_counts"])
         content[0] += "missing,missing,CPC,341: Changed\n"
-        with self.assertRaisesRegex(ClassificationError, "source changed"):
+        with self.assertRaisesRegex(classifications.ClassificationError, "source changed"):
             snapshot.verify_sources()
 
     def test_legacy_package_conflicting_rows_are_audited_without_dropping_activity(self):
@@ -493,7 +494,7 @@ class ClassificationRulesAndExportTest(unittest.TestCase):
         self.assertEqual(snapshot.stats["conflicts"], 1)
 
     def test_missing_matrix_resources_fail_closed(self):
-        with self.assertRaisesRegex(ClassificationError, "No A_matrix_index"):
+        with self.assertRaisesRegex(classifications.ClassificationError, "No A_matrix_index"):
             prepare_pathways_classifications(SimpleNamespace(classifications={}), rules_path=None, reference_func=lambda: ())
 
 

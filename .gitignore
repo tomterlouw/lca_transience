@@ -4,6 +4,7 @@ export
 stats
 unlinked.log
 __pycache__
+.venv/
 .ipynb_checkpoints
 missing_classifications.xlsx
 scenario_data
@@ -46,6 +47,12 @@ tests/*
 !tests/test_metals_share_connection.py
 !tests/test_native_inventory_access.py
 !tests/test_por_px_terminal_purity.py
+!tests/test_por_scenario_inputs.py
+!tests/test_helper_consolidation.py
+!tests/test_dependency_manifests.py
+!tests/test_por_supplier_linking.py
+!tests/test_por_inventory_store.py
+!tests/test_por_linking_performance.py
 /tmp/por_px_purity/
 
 # Keep the small, live share inputs/scenarios with their repo-owned workflow.
@@ -63,3 +70,4 @@ primary_vs_secondary_metals/scenario_data/*
 !primary_vs_secondary_metals/scenario_data/metal_shares_2050_scenarios.yaml
 !primary_vs_secondary_metals/scenario_data/share_generation_manifest.json
 /pathways_temp
+remind-transience_por_guide.zip

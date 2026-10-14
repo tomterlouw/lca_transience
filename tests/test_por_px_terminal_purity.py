@@ -6,7 +6,7 @@ import unittest
 import pandas as pd
 import yaml
 
-from por_px_terminal_purity import (
+from por_scenario_inputs import (
     TERMINAL_RAW, EXTRACTION_GROSS, TERMINAL_PURE_LOCAL, EXTRACTION_NONTERMINAL,
     DERIVED_VARIABLES, annual_raw_px_use, reconcile_px_terminal_purity,
     verify_px_extraction_yield,

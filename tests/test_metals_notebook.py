@@ -196,8 +196,8 @@ class MetalsNotebookTest(unittest.TestCase):
         with contextlib.ExitStack() as stack:
             stack.enter_context(patch("importlib.reload", side_effect=lambda module: module))
             stack.enter_context(patch("por_supplier_linking.configure_por_export_support"))
-            stack.enter_context(patch("metals_policy_workflow.attach_metal_steel_policy", side_effect=attach_metal))
-            stack.enter_context(patch("metals_policy_workflow.attach_metal_steel_package_provenance",
+            stack.enter_context(patch("metals_scenario_policy.attach_metal_steel_policy", side_effect=attach_metal))
+            stack.enter_context(patch("metals_scenario_policy.attach_metal_steel_package_provenance",
                                       side_effect=lambda *args, **options: events.append(("provenance",))))
             stack.enter_context(patch("por_supplier_linking.attach_por_supplier_linking",
                                       side_effect=lambda *args, **options: events.append(("por", "brightway"))))

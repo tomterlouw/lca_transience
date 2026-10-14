@@ -17,11 +17,31 @@ import unittest
 from unittest.mock import patch
 from dataclasses import replace
 
-from metals_scenario_policy import MetalSteelPolicy, MissingMetalSupplierError
-from metals_policy_workflow import (
+from metals_scenario_policy import (
+    MetalSteelPolicy, MissingMetalSupplierError,
     MetalPolicyWorkflowError, apply_metal_steel_policy, attach_metal_steel_policy,
     attach_metal_steel_package_provenance, verify_metal_steel_policy,
 )
+
+
+class ConsolidatedMetalsModuleTests(unittest.TestCase):
+    def test_policy_and_workflow_exports_belong_to_one_module(self):
+        import metals_scenario_policy as metals
+        for name in ("MetalSteelPolicy", "plan_database", "apply_database",
+                     "MetalPolicyWorkflowError", "apply_metal_steel_policy",
+                     "attach_metal_steel_policy", "verify_metal_steel_policy",
+                     "attach_metal_steel_package_provenance"):
+            self.assertEqual(getattr(metals, name).__module__, metals.__name__)
+        self.assertFalse((Path(metals.__file__).parent / "metals_policy_workflow.py").exists())
+
+    def test_receipt_hash_does_not_replace_strict_planner_hash(self):
+        from metals_scenario_policy import _digest, _workflow_digest
+        payload = {"exchanges": [{"name": "fixture", "amount": 0.2}]}
+        self.assertEqual(_digest(payload), _workflow_digest(payload))
+        proxy = MappingProxyType(payload)
+        with self.assertRaises(TypeError):
+            _digest(proxy)
+        self.assertEqual(_workflow_digest(proxy), _workflow_digest(payload))
 
 
 def fixture_policy(nonferrous="baseline"):
@@ -147,12 +167,12 @@ def immutable_report_fixture(label):
 
 class WorkflowTest(unittest.TestCase):
     def apply(self, builder, directory, policy=None, **kwargs):
-        with patch("metals_policy_workflow._inventory_store_api", return_value=fake_api()):
+        with patch("metals_scenario_policy._inventory_store_api", return_value=fake_api()):
             return apply_metal_steel_policy(builder, policy=policy or fixture_policy(),
                                              report_dir=Path(directory) / "reports", verbose=False, **kwargs)
 
     def test_native_baseline_uses_only_metadata_and_matches_plain_inventory_audit(self):
-        from metals_policy_workflow import _stage_native
+        from metals_scenario_policy import _stage_native
         from metals_scenario_policy import plan_database
         data = fixture_database()
         original = FakeStore(data)
@@ -162,7 +182,7 @@ class WorkflowTest(unittest.TestCase):
         builder = SimpleNamespace(scenarios=[definition])
         selected = fixture_policy()
         expected = plan_database(data, selected, scenario=definition)
-        with tempfile.TemporaryDirectory() as directory, patch("metals_policy_workflow._inventory_store_api", return_value=fake_api()), \
+        with tempfile.TemporaryDirectory() as directory, patch("metals_scenario_policy._inventory_store_api", return_value=fake_api()), \
                 patch("metals_scenario_policy._supplier_index", side_effect=AssertionError("Native baseline needs no supplier index")):
             working, actual, summary, receipts = _stage_native(builder, definition, selected, None, Path(directory))
         self.assertEqual(actual.audit, expected.audit)
@@ -176,18 +196,18 @@ class WorkflowTest(unittest.TestCase):
         self.assertEqual(receipts, [])
 
     def test_native_baseline_scans_but_does_not_materialize_unmatched_background_markets(self):
-        from metals_policy_workflow import _stage_native
+        from metals_scenario_policy import _stage_native
         original = FakeStore(fixture_database()[1:])
         original._iter_storage_activities = lambda: self.fail("Metadata scan must not access exchange IDs")
         definition = scenario(_inventory_store=original)
-        with tempfile.TemporaryDirectory() as directory, patch("metals_policy_workflow._inventory_store_api", return_value=fake_api()):
+        with tempfile.TemporaryDirectory() as directory, patch("metals_scenario_policy._inventory_store_api", return_value=fake_api()):
             _, plan, summary, _ = _stage_native(SimpleNamespace(scenarios=[definition]), definition, fixture_policy(), None, Path(directory))
         self.assertEqual(plan.stats["matched_markets"], 0)
         self.assertEqual(summary["selected_activity_count"], 0)
         self.assertEqual(original.reads, [])
 
     def test_update_capture_reuses_small_native_baseline_plan_without_second_inventory_read(self):
-        from metals_policy_workflow import _open_store
+        from metals_scenario_policy import _open_store
         original = FakeStore(fixture_database())
         definition = scenario()
         class Builder:
@@ -204,8 +224,8 @@ class WorkflowTest(unittest.TestCase):
         publisher = builder._store_updated_scenario
         registry = builder._validation_reports
         report = registry["original"]
-        with tempfile.TemporaryDirectory() as directory, patch("metals_policy_workflow._inventory_store_api", return_value=fake_api()), \
-                patch("metals_policy_workflow._open_store", wraps=_open_store) as opens:
+        with tempfile.TemporaryDirectory() as directory, patch("metals_scenario_policy._inventory_store_api", return_value=fake_api()), \
+                patch("metals_scenario_policy._open_store", wraps=_open_store) as opens:
             attach_metal_steel_policy(builder, policy=fixture_policy(), report_dir=Path(directory), verbose=False)
             self.assertEqual(builder.update(), "updated")
             self.assertEqual(opens.call_count, 1)
@@ -219,13 +239,13 @@ class WorkflowTest(unittest.TestCase):
         self.assertEqual(builder._metal_steel_policy_nonferrous_case, "baseline")
 
     def test_stale_prepared_baseline_is_reaudited_against_current_live_store(self):
-        from metals_policy_workflow import _stage_native
-        from native_inventory_access import checkpoint_token
+        from metals_scenario_policy import _stage_native
+        from premise_compat import checkpoint_token
         original = FakeStore(fixture_database())
         definition = scenario(_inventory_store=original)
         selected = fixture_policy()
         builder = SimpleNamespace(scenarios=[definition])
-        with tempfile.TemporaryDirectory() as directory, patch("metals_policy_workflow._inventory_store_api", return_value=fake_api()):
+        with tempfile.TemporaryDirectory() as directory, patch("metals_scenario_policy._inventory_store_api", return_value=fake_api()):
             _, plan, summary, _ = _stage_native(builder, definition, selected, None, Path(directory))
             prepared = {id(definition): {"plan": plan, "summary": summary, "checkpoint_token": checkpoint_token(definition)}}
             original.generation += 1
@@ -278,7 +298,7 @@ class WorkflowTest(unittest.TestCase):
         validation = SimpleNamespace(ValidationIntent=SimpleNamespace,
                                      inventory_baseline_snapshot=lambda store: ({}, frozenset()),
                                      inventory_cycle_signatures=lambda store: frozenset())
-        with tempfile.TemporaryDirectory() as directory, patch("metals_policy_workflow._inventory_validation_api", return_value=validation):
+        with tempfile.TemporaryDirectory() as directory, patch("metals_scenario_policy._inventory_validation_api", return_value=validation):
             self.apply(builder, directory, fixture_policy("high"))
         self.assertIs(builder._validation_reports, registry)
         self.assertIs(registry["CL"], replacement)
@@ -308,7 +328,7 @@ class WorkflowTest(unittest.TestCase):
         validation = SimpleNamespace(ValidationIntent=SimpleNamespace,
                                      inventory_baseline_snapshot=lambda store: ({}, frozenset()),
                                      inventory_cycle_signatures=lambda store: frozenset())
-        with tempfile.TemporaryDirectory() as directory, patch("metals_policy_workflow._inventory_validation_api", return_value=validation):
+        with tempfile.TemporaryDirectory() as directory, patch("metals_scenario_policy._inventory_validation_api", return_value=validation):
             with self.assertRaisesRegex(RuntimeError, "later certification failed"):
                 self.apply(builder, directory, fixture_policy("high"))
         self.assertEqual(calls, ["CL", "OCE"])
@@ -338,7 +358,7 @@ class WorkflowTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             self.apply(builder, directory)
         original.generation = 1
-        with patch("metals_policy_workflow._inventory_store_api", return_value=fake_api()):
+        with patch("metals_scenario_policy._inventory_store_api", return_value=fake_api()):
             with self.assertRaisesRegex(MetalPolicyWorkflowError, "certificate is stale"):
                 verify_metal_steel_policy(builder, fixture_policy())
         self.assertEqual(original.forks, 0)
@@ -644,7 +664,7 @@ class NativeWorkflowIntegrationTest(unittest.TestCase):
             deepcopy(registry)
         definition = scenario(_inventory_store=store, _validation_report=previous.to_dict())
         builder = SimpleNamespace(scenarios=[definition], _validation_reports=registry)
-        with tempfile.TemporaryDirectory() as directory, patch("metals_policy_workflow._inventory_store_api", return_value=self.api):
+        with tempfile.TemporaryDirectory() as directory, patch("metals_scenario_policy._inventory_store_api", return_value=self.api):
             apply_metal_steel_policy(builder, policy=fixture_policy(), report_dir=Path(directory), verbose=False)
         self.assertIs(builder._validation_reports, registry)
         self.assertIs(registry["CL"], previous)
@@ -661,8 +681,8 @@ class NativeWorkflowIntegrationTest(unittest.TestCase):
         definition = scenario(_inventory_store=store, _validation_report=previous.to_dict())
         builder = self.validating_builder([definition])
         builder._validation_reports = registry
-        with tempfile.TemporaryDirectory() as directory, patch("metals_policy_workflow._inventory_store_api", return_value=self.api), patch(
-                "metals_policy_workflow._inventory_validation_api", return_value=self.validation):
+        with tempfile.TemporaryDirectory() as directory, patch("metals_scenario_policy._inventory_store_api", return_value=self.api), patch(
+                "metals_scenario_policy._inventory_validation_api", return_value=self.validation):
             apply_metal_steel_policy(builder, policy=fixture_policy("high"), report_dir=Path(directory), verbose=False)
         self.assertIs(builder._validation_reports, registry)
         self.assertIsNot(registry["CL"], previous)
@@ -690,9 +710,9 @@ class NativeWorkflowIntegrationTest(unittest.TestCase):
                 self.assertEqual(builder._validation_reports[identity].store_generation, 1)
                 certified.append(identity)
             raise RuntimeError("audit publication failed")
-        with tempfile.TemporaryDirectory() as directory, patch("metals_policy_workflow._inventory_store_api", return_value=self.api), patch(
-                "metals_policy_workflow._inventory_validation_api", return_value=self.validation), patch(
-                    "metals_policy_workflow._write_reports", side_effect=fail_audits):
+        with tempfile.TemporaryDirectory() as directory, patch("metals_scenario_policy._inventory_store_api", return_value=self.api), patch(
+                "metals_scenario_policy._inventory_validation_api", return_value=self.validation), patch(
+                    "metals_scenario_policy._write_reports", side_effect=fail_audits):
             with self.assertRaisesRegex(RuntimeError, "audit publication failed"):
                 apply_metal_steel_policy(builder, policy=fixture_policy("high"), report_dir=Path(directory), verbose=False)
         self.assertEqual(certified, ["CL", "OCE"])
@@ -711,8 +731,8 @@ class NativeWorkflowIntegrationTest(unittest.TestCase):
         ids = tuple(original._state.activity_exchanges[0])
         definition = scenario(_inventory_store=original)
         builder = self.validating_builder([definition])
-        with tempfile.TemporaryDirectory() as directory, patch("metals_policy_workflow._inventory_store_api", return_value=self.api), patch(
-                "metals_policy_workflow._inventory_validation_api", return_value=self.validation):
+        with tempfile.TemporaryDirectory() as directory, patch("metals_scenario_policy._inventory_store_api", return_value=self.api), patch(
+                "metals_scenario_policy._inventory_validation_api", return_value=self.validation):
             reports = apply_metal_steel_policy(builder, policy=fixture_policy("high"), report_dir=Path(directory), verbose=False)
             self.assertTrue(verify_metal_steel_policy(builder, fixture_policy("high")))
         staged = definition["_inventory_store"]
@@ -730,7 +750,7 @@ class NativeWorkflowIntegrationTest(unittest.TestCase):
         definition = scenario(_inventory_store=store, _validation_report={"store_generation": store.generation})
         builder = SimpleNamespace(scenarios=[definition],
                                   _certify_scenario_store=lambda *args, **kwargs: self.fail("Native baseline must not recertify"))
-        with tempfile.TemporaryDirectory() as directory, patch("metals_policy_workflow._inventory_store_api", return_value=self.api), patch.object(
+        with tempfile.TemporaryDirectory() as directory, patch("metals_scenario_policy._inventory_store_api", return_value=self.api), patch.object(
                 self.api.InventoryStore, "fork", side_effect=AssertionError("Native baseline must not fork")):
             apply_metal_steel_policy(builder, policy=fixture_policy(), report_dir=Path(directory), verbose=False)
         self.assertIs(definition["_inventory_store"], store)
@@ -744,8 +764,8 @@ class NativeWorkflowIntegrationTest(unittest.TestCase):
             mapping = self.api._compact_scenario_mapping({"Petchem": {"variable": [store._state.activities[0]]}}, store, original)
             definition = scenario(_inventory_checkpoint=original, _inventory_export_handoff=store, mapping=mapping)
             builder = self.validating_builder([definition])
-            with patch("metals_policy_workflow._inventory_store_api", return_value=self.api), patch(
-                    "metals_policy_workflow._inventory_validation_api", return_value=self.validation):
+            with patch("metals_scenario_policy._inventory_store_api", return_value=self.api), patch(
+                    "metals_scenario_policy._inventory_validation_api", return_value=self.validation):
                 apply_metal_steel_policy(builder, policy=fixture_policy("high"), report_dir=Path(directory) / "reports", verbose=False)
                 self.assertTrue(verify_metal_steel_policy(builder, fixture_policy("high")))
             self.assertTrue(original.exists())
@@ -765,8 +785,8 @@ class NativeWorkflowIntegrationTest(unittest.TestCase):
         original_ids = tuple(store._state.activity_exchanges[0])
         definition = scenario(_inventory_store=store)
         builder = self.validating_builder([definition])
-        with tempfile.TemporaryDirectory() as directory, patch("metals_policy_workflow._inventory_store_api", return_value=self.api), patch(
-                "metals_policy_workflow._inventory_validation_api", return_value=self.validation):
+        with tempfile.TemporaryDirectory() as directory, patch("metals_scenario_policy._inventory_store_api", return_value=self.api), patch(
+                "metals_scenario_policy._inventory_validation_api", return_value=self.validation):
             apply_metal_steel_policy(builder, policy=fixture_policy("high"), source_database=source,
                                      report_dir=Path(directory), verbose=False)
         staged = definition["_inventory_store"]
@@ -786,8 +806,8 @@ class NativeWorkflowIntegrationTest(unittest.TestCase):
         ids = tuple(original._state.activity_exchanges[0])
         definition = scenario(_inventory_store=original)
         builder = self.validating_builder([definition])
-        with tempfile.TemporaryDirectory() as directory, patch("metals_policy_workflow._inventory_store_api", return_value=self.api), patch(
-                "metals_policy_workflow._inventory_validation_api", return_value=self.validation):
+        with tempfile.TemporaryDirectory() as directory, patch("metals_scenario_policy._inventory_store_api", return_value=self.api), patch(
+                "metals_scenario_policy._inventory_validation_api", return_value=self.validation):
             apply_metal_steel_policy(builder, policy=fixture_policy("primary_only"),
                                      report_dir=Path(directory), verbose=False)
         staged = definition["_inventory_store"]
@@ -808,8 +828,8 @@ class NativeWorkflowIntegrationTest(unittest.TestCase):
         original = self.api.create_inventory_store(data, scenario_identity="CL")
         definition = scenario(_inventory_store=original)
         builder = self.validating_builder([definition])
-        with tempfile.TemporaryDirectory() as directory, patch("metals_policy_workflow._inventory_store_api", return_value=self.api), patch(
-                "metals_policy_workflow._inventory_validation_api", return_value=self.validation):
+        with tempfile.TemporaryDirectory() as directory, patch("metals_scenario_policy._inventory_store_api", return_value=self.api), patch(
+                "metals_scenario_policy._inventory_validation_api", return_value=self.validation):
             with self.assertRaisesRegex(MetalPolicyWorkflowError, "new technosphere cycle"):
                 apply_metal_steel_policy(builder, policy=fixture_policy("high"), source_database=fixture_database(),
                                          report_dir=Path(directory), verbose=False)
