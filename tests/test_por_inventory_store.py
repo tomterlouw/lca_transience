@@ -1,8 +1,10 @@
 """Legacy/cache and native-store post-update compatibility, without real LCA DBs."""
 from copy import deepcopy
 import ast
+import csv
 import gc
 import logging
+import math
 import os
 from importlib.util import find_spec, module_from_spec, spec_from_file_location
 from pathlib import Path
@@ -18,7 +20,7 @@ from unittest.mock import patch
 import uuid
 
 from por_supplier_linking import apply_por_supplier_linking, attach_por_supplier_linking, SupplierLinkingError, PorLinkingPolicy
-from tests.test_por_supplier_linking import basic_database, policy
+from tests.test_por_supplier_linking import activity, basic_database, feed, policy
 
 
 class FakeStore:
@@ -67,6 +69,32 @@ def scenario(**storage):
     return {"model": "remind", "pathway": "test", "year": 2050,
             "external scenarios": [{"scenario": "CL", "data": "datapackage_itom_por.json"}],
             "applied functions": ["external"], **storage}
+
+
+def electricity_loss_database():
+    """A standard market with inherited losses and an ancillary geography change."""
+    name, product = "market for electricity, medium voltage", "electricity, medium voltage"
+    loss = feed(name, product, "NL", .00275, "kilowatt hour", **{
+        "uncertainty type": 2, "loc": math.log(.00275), "scale": .1,
+        "minimum": 0, "maximum": None, "negative": False,
+        "comment": "Pre-existing transformation-loss self-input, not a repo-added supply route.",
+    })
+    data = [
+        activity(name, product, exchanges=[loss,
+            feed("electricity production, wind", product, "NL", .99725, "kilowatt hour"),
+            feed("market for nitric acid", "nitric acid", "RoW", .001)], unit="kilowatt hour"),
+        activity("electricity production, wind", product, unit="kilowatt hour"),
+        activity("market for nitric acid", "nitric acid", "RoW"),
+        activity("market for nitric acid", "nitric acid", "RER"),
+    ]
+    for dataset in data:
+        dataset["exchanges"].insert(0, {
+            "name": dataset["name"], "product": dataset["reference product"],
+            "unit": dataset["unit"], "location": dataset["location"], "type": "production", "amount": 1,
+        })
+    config = {"regionalize": {"datasets": [{"name": name, "reference product": product}]},
+              "production pathways": {}, "markets": []}
+    return data, PorLinkingPolicy(config)
 
 
 class StoreCompatibilityTest(unittest.TestCase):
@@ -223,6 +251,35 @@ class StoreCompatibilityTest(unittest.TestCase):
             self.assertEqual(len(builder.por_supplier_linking_reports), 2)
         self.assertEqual(calls, [{"persist": False}])
 
+    def test_legacy_cache_preserves_inherited_electricity_loss_and_audits_it(self):
+        data, selected_policy = electricity_loss_database()
+        before = deepcopy(data)
+        builder = SimpleNamespace(scenarios=[scenario(database=data)])
+        with tempfile.TemporaryDirectory() as directory:
+            def dump(working):
+                destination = Path(directory) / "linked.pickle"
+                destination.write_bytes(pickle.dumps(working.pop("database")))
+                working["database filepath"] = destination
+            def unexpected_load(**kwargs):
+                raise AssertionError("The updated legacy list is already loaded")
+            reports = apply_por_supplier_linking(
+                builder, policy=selected_policy, report_dir=Path(directory) / "reports",
+                load_database_func=unexpected_load, dump_database_func=dump, verbose=False,
+            )
+            updated = pickle.loads(Path(builder.scenarios[0]["database filepath"]).read_bytes())
+            with Path(reports[0]["change_report_path"]).open(encoding="utf-8", newline="") as stream:
+                audit = list(csv.DictReader(stream))
+        self.assertEqual(data, before)
+        self.assertEqual(updated[0]["exchanges"][1], before[0]["exchanges"][1])
+        self.assertEqual(updated[0]["exchanges"][3]["location"], "RER")
+        self.assertEqual(reports[0]["changed_exchanges"], 1)
+        self.assertEqual(reports[0]["preserved_electricity_loss_exchanges"], 1)
+        preserved = [row for row in audit if row["status"] == "preserved_electricity_loss"]
+        self.assertEqual(len(preserved), 1)
+        self.assertEqual(preserved[0]["reason"], "preserved_inherited_electricity_loss")
+        self.assertEqual(float(preserved[0]["amount_before"]), .00275)
+        self.assertEqual(preserved[0]["amount_before"], preserved[0]["amount_after"])
+
 
 class NativeStoreIntegrationTest(unittest.TestCase):
     """Exercise the installed native checkpoint code in an isolated module namespace."""
@@ -365,6 +422,101 @@ class NativeStoreIntegrationTest(unittest.TestCase):
         self.assertEqual(before, validation.inventory_activity_fingerprints(original))
         # The unrelated defects are not edited, hidden or claimed to be fixed.
         self.assertTrue(validation.InventoryGraphValidator(updated["_inventory_store"], suppressions=()).validate().errors)
+
+    def test_real_certification_and_checkpoint_preserve_inherited_electricity_loss(self):
+        api, validation = self.api, self.validation
+        data, selected_policy = electricity_loss_database()
+        original = api.create_inventory_store(data, backend="compact", scenario_identity="CL")
+        before = validation.inventory_activity_fingerprints(original)
+        # The ordinary graph validator identifies the original self-cycle.
+        # The post-update intent must compare against it, not suppress its rule.
+        broad = validation.InventoryGraphValidator(original, suppressions=()).validate()
+        self.assertIn("GRAPH.NEW_FORBIDDEN_CYCLE", {issue.rule_id for issue in broad.errors})
+        with tempfile.TemporaryDirectory() as directory:
+            # Match the native publisher's updated-scenario cache convention:
+            # absent/None metadata and default False flags are normalized
+            # before the repo receives the already-updated checkpoint.
+            original._scenario_cache_compatibility = True
+            checkpoint = original.checkpoint(Path(directory) / "original.inventory-store")
+            source_reader = api.InventoryStore.open(checkpoint)
+            original_loss = deepcopy(dict(source_reader.materialize()[0]["exchanges"][1]))
+            builder = self.validating_builder([scenario(_inventory_checkpoint=checkpoint)])
+            with patch("por_supplier_linking._inventory_store_api", return_value=api), patch(
+                    "por_supplier_linking._inventory_validation_api", return_value=validation):
+                reports = apply_por_supplier_linking(
+                    builder, policy=selected_policy, report_dir=Path(directory) / "reports", verbose=False,
+                )
+            updated = builder.scenarios[0]
+            report = validation.ValidationReport.from_dict(updated["_validation_report"])
+            report_payload = report.to_dict()
+            linked_checkpoint = updated["_inventory_checkpoint"]
+            reopened = api.InventoryStore.open(updated["_inventory_checkpoint"])
+            market = reopened.materialize()[0]
+            market["exchanges"] = [deepcopy(dict(exchange)) for exchange in market["exchanges"]]
+            saved_generation = reopened.generation
+            original_after = validation.inventory_activity_fingerprints(original)
+            with Path(reports[0]["change_report_path"]).open(encoding="utf-8", newline="") as stream:
+                audit = list(csv.DictReader(stream))
+            # These isolated readers own mmap-backed metadata sidecars. Close
+            # them explicitly rather than relying on Windows handle finalizers.
+            for reader in (source_reader, reopened):
+                storage = getattr(reader._state.exchanges, "_storage", None)
+                if storage is not None:
+                    storage.close()
+            del reader, storage
+            del reopened, source_reader, builder, updated, original, report, broad
+            gc.collect()  # Release Windows memory maps before strict temporary-directory cleanup.
+        report = validation.ValidationReport.from_dict(report_payload)
+        self.assertFalse(report.errors)
+        self.assertFalse(any(issue.rule_id == "GRAPH.NEW_FORBIDDEN_CYCLE" for issue in report.suppressed_issues))
+        self.assertEqual(reports[0]["changed_exchanges"], 1)
+        self.assertEqual(reports[0]["preserved_electricity_loss_exchanges"], 1)
+        self.assertEqual(reports[0]["native_validation_targets"], 1)
+        self.assertEqual(reports[0]["native_validation_baseline_cycles"], 1)
+        self.assertEqual(reports[0]["native_validation_new_cycles"], 0)
+        self.assertNotEqual(linked_checkpoint, checkpoint)
+        self.assertEqual(market["exchanges"][1], original_loss)
+        for field in ("amount", "uncertainty type", "loc", "scale", "minimum"):
+            self.assertEqual(market["exchanges"][1][field], data[0]["exchanges"][1][field])
+        self.assertEqual(market["exchanges"][3]["location"], "RER")
+        self.assertEqual(report.store_generation, saved_generation)
+        self.assertEqual(before, original_after)
+        preserved = [row for row in audit if row["status"] == "preserved_electricity_loss"]
+        self.assertEqual(len(preserved), 1)
+        self.assertEqual(preserved[0]["reason"], "preserved_inherited_electricity_loss")
+
+    def test_native_linking_still_rejects_new_electricity_self_supply_and_nonpower_self_supply(self):
+        api, validation = self.api, self.validation
+        electricity, _ = electricity_loss_database()
+        name, product = electricity[0]["name"], electricity[0]["reference product"]
+        electricity[0]["exchanges"][1]["location"] = "GLO"
+        foreign = activity(name, product, "GLO", unit="kilowatt hour")
+        foreign["exchanges"] = [{"name": name, "product": product, "unit": "kilowatt hour",
+                                  "location": "GLO", "type": "production", "amount": 1}]
+        electricity.append(foreign)
+        constructed_policy = PorLinkingPolicy({"production pathways": {}, "markets": [{
+            "name": name, "reference product": product, "unit": "kilowatt hour", "includes": [],
+            "add": [{"name": name, "reference product": product}],
+            "replaces": [{"name": name, "product": product}], "replaces in": [{"location": "NL"}],
+        }]})
+        nonpower = self.valid_database()
+        nonpower[0]["exchanges"].insert(1, feed(nonpower[0]["name"], nonpower[0]["reference product"], "NL", .01))
+        for label, data, chosen_policy in (("new electricity self-link", electricity, constructed_policy),
+                                            ("existing non-electricity self-link", nonpower, policy())):
+            with self.subTest(case=label):
+                original = api.create_inventory_store(data, scenario_identity="CL")
+                before = validation.inventory_activity_fingerprints(original)
+                builder = self.validating_builder([scenario(_inventory_store=original)])
+                with tempfile.TemporaryDirectory() as directory, patch(
+                        "por_supplier_linking._inventory_store_api", return_value=api), patch(
+                        "por_supplier_linking._inventory_validation_api", return_value=validation):
+                    with self.assertRaisesRegex(SupplierLinkingError, "Direct self-supply"):
+                        apply_por_supplier_linking(builder, policy=chosen_policy,
+                                                   report_dir=Path(directory) / "reports", verbose=False)
+                self.assertIs(builder.scenarios[0]["_inventory_store"], original)
+                self.assertNotIn("por supplier linking", builder.scenarios[0])
+                self.assertEqual(original.generation, 0)
+                self.assertEqual(before, validation.inventory_activity_fingerprints(original))
 
     def test_real_global_cycle_check_rejects_a_new_cycle_through_unchanged_suppliers(self):
         api, validation = self.api, self.validation

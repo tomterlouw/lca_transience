@@ -118,11 +118,54 @@ it keeps the constructed raw supply mix, while its declared electricity and
 heat additions remain eligible for local supplier linking. Genuine terminal
 and European import wrappers retain the version-4 protections. Restart the
 kernel and create a fresh builder after changing the policy; older validation
-markers cannot be reused as proof of validation under version 5.
+markers cannot be reused as proof of validation under the current policy version.
 The package's columnar checkpoint optimization is used only when premise's
 native inventory-store API exists. Older releases such as 2.3.8 retain their
 list/pickle export path; missing dependencies of an existing native API still
 raise an error rather than silently disabling it.
+
+### Inherited electricity-loss self-inputs (policy version 6)
+
+Standard ecoinvent/premise electricity markets use a small self-consuming
+technosphere exchange to represent transformation losses. The former blanket
+self-supply check rejected these even when supplier linking had not changed
+the exchange. This was a false positive, not a reason to remove the loss.
+
+The existing linker now recognizes only an unchanged self-input in an
+`existing_market` with a canonical high-, medium- or low-voltage electricity
+market/market-group identity, matching electricity product, location and
+`kilowatt hour` unit. Native `N-year period` market names are supported too.
+The original and target supplier identities must both equal the consuming
+market. Any explicit supplier address/code/database must be consistent; this
+exception does not repair a stale foreign pointer into a self-link.
+
+Each self-input must be finite and positive, and their combined amount must be
+less than the reference production amount. An explicit production exchange
+must have the matching reference identity; when none exists, the declared
+`production amount` or the standard one-kWh reference is used. No particular
+loss factor (such as 0.00275) is hard-coded. This is preservation of the updated
+scenario's recipe, not validation of the empirical loss factor against site
+data, a change to loss assumptions, or a new lossless electricity interface.
+
+The exact exchange object, quantities, uncertainty and supplier addresses are
+retained. CSV audits identify each retained row with
+`preserved_inherited_electricity_loss` / `preserved_electricity_loss`; JSON
+summaries count `preserved_electricity_loss_exchanges` separately from actual
+supplier changes. Repeating the linker therefore makes no change to the loss.
+New self-links created by geography/replacement rules, non-electricity
+self-supply, custom constructed-market loops, ambiguous suppliers and invalid
+loss totals still fail. Native graph validation continues to compare against
+the pre-linking baseline; no new blanket cycle suppression is installed.
+
+This rule is shared by legacy list/pickle updates and native-store updates, so
+both Brightway and Pathways exports use it without a separate helper or notebook
+step. Tests in `tests/test_por_supplier_linking.py` and
+`tests/test_por_inventory_store.py` cover preservation, rejected new links,
+legacy persistence and native certification/checkpoint round trips.
+
+Restart the kernel and rebuild with the existing notebook hooks after updating
+this code. Policy version 6 rejects older validation markers; changing the
+helper does not retroactively update already exported databases or packages.
 
 ### Native Brightway checkpoint compatibility (premise 2.5.2)
 
@@ -215,14 +258,14 @@ The helper uses `markets/replaces` and `replaces in` for explicit name/product s
 
 There is no supplier splitting, equal allocation or production-volume allocation in this step. All replacements are 1:1. Non-unit replacement ratios must be represented through documented inventory changes rather than this linking helper. Every processed nonzero technosphere exchange must resolve to one unique name/product/unit/location identity. Eligible generic markets, materials, services and capital proxies can use a covering regional supplier even when the original link exists. Explicit foreign country-level material/process supplies are not replaced through that fallback. Neither an input's biosphere flow nor its unit is changed to facilitate a supplier match.
 
-Input quantities and units remain unchanged. Uncertainty fields, including numeric zero bounds, are retained. Production and biosphere exchanges are not edited. Changed supplier identities have obsolete `input`/supplier-database addresses removed so the exporter can build correct links. Unintended direct self-supply and direct market/import feedback loops are rejected. This check does not prohibit legitimate process/recycling loops elsewhere in the inventory.
+Input quantities and units remain unchanged. Uncertainty fields, including numeric zero bounds, are retained. Production and biosphere exchanges are not edited. Changed supplier identities have obsolete `input`/supplier-database addresses removed so the exporter can build correct links. Unintended direct self-supply and direct market/import feedback loops are rejected. Policy version 6 preserves only the verified inherited standard electricity-loss self-inputs described above. This check does not prohibit legitimate process/recycling loops elsewhere in the inventory.
 
 ## Scenario cache handling
 
 The adapter detects the updated scenario's storage format instead of depending on a version-number comparison:
 
 - **Legacy premise (tested with 2.3.8):** an in-memory `database` or `database filepath` pickle. Cached inventories are loaded with `delete=False` and `load_metadata=False`, linked and validated, then written to a new cache. No reference-database fallback is permitted.
-- **Inventory-store premise (tested with 2.5.2):** `_inventory_store` for in-memory updates, or `_inventory_checkpoint` for persisted updates. The updated graph is materialized with metadata, forked, and changed exchange lists are applied in a native transaction. Activity IDs and input quantities/units/uncertainty remain unchanged. Native certification uses an explicit `por_supplier_linking` intent targeting the changed activities, with fingerprints/cycles captured from the **already updated scenario immediately before this post-step**. `exhaustive=True` evaluates that intent rather than reusing old sector certificates; it does not request an unrestricted background audit. A separate full-graph cycle comparison rejects new isolated cyclic components, including loops through unchanged suppliers. Changes to the membership of existing cyclic background components are review items, not evidence by themselves of a forbidden new loop. Native targeted-cycle signatures are compared on the same target subgraph; reviewed background-component reconfigurations are included explicitly in that cycle context. Direct self-supply and direct market/import feedback remain prohibited by the repo linker. Unchanged background activities retain premise's existing update validation; their pre-existing problems are not silently repaired or suppressed. Persisted changes are written to a fresh checkpoint under `export/por_supplier_linking/inventory_stores/`. An old single-use export handoff is removed so export cannot bypass the new links. Lazy scenario mappings are rebound to the new graph/checkpoint.
+- **Inventory-store premise (tested with 2.5.2):** `_inventory_store` for in-memory updates, or `_inventory_checkpoint` for persisted updates. The updated graph is materialized with metadata, forked, and changed exchange lists are applied in a native transaction. Activity IDs and input quantities/units/uncertainty remain unchanged. Native certification uses an explicit `por_supplier_linking` intent targeting the changed activities, with fingerprints/cycles captured from the **already updated scenario immediately before this post-step**. `exhaustive=True` evaluates that intent rather than reusing old sector certificates; it does not request an unrestricted background audit. A separate full-graph cycle comparison rejects new isolated cyclic components, including loops through unchanged suppliers. Changes to the membership of existing cyclic background components are review items, not evidence by themselves of a forbidden new loop. Native targeted-cycle signatures are compared on the same target subgraph; reviewed background-component reconfigurations are included explicitly in that cycle context. Newly introduced or unsupported direct self-supply and direct market/import feedback remain prohibited; policy version 6 preserves only verified inherited standard electricity losses. Unchanged background activities retain premise's existing update validation; their pre-existing problems are not silently repaired or suppressed. Persisted changes are written to a fresh checkpoint under `export/por_supplier_linking/inventory_stores/`. An old single-use export handoff is removed so export cannot bypass the new links. Lazy scenario mappings are rebound to the new graph/checkpoint.
 
 The notebook calls remain unchanged: attach the helper before `ndb.update()`, then export normally. After upgrading premise **or changing the helper**, restart the kernel and recreate the builder before rerunning; an already attached builder retains its old update wrapper. The same adapter handles the internal builder used by the Pathways ZIP export. In-memory native updates remain in-memory rather than forcing a pickle conversion.
 

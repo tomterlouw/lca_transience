@@ -399,6 +399,171 @@ class LinkingTest(unittest.TestCase):
         self.assertEqual(result[-1]["exchanges"][0]["product"], "methanol")
 
 
+class ExistingElectricityLossTest(unittest.TestCase):
+    """Inherited grid-loss inputs are not newly created circular suppliers."""
+
+    def loss_case(self, *, name="market for electricity, medium voltage",
+                  product="electricity, medium voltage", amount=0.00275,
+                  unit="kilowatt hour", extra=None, production=None):
+        exchange = feed(name, product, "NL", amount, unit, **(extra or {}))
+        consumer = activity(name, product, exchanges=[exchange], unit=unit)
+        consumer["database"] = "scenario"
+        if production is not None:
+            consumer["exchanges"].append(production)
+        selected = PorLinkingPolicy({"regionalize": {"datasets": [
+            {"name": name, "reference product": product}]}, "markets": []})
+        return consumer, exchange, selected
+
+    def assert_preserved_loss(self, consumer, exchange, selected):
+        before = deepcopy(consumer)
+        result, audit, summary = link_por_database([consumer], selected)
+        self.assertEqual(consumer, before)
+        self.assertEqual(result[0], before)
+        self.assertIs(result[0]["exchanges"][0], exchange)
+        self.assertEqual(summary["changed_exchanges"], 0)
+        self.assertEqual(summary["preserved_electricity_loss_exchanges"], 1)
+        preserved = [row for row in audit if row["status"] == "preserved_electricity_loss"]
+        self.assertEqual(len(preserved), 1)
+        self.assertEqual(preserved[0]["reason"], "preserved_inherited_electricity_loss")
+        self.assertEqual(preserved[0]["amount_before"], exchange["amount"])
+        self.assertEqual(preserved[0]["amount_after"], exchange["amount"])
+        again, repeated_audit, repeated_summary = link_por_database(result, selected)
+        self.assertEqual(again, result)
+        self.assertEqual(repeated_audit, audit)
+        self.assertEqual(repeated_summary["changed_exchanges"], 0)
+        self.assertEqual(repeated_summary["preserved_electricity_loss_exchanges"], 1)
+        return result
+
+    def test_standard_markets_and_groups_keep_nonhardcoded_loss_ratios(self):
+        for prefix in ("market for", "market group for"):
+            for voltage in ("high", "medium", "low"):
+                for ratio in (0.000125, 0.00275, 0.031, 0.12):
+                    with self.subTest(prefix=prefix, voltage=voltage, ratio=ratio):
+                        consumer, exchange, selected = self.loss_case(
+                            name=f"{prefix} electricity, {voltage} voltage",
+                            product=f"electricity, {voltage} voltage", amount=ratio)
+                        self.assert_preserved_loss(consumer, exchange, selected)
+
+    def test_native_period_market_keeps_input_address_and_all_metadata(self):
+        consumer, exchange, selected = self.loss_case(
+            name="market group for electricity, medium voltage, 10-year period",
+            extra={"uncertainty type": 3, "loc": 0.00275, "scale": 0.00015,
+                   "minimum": None, "maximum": 0.1, "negative": False,
+                   "comment": "Inherited transformation losses", "pedigree": {"reliability": 2}})
+        exchange["input"] = (consumer["database"], consumer["code"])
+        exchange["database"] = consumer["database"]
+        exchange["code"] = consumer["code"]
+        self.assert_preserved_loss(consumer, exchange, selected)
+
+    def test_native_self_address_does_not_require_consumer_database_metadata(self):
+        consumer, exchange, selected = self.loss_case()
+        consumer.pop("database")
+        exchange["input"] = ("scenario", consumer["code"])
+        self.assert_preserved_loss(consumer, exchange, selected)
+
+    def test_fraction_is_relative_to_explicit_reference_production(self):
+        for output, loss in ((0.1, 0.00275), (2.0, 1.2)):
+            with self.subTest(output=output, loss=loss):
+                production = {"type": "production", "amount": output,
+                              "name": "market for electricity, medium voltage",
+                              "product": "electricity, medium voltage",
+                              "unit": "kilowatt hour", "location": "NL"}
+                consumer, exchange, selected = self.loss_case(amount=loss, production=production)
+                result = self.assert_preserved_loss(consumer, exchange, selected)
+                self.assertIs(result[0]["exchanges"][1], production)
+
+    def test_invalid_or_nonfractional_self_input_is_not_a_loss_exception(self):
+        for amount in (-0.00275, 1.0, 1.5, float("nan"), float("inf"), -float("inf"), True):
+            with self.subTest(amount=amount):
+                consumer, _, selected = self.loss_case(amount=amount)
+                with self.assertRaises(SupplierLinkingError):
+                    link_por_database([consumer], selected)
+
+    def test_invalid_or_missing_matching_reference_output_is_rejected(self):
+        for production in (
+            {"type": "production", "amount": 0},
+            {"type": "production", "amount": -1},
+            {"type": "production", "amount": float("inf")},
+            {"type": "production", "amount": 0.001},
+            {"type": "production", "amount": 1, "product": "heat", "unit": "megajoule"},
+        ):
+            with self.subTest(production=production):
+                consumer, _, selected = self.loss_case(production=production)
+                with self.assertRaises(SupplierLinkingError):
+                    link_por_database([consumer], selected)
+
+    def test_multiple_loss_exchanges_are_preserved_only_below_reference_output(self):
+        consumer, first, selected = self.loss_case(amount=0.2)
+        second = feed(first["name"], first["product"], "NL", 0.3, "kilowatt hour")
+        consumer["exchanges"].append(second)
+        result, audit, summary = link_por_database([consumer], selected)
+        self.assertIs(result[0]["exchanges"][0], first)
+        self.assertIs(result[0]["exchanges"][1], second)
+        self.assertEqual(summary["changed_exchanges"], 0)
+        self.assertEqual(summary["preserved_electricity_loss_exchanges"], 2)
+        self.assertEqual(sum(row["status"] == "preserved_electricity_loss" for row in audit), 2)
+        for exchange in consumer["exchanges"]:
+            exchange["amount"] = 0.6
+        with self.assertRaisesRegex(SupplierLinkingError, "self-supply"):
+            link_por_database([consumer], selected)
+
+    def test_explicit_supplier_code_and_database_cannot_disagree_with_consumer(self):
+        for metadata in ({"code": "foreign_code"}, {"database": "foreign_database"}):
+            with self.subTest(metadata=metadata):
+                consumer, _, selected = self.loss_case(extra=metadata)
+                with self.assertRaisesRegex(SupplierLinkingError, "self-supply"):
+                    link_por_database([consumer], selected)
+
+    def test_self_pointer_must_not_be_stale_foreign_or_malformed(self):
+        for pointer in (
+            ("scenario", "another_code"), ("another_database", "market for electricity, medium voltage_NL"),
+            "scenario:code", (), ("scenario",), ("scenario", "code", "unexpected"),
+            (None, "market for electricity, medium voltage_NL"),
+        ):
+            with self.subTest(pointer=pointer):
+                consumer, _, selected = self.loss_case(extra={"input": pointer})
+                with self.assertRaisesRegex(SupplierLinkingError, "self-supply"):
+                    link_por_database([consumer], selected)
+
+    def test_noncanonical_electricity_or_non_electricity_market_is_rejected(self):
+        for name, product, unit in (
+            ("market for hydrogen", "hydrogen", "kilogram"),
+            ("market for electricity, medium voltage (por)", "electricity, medium voltage", "kilowatt hour"),
+            ("electricity supply, 50% wind", "electricity, medium voltage", "kilowatt hour"),
+            ("market for electricity, medium voltage", "electricity, low voltage", "kilowatt hour"),
+            ("market for electricity, medium voltage", "electricity, medium voltage", "megajoule"),
+        ):
+            with self.subTest(name=name, product=product, unit=unit):
+                consumer, _, selected = self.loss_case(name=name, product=product, unit=unit)
+                with self.assertRaisesRegex(SupplierLinkingError, "self-supply"):
+                    link_por_database([consumer], selected)
+
+    def test_constructed_market_does_not_receive_native_loss_exemption(self):
+        consumer, _, _ = self.loss_case()
+        selected = PorLinkingPolicy({"markets": [
+            {"name": consumer["name"], "reference product": consumer["reference product"],
+             "unit": consumer["unit"], "includes": []}]})
+        with self.assertRaisesRegex(SupplierLinkingError, "self-supply"):
+            link_por_database([consumer], selected)
+
+    def test_configured_replacement_cannot_introduce_new_electricity_self_input(self):
+        consumer, _, _ = self.loss_case()
+        foreign = feed("market for electricity, medium voltage, legacy", "electricity, medium voltage",
+                       "RER", 0.00275, "kilowatt hour")
+        consumer["exchanges"] = [foreign]
+        provider = activity(foreign["name"], foreign["product"], "RER", unit=foreign["unit"])
+        selected = PorLinkingPolicy({"markets": [
+            {"name": consumer["name"], "reference product": consumer["reference product"],
+             "unit": consumer["unit"], "includes": [],
+             "add": [{"name": foreign["name"], "reference product": foreign["product"]}],
+             "replaces": [{"name": foreign["name"], "product": foreign["product"]}],
+             "replaces in": [{"location": "NL"}]}]})
+        before = deepcopy([consumer, provider])
+        with self.assertRaisesRegex(SupplierLinkingError, "self-supply"):
+            link_por_database([consumer, provider], selected)
+        self.assertEqual([consumer, provider], before)
+
+
 class CacheAndHookTest(unittest.TestCase):
     def cache_adapter(self, directory):
         counter = [0]

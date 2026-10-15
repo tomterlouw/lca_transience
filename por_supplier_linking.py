@@ -30,7 +30,7 @@ from supplier_resolution import (
 )
 
 ROOT = Path(__file__).resolve().parent
-LINKING_POLICY_VERSION = 5  # v5 distinguishes terminal identifiers from nonterminal domestic supply.
+LINKING_POLICY_VERSION = 6  # v6 preserves verified, inherited standard electricity loss self-inputs.
 Pair = tuple[str, str]
 _POLICIES: dict[str, "PorLinkingPolicy"] = {}
 
@@ -347,6 +347,62 @@ def _regional_target(dataset, exchange, policy, resolver, generic_regions):
     return key, "retained_geographic_proxy" if key[3] in ("RoW", "GLO", "World") or operational_energy else "kept_existing_supplier"
 
 
+def _preserved_electricity_loss(dataset, original, target, *, role):
+    """Recognize an unchanged standard market loss, never create a self-link.
+
+    ecoinvent/premise electricity markets use self-consumption for transformation
+    losses. The updated scenario entering this pass is the baseline: no foreign
+    or differently named input may become a self-input through this exception.
+    Conflicting supplier addresses and non-productive loss totals fail closed.
+    """
+    consumer = dataset_key(dataset)
+    if role != "existing_market" or exchange_key(original) != consumer or target != consumer:
+        return False
+    match = re.fullmatch(
+        r"market (?:group )?for electricity, (high|medium|low) voltage(?:, [1-9]\d*-year period)?",
+        consumer[0],
+    )
+    if (match is None or consumer[1] != f"electricity, {match.group(1)} voltage"
+            or consumer[2] != "kilowatt hour"):
+        return False
+
+    def positive_finite(value):
+        return (isinstance(value, Number) and not isinstance(value, bool)
+                and math.isfinite(float(value)) and value > 0)
+
+    productions = [exchange for exchange in dataset.get("exchanges", []) if exchange.get("type") == "production"]
+    reference_amount = dataset.get("production amount", 1)
+    if productions:
+        if len(productions) != 1:
+            return False
+        production = productions[0]
+        product = production.get("product", production.get("reference product", consumer[1]))
+        if product != consumer[1] or any(
+            production.get(field, expected) != expected
+            for field, expected in (("name", consumer[0]), ("unit", consumer[2]), ("location", consumer[3]))
+        ):
+            return False
+        reference_amount = production.get("amount")
+    losses = [exchange.get("amount") for exchange in dataset.get("exchanges", [])
+              if exchange.get("type") == "technosphere" and exchange_key(exchange) == consumer]
+    if (not positive_finite(reference_amount) or not losses
+            or not all(positive_finite(amount) for amount in losses)
+            or sum(losses) >= reference_amount):
+        return False
+
+    address = original.get("input")
+    if address is not None:
+        if (not isinstance(address, (tuple, list)) or len(address) != 2
+                or not all(isinstance(part, str) and part for part in address)
+                or dataset.get("code") is None or address[1] != dataset["code"]
+                or (dataset.get("database") is not None and address[0] != dataset["database"])):
+            return False
+    for field in ("code", "database"):
+        if original.get(field) is not None and original[field] != dataset.get(field):
+            return False
+    return True
+
+
 def link_por_database(database: list[dict], policy: PorLinkingPolicy, *, model="remind"):
     """Return a validated replacement list and audit; never mutate the input list."""
     resolver = ReferenceSupplierResolver(database, model=model)
@@ -441,7 +497,10 @@ def link_por_database(database: list[dict], policy: PorLinkingPolicy, *, model="
             if supplier is None:
                 raise SupplierLinkingError(f"Unlinked selected exchange in {dataset_key(dataset)}: {target}")
             if target == dataset_key(dataset):
-                raise SupplierLinkingError(f"Direct self-supply would be introduced in {target}")
+                if not _preserved_electricity_loss(dataset, original, target, role=role):
+                    raise SupplierLinkingError(f"Direct self-supply would be introduced or is not a verified inherited electricity loss in {target}")
+                audit.append(_note(dataset, row, original, original,
+                                   "preserved_inherited_electricity_loss", "preserved_electricity_loss"))
             if target != key:
                 exchange = _substitute(original, target)
                 audit.append(_note(dataset, row, original, exchange, reason))
@@ -499,6 +558,7 @@ def link_por_database(database: list[dict], policy: PorLinkingPolicy, *, model="
                "inventory_supplier_compatibility": compatibility_receipts,
                "compatibility_targeted_exchanges": sum(len(receipt.get("decisions", [])) for receipt in compatibility_receipts),
                "changed_exchanges": sum(row["status"] == "changed" for row in audit),
+               "preserved_electricity_loss_exchanges": sum(row["status"] == "preserved_electricity_loss" for row in audit),
                "unavailable_markets": sum(row["status"] == "unavailable_market" for row in audit),
                "unavailable_local_suppliers": sum(row["status"] == "unavailable_local_supplier" for row in audit),
                "retained_geographic_proxies": sum(row["status"] == "retained_geographic_proxy" for row in audit),
