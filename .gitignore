@@ -1,4 +1,5 @@
 private_keys.py
+/inventory_sources.local.json
 archive
 export
 stats
@@ -21,6 +22,7 @@ figs/polymer_trends
 figs/edges_por
 tests
 *.gzip
+/results/
 *.log
 missing_classifications.csv
 
@@ -47,6 +49,8 @@ tests/*
 !tests/test_metals_share_connection.py
 !tests/test_native_inventory_access.py
 !tests/test_por_brightway_export.py
+!tests/test_artifact_layout.py
+!tests/test_shared_inventory.py
 !tests/test_por_px_terminal_purity.py
 !tests/test_por_scenario_inputs.py
 !tests/test_helper_consolidation.py

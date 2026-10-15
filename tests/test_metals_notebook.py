@@ -183,6 +183,9 @@ class MetalsNotebookTest(unittest.TestCase):
                          KEY_PREMISE="placeholder", BIOSPHERE_DB="fixture_bio", Path=Path,
                          PATHWAYS_PACKAGE_BASENAME="remind-transience_por",
                          load_selected_metal_steel_policy=lambda: policy,
+                         itom_inventory_snapshot={"sha256": "fixture"},
+                         verify_itom_inventory_snapshot=lambda snapshot: self.assertEqual(
+                             snapshot, {"sha256": "fixture"}),
                          pd=SimpleNamespace(DataFrame=lambda rows: SimpleNamespace(head=lambda count: rows)),
                          display=lambda rows: None)
         cells = notebook_cells()
@@ -192,6 +195,10 @@ class MetalsNotebookTest(unittest.TestCase):
         def attach_metal(builder, **options):
             self.assertIs(options["policy"], policy)
             events.append(("metals", options["stage"]))
+
+        def store_package(name):
+            self.assertEqual(events[-1], ("package", name))
+            return ROOT / "results/datapackages" / (name + ".zip")
 
         with contextlib.ExitStack() as stack:
             stack.enter_context(patch("importlib.reload", side_effect=lambda module: module))
@@ -204,6 +211,8 @@ class MetalsNotebookTest(unittest.TestCase):
             stack.enter_context(patch("por_supplier_linking.preflight_por_brightway_export", return_value=[]))
             stack.enter_context(patch("por_supplier_linking.attach_por_pathways_export",
                                       side_effect=lambda *args, **options: events.append(("por", "pathways"))))
+            stack.enter_context(patch("config.store_generated_package",
+                                      side_effect=store_package))
             stack.enter_context(contextlib.redirect_stdout(io.StringIO()))
             if fail:
                 with self.assertRaisesRegex(RuntimeError, "synthetic update failure"):

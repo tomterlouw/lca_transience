@@ -252,6 +252,8 @@ class ExportNotebookSafetyTest(unittest.TestCase):
                 "por_supplier_linking.attach_por_pathways_export"), patch(
                 "metals_scenario_policy.attach_metal_steel_policy"), patch(
                 "metals_scenario_policy.attach_metal_steel_package_provenance"), patch(
+                "config.store_generated_package",
+                side_effect=lambda name: root / "results/datapackages" / (name + ".zip")), patch(
                 "importlib.reload", side_effect=lambda module: module):
             exec(compile(brightway, "brightway_cell", "exec"), namespace)
             exec(compile(package, "package_cell", "exec"), namespace)

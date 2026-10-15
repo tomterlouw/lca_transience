@@ -41,7 +41,7 @@ These are provisional process LCIs, not independently measured PoR plant invento
 
 1. Run `python 0_convert_ITOM_por_to_IAMC.py` from the repo root. This rewrites the three ignored PoR scenario CSVs.
 2. Run `python -m unittest discover -s tests -p test_por_mode_aware.py -v`.
-3. Rebuild `remind-transience_por.zip` with `1_export_packages.ipynb`; an existing ZIP or Brightway database contains the *previous* inventories until rebuilt.
+3. Rebuild `results/datapackages/remind-transience_por.zip` with `1_export_packages.ipynb`; an existing ZIP or Brightway database contains the *previous* inventories until rebuilt. Its input descriptor is `datapackages/datapackage_itom_por.json`, loaded with the repository root as its resource base.
 4. Recalculate the CL and OCE results with `2_calc_impacts.ipynb` and compare market shares, contribution analysis and carbon accounting against the previous package.
 
 The local checks on 7 October 2026 confirmed 34 added mode rows (17 pathway variables in each scenario), exact agreement with the previously proposed mode-row values, both scenario labels, 21 unique added activities, successful Brightway Excel import, and exact technosphere supplier matches in the local ecoinvent 3.12/custom inventory set. These checks do **not** substitute for rebuilding all prospective databases and recalculating the LCA.

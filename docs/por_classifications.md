@@ -53,6 +53,13 @@ It can therefore repair an existing header-only package for calculation without
 rebuilding its matrices. It does not overwrite the ZIP. The notebook displays the
 coverage and a table of provisional/unresolved assignments before calculation.
 
+The notebook resolves `name_zip_file` to the actual archive in
+`results/datapackages/` before passing it to Pathways and classification
+preparation. Ordinary calculation exports now go to `results/impacts/`;
+regionalized EDGES exports and their JSON provenance sidecars remain separate
+in `results/edges/`. Classification audits retain their existing `export/`
+locations. Moving these artifacts does not repair or recalculate their contents.
+
 Restart the kernel after updating these helpers and rerun notebook 2 from the
 beginning. Previously saved results with omitted contributions cannot be repaired
 by relabelling their remaining rows: they must be recalculated. Rerun notebook 1

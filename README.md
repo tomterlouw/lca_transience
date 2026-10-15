@@ -27,6 +27,7 @@ The main case study represents the **Port of Rotterdam (PoR)** chemical cluster 
 - [Workflow at a glance](#workflow-at-a-glance)
 - [Repository structure](#repository-structure)
 - [Installation and access](#installation-and-access)
+- [Shared SharePoint or OneDrive inventory](#shared-sharepoint-or-onedrive-inventory)
 - [Pre-flight checklist](#pre-flight-checklist)
 - [Quick start: Port of Rotterdam](#quick-start-port-of-rotterdam)
 - [Detailed workflow](#detailed-workflow)
@@ -147,7 +148,7 @@ For the PoR case, the normal execution order is:
 
 1. Convert the CL and OCE ITOM workbooks with `0_convert_ITOM_por_to_IAMC.py`.
 2. Review the scenario data, YAML mapping, and custom inventory workbook.
-3. Run `1_export_packages.ipynb` to assemble the prospective scenarios and create `remind-transience_por.zip` and/or Brightway databases.
+3. Run `1_export_packages.ipynb` to assemble the prospective scenarios and create `results/datapackages/remind-transience_por.zip` and/or Brightway databases.
 4. Run `2_calc_impacts.ipynb` to calculate and export LCA results.
 5. Run `3_regionalization_impacts.ipynb` to compare the activity-location distribution of impacts.
 6. Run `4_edges_regionalized_impacts.ipynb` for location-specific water-scarcity, particulate-matter and acidification characterization using EDGES.
@@ -162,11 +163,11 @@ lca_transience/
 ├── 2_calc_impacts.ipynb            # Calculate LCIA results and scenario figures
 ├── 3_regionalization_impacts.ipynb # Attribute results by activity location
 ├── 4_edges_regionalized_impacts.ipynb # EDGES regionalized LCIA and geographic comparisons
-├── config.py                       # Brightway project and ecoinvent settings
+├── config.py                       # Brightway, ecoinvent and shared input/output paths
 ├── configuration_file/             # External-scenario YAML mappings
 ├── inventories/                    # Custom Excel inventory workbooks
 ├── scenario_data/                  # IAMC scenario CSVs and source model workbooks
-├── datapackage_*.json              # External-scenario datapackage descriptors
+├── datapackages/                   # External-scenario datapackage_*.json descriptors
 ├── supplier_resolution.py          # Shared supplier identities and active-IAM geography
 ├── por_supplier_linking.py         # Post-update supplier linking and export guards
 ├── inventory_supplier_compat.py    # Reviewed supplier-version compatibility rules
@@ -176,6 +177,11 @@ lca_transience/
 ├── metals_scenario_policy.py       # Non-ferrous policy, update hooks and package provenance
 ├── primary_vs_secondary_metals/    # Supporting metal-market transformation code
 ├── figs/                           # Generated figures and selected plot data
+├── results/                        # Generated analysis artifacts; not scenario inputs
+│   ├── datapackages/               # Pathways ZIPs, including remind-transience_por*.zip
+│   ├── impacts/                    # Ordinary LCIA results_*.gzip Parquet exports
+│   ├── edges/                      # EDGES results_edges_por_*.gzip and JSON sidecars
+│   └── input_snapshots/            # Hash-addressed LCI snapshots and staging manifests
 ├── requirements.txt               # Default premise 2.5.2 pip profile
 ├── requirements-common.txt        # Shared reviewed numerical/runtime pins
 ├── requirements-legacy.txt        # Optional premise 2.3.8 comparison profile
@@ -204,13 +210,30 @@ See [helper responsibilities and import migration](docs/helper_modules.md).
 
 The workflow can produce large local artifacts, including:
 
-- `remind-transience_por.zip` — the Pathways datapackage used for calculations;
+- `results/datapackages/remind-transience_por.zip` — the Pathways datapackage used for calculations;
 - scenario-specific Brightway databases;
-- `results_YYYYMMDD_HHMMSS.gzip` — exported calculation results;
+- `results/impacts/results_YYYYMMDD_HHMMSS.gzip` — ordinary exported calculation results;
+- `results/edges/results_edges_por_*.gzip` and their JSON sidecars — separate regionalized EDGES results and calculation provenance;
 - `pathways.log`, `edges.log`, and `unlinked.log` — diagnostic logs;
 - PNG and PDF figures in `figs/`.
 
 Most generated databases, archives, credentials, and temporary files should remain local. Check `.gitignore` before adding outputs to version control.
+
+Input descriptors and generated scenario archives are deliberately separate:
+`datapackages/` contains the small JSON inputs; `results/datapackages/` contains
+the generated ZIPs consumed by notebooks 2 and 4. The shared paths and artifact
+resolvers live in `config.py`: `DATAPACKAGE_DIR`, `PACKAGE_OUTPUT_DIR`,
+`IMPACT_RESULTS_DIR` and `EDGES_RESULTS_DIR` are rooted at `ROOT`, the repository
+directory. New result exports go into their respective
+subdirectories, so notebook 3 does not accidentally select an EDGES run as an
+ordinary LCIA run. Figures remain in `figs/` and diagnostic/audit reports remain
+in `export/`; those directories have not been moved.
+
+Existing archives and saved result files are relocated without recalculation or
+changes to their contents. Reusing an existing package name on a subsequent
+build replaces that generated ZIP, as before; preserve a separately named copy
+when an earlier run must remain reproducible. JSON sidecars stay beside their
+EDGES result file.
 
 ## Installation and access
 
@@ -319,10 +342,67 @@ Run scripts and notebooks with the repository root as the working directory. The
 scenario_data/...
 configuration_file/...
 inventories/...
-datapackage_itom_por.json
+datapackages/datapackage_itom_por.json
 ```
 
 Starting a notebook from another directory can therefore produce a file-not-found error even when the required file exists.
+
+## Shared SharePoint or OneDrive inventory
+
+The PoR inventory can have a shared cloud master while the model continues to
+read the fixed local path `inventories/lci-itom_por.xlsx`. Notebook 1 stages a
+byte-for-byte snapshot **before constructing any datapackage or scenario
+builder**, and only when `create_dbs` or `create_db_package` is enabled:
+
+```text
+Shared master → locally synced workbook → fixed inventory snapshot → model build
+```
+
+First share the workbook or its SharePoint folder with your collaborators; a
+file in a personal OneDrive folder is not automatically shared. Sync the shared
+folder using OneDrive, and select **Always keep on this device** for the workbook.
+Save edits and wait until OneDrive reports synchronization complete before
+starting a build. Microsoft documents [SharePoint synchronization](https://support.microsoft.com/en-us/sharepoint/sync/sync-sharepoint-and-teams-files-with-your-computer)
+and [local file availability](https://support.microsoft.com/en-us/sharepoint/sync/work-with-synced-files-in-file-explorer).
+
+Each collaborator creates their own ignored `inventory_sources.local.json` in
+the repository root, using their actual absolute synced path. For example:
+
+```json
+{
+  "itom_por": "C:/Users/YOUR_USER/OneDrive - YOUR_ORGANISATION/Shared inventories/lci-itom_por.xlsx"
+}
+```
+
+Do not put this personal path, a sharing URL or cloud credentials in the
+datapackage JSON or committed configuration. The JSON resource remains
+`inventories/lci-itom_por.xlsx`, so the importer, supplier-linking profiles and
+result-freshness checks all use the same snapshot. Source selection is explicit
+`stage_itom_inventory(source=...)` first, then `ITOM_POR_SHARED_INVENTORY`, then
+the local JSON setting. With no shared source configured, the existing canonical
+local workbook remains supported. A configured source that is missing or invalid
+stops the build rather than silently using an older local copy.
+
+Staging validates the XLSX ZIP structure and checksums and checks that the source
+did not change during the copy. It atomically replaces the canonical workbook
+only after validation, archives old/new snapshots under
+`results/input_snapshots/<sha256>/lci-itom_por.xlsx`, and records a timestamped
+manifest with the source kind, path and exact content hash. These local archives
+may contain licensed inventory data; do not publish them indiscriminately. The
+helper never modifies the shared master or copies results back to it.
+
+The build uses the staged version throughout; it does not continuously refresh
+from OneDrive. Cloud edits enter the **next** build. If you explicitly restage
+after creating a builder, recreate the builder and its supplier-linking policy
+before continuing. This records the latest **locally synced** workbook, not a
+guarantee of the latest server version or approval status. Agree which saved
+version is ready for modelling, keep its hash/manifest with the run record, and
+rebuild the package after inventory or YAML changes. Existing-package freshness
+checks can then flag a later change to the canonical workbook.
+
+See [environment setup](docs/environment_setup.md#shared-inventory-source-configuration)
+for the environment-variable override and manual staging example. No additional
+cloud SDK, login token or Python dependency is needed for this local-sync setup.
 
 ## Pre-flight checklist
 
@@ -353,11 +433,12 @@ Complete this checklist before a full package build. It is faster to detect an i
 
 ### Datapackage alignment
 
-- [ ] `datapackage_itom_por.json` points to the current combined CSV, YAML, and inventory workbook.
+- [ ] `datapackages/datapackage_itom_por.json` points to the current combined CSV, YAML, and inventory workbook.
 - [ ] All active external modules are compatible with the configured ecoinvent version.
 - [ ] Every YAML production variable exists in the scenario data or has an intentional zero.
 - [ ] Every non-ecoinvent provider referenced by the YAML exists in the custom inventory workbook.
 - [ ] Exchange locations and reference products use exact provider identities.
+- [ ] If using a shared master, edits are saved and synced; notebook 1 stages it before constructing packages/builders, and its hash/manifest is retained.
 
 ### Analysis choices
 
@@ -397,7 +478,7 @@ scenario_data/scenario_data_itom_por_OCE.csv
 scenario_data/scenario_data_itom_por.csv
 ```
 
-The combined file must contain both `CL` and `OCE`; it is the file referenced by `datapackage_itom_por.json`. It retains the original technology-level aggregate rows and adds the mapped `|mode1`/`|mode2` rows for propylene and raw-aromatic routes. The converter checks that these mode rows sum to their corresponding aggregate, so a newly active but unmapped mode fails rather than disappearing from the LCA.
+The combined file must contain both `CL` and `OCE`; it is the file referenced by `datapackages/datapackage_itom_por.json`. It retains the original technology-level aggregate rows and adds the mapped `|mode1`/`|mode2` rows for propylene and raw-aromatic routes. The converter checks that these mode rows sum to their corresponding aggregate, so a newly active but unmapped mode fails rather than disappearing from the LCA.
 
 ### 2. Inspect the scenario package inputs
 
@@ -417,7 +498,7 @@ Review these three linked resources together:
 - `inventories/lci-itom_por.xlsx` — active PoR inventory, including the mode-aware activities and purified terminal p-xylene wrapper;
 - `inventories/lci-itom_por-mode-aware-additions.xlsx` — separate copy-ready record of only those 21 additions. It is not a second datapackage resource.
 
-The original `lci-itom_por.xlsx` is retained unchanged. `datapackage_itom_por.json` points to the combined workbook because `premise` expects one `inventories` resource. Editing only the additions workbook does not update the active combined workbook. The inventory and scenario-data directories are ignored by Git in this local repository, so preserve/copy the workbooks and regenerated CSVs when moving the configuration elsewhere. See `docs/por_mode_aware_inventory.md` for route scope and unresolved assumptions.
+`datapackages/datapackage_itom_por.json` points to the active combined workbook, `inventories/lci-itom_por.xlsx`, because `premise` expects one `inventories` resource. Editing only the additions workbook does not update that active workbook. When a shared source is configured, edit the shared master instead of the staged local copy; notebook 1 stages it before building. The inventory and scenario-data directories are ignored by Git in this local repository, so preserve/copy the workbooks and regenerated CSVs when moving the configuration elsewhere. See `docs/por_mode_aware_inventory.md` for route scope and unresolved assumptions.
 
 Before rebuilding the package, run:
 
@@ -436,7 +517,7 @@ create_db_package = True
 create_dbs = True
 ```
 
-- `create_db_package=True` creates `remind-transience_por.zip`, which is required by `2_calc_impacts.ipynb`.
+- `create_db_package=True` creates `results/datapackages/remind-transience_por.zip`, which is required by `2_calc_impacts.ipynb` (non-baseline metals cases retain their case suffix).
 - `create_dbs=True` also writes scenario-specific databases to the configured Brightway project. This is useful for inspection but takes additional time and disk space.
 
 For routine Pathways calculations, you can set `create_dbs=False` after confirming that the package workflow works correctly.
@@ -461,13 +542,20 @@ exclude_obsolete_pbr = True
 name_zip_file = "remind-transience_por.zip"
 ```
 
+The bare archive filename is resolved against `results/datapackages/`; an
+explicit archive path can be selected instead. Keep the package's metadata name
+as a bare slug, not a directory path. Both supported premise versions initially
+write their ZIP in the working directory; notebook 1 relocates the completed
+archive to the configured result directory without changing its contents or
+changing the working directory.
+
 Then run the notebook from top to bottom. It:
 
 - loads the Pathways datapackage;
 - selects final-energy/final-product variables beginning with `EXT - 1 - FE`;
 - optionally excludes obsolete PBR production;
 - calculates the selected LCIA methods for `NL`, all package years, and all available scenarios;
-- exports a timestamped `results_*.gzip` file;
+- exports a timestamped `results/impacts/results_*.gzip` file;
 - prepares total, product-level, and contribution figures.
 
 The notebook disables multiprocessing automatically when more than one scenario is calculated. This avoids a common Windows inter-process serialization error while allowing single-scenario runs to use multiprocessing.
@@ -484,7 +572,10 @@ SAVE_FIGURES = True
 FIGURE_DIR = Path("figs")
 ```
 
-With `RESULTS_FILE=None`, the notebook selects the newest `results_*.gzip` file in the repository. For a reproducible analysis, set an explicit path instead.
+With `RESULTS_FILE=None`, the notebook selects the newest ordinary
+`results_*.gzip` export in `results/impacts/`, not the EDGES directory. For a
+reproducible analysis, set an explicit path such as
+`results/impacts/results_YYYYMMDD_HHMMSS.gzip` instead.
 
 The notebook generates publication-oriented PNG and PDF figures for:
 
@@ -555,13 +646,13 @@ Do not silently change units or annualization. Installed capacities and process 
 
 ### Step 2 — Define an external scenario datapackage
 
-Each external scenario is described by a `datapackage_*.json` file. A package links three resources:
+Each external scenario is described by a `datapackages/datapackage_*.json` file. A package links three resources:
 
 1. an IAMC scenario CSV;
 2. a YAML mapping;
 3. an Excel inventory workbook.
 
-For example, `datapackage_itom_por.json` connects:
+For example, `datapackages/datapackage_itom_por.json` connects:
 
 ```text
 scenario_data/scenario_data_itom_por.csv
@@ -571,7 +662,24 @@ inventories/lci-itom_por-mode-aware.xlsx
 
 The descriptor also declares the supported scenarios, ecoinvent version, system model, data schema, contributor, license, and minimum `premise` version.
 
-When adding or renaming a resource, update the descriptor and confirm that the relative path resolves from the repository root.
+When adding or renaming a resource, update the descriptor and confirm that the
+relative path resolves from the repository root. Descriptors are loaded with
+that resource base explicitly, despite residing in a subdirectory:
+
+```python
+from datapackage import Package
+from config import ROOT, DATAPACKAGE_DIR
+
+sps_itom_por = Package(
+    str(DATAPACKAGE_DIR / "datapackage_itom_por.json"),
+    base_path=str(ROOT),
+)
+```
+
+The resource paths inside the JSON remain `scenario_data/...`,
+`configuration_file/...` and `inventories/...`. Moving a descriptor without
+preserving this explicit base would make those relative links resolve against
+the wrong directory.
 
 ### Step 3 — Map scenario variables to inventories
 
@@ -692,7 +800,7 @@ This is an **activity-location attribution**, not a fully spatially resolved LCI
 
 `4_edges_regionalized_impacts.ipynb` recalculates the selected PoR final-product system with location-specific characterization factors. Its initial methods are AWARE 2.0 country-level water scarcity (unspecified consumption), IMPACT World+ 2.1 particulate matter formation and terrestrial acidification. These default factors are static; the inventories and production quantities remain prospective.
 
-First rebuild `remind-transience_por.zip` after inventory/config changes, then set `RUN_CALCULATION=True`. The notebook initially calculates 2025 and 2050, uses a fresh Pathways object, and passes `edges_methods=` without ordinary `methods=`. Both multiprocessing options are disabled for this Windows workflow. Set `RUN_CALCULATION=False` on later runs to load the separate `results_edges_por_*.gzip` export, or set `RESULTS_FILE` explicitly. Ordinary LCIA exports are not regionalized by postprocessing.
+First rebuild `results/datapackages/remind-transience_por.zip` after inventory/config changes, then set `RUN_CALCULATION=True`. The notebook initially calculates 2025 and 2050, uses a fresh Pathways object, and passes `edges_methods=` without ordinary `methods=`. Both multiprocessing options are disabled for this Windows workflow. Set `RUN_CALCULATION=False` on later runs to load the separate `results/edges/results_edges_por_*.gzip` export and its JSON sidecar, or set `RESULTS_FILE` explicitly. Ordinary LCIA exports are not regionalized by postprocessing.
 
 The notebook preserves the obsolete-PBR exclusion and takes active PoR demand aliases from the YAML. Standalone CCS variables are excluded by default because MTO storage burdens are embedded in the product inventories. Review this selection if other independent CCS services are enabled. NL remains the demand region and worldwide supply-chain contributions remain included.
 
@@ -757,11 +865,11 @@ Rules for a valid scenario CSV:
 - negative values require an explicit interpretation and should not be introduced solely to indicate exports;
 - product mass and energy quantities must not be mixed within one variable.
 
-The converter writes both scenario-specific files for inspection and one combined file for the datapackage. Only the combined file is consumed by `datapackage_itom_por.json`.
+The converter writes both scenario-specific files for inspection and one combined file for the datapackage. Only the combined file is consumed by `datapackages/datapackage_itom_por.json`.
 
 ### Datapackage-descriptor contract
 
-Each `datapackage_*.json` provides metadata and three resource links. Important fields are:
+Each `datapackages/datapackage_*.json` provides metadata and three resource links. Important fields are:
 
 | JSON field | Function |
 |---|---|
@@ -867,7 +975,7 @@ Inventory rules:
 
 ### Pathways package contract
 
-`remind-transience_por.zip` contains the transformed scenario data and inventory information needed by `pathways`. Treat it as a generated, immutable run artifact. Its contents depend on:
+`results/datapackages/remind-transience_por.zip` contains the transformed scenario data and inventory information needed by `pathways`. Treat it as a generated, immutable run artifact. Its contents depend on:
 
 - the REMIND model/pathway;
 - selected external scenarios and their order;
@@ -880,7 +988,9 @@ If any of these change, rebuild the ZIP. Renaming an old ZIP does not update its
 
 ### Result-export contract
 
-`p.export_results()` writes a timestamped Parquet file with the `.gzip` extension. The current result schema is:
+Notebook 2 directs `p.export_results()` to `results/impacts/`. It writes a
+timestamped Parquet file with the `.gzip` extension. Notebook 4 keeps its EDGES
+exports and associated provenance JSON in `results/edges/`. The current result schema is:
 
 | Column | Meaning |
 |---|---|
@@ -1182,10 +1292,10 @@ For each item, add the source, affected files, responsible reviewer, decision da
 
 | Module | Descriptor | Scenarios in descriptor | Scenario data | Mapping | Inventory | Declared ecoinvent |
 |---|---|---|---|---|---|---|
-| ITOM PoR | `datapackage_itom_por.json` | `CL`, `OCE` | `scenario_data_itom_por.csv` | `config_itom_por.yaml` | `lci-itom_por-mode-aware.xlsx` | 3.12 cut-off |
-| FORECAST | `datapackage_forecast.json` | `fc_nz` | `scenario_data_forecast_all.csv` | `config_forecast.yaml` | `lci-forecast.xlsx` | 3.10 cut-off |
-| EDM-I | `datapackage_edm_i.json` | `NDC_LTT`, `CBAM`, `INDEPENDENCE` | `scenario_data_edm_i.csv` | `config_edm_i.yaml` | `lci-edm-i.xlsx` | 3.10 cut-off |
-| Open-PROM | `datapackage_open_prom.json` | `NDC-EI` | `scenario_data_open_prom.csv` | `config_open_prom.yaml` | `lci-open-prom.xlsx` | 3.12 cut-off |
+| ITOM PoR | `datapackages/datapackage_itom_por.json` | `CL`, `OCE` | `scenario_data_itom_por.csv` | `config_itom_por.yaml` | `lci-itom_por-mode-aware.xlsx` | 3.12 cut-off |
+| FORECAST | `datapackages/datapackage_forecast.json` | `fc_nz` | `scenario_data_forecast_all.csv` | `config_forecast.yaml` | `lci-forecast.xlsx` | 3.10 cut-off |
+| EDM-I | `datapackages/datapackage_edm_i.json` | `NDC_LTT`, `CBAM`, `INDEPENDENCE` | `scenario_data_edm_i.csv` | `config_edm_i.yaml` | `lci-edm-i.xlsx` | 3.10 cut-off |
+| Open-PROM | `datapackages/datapackage_open_prom.json` | `NDC-EI` | `scenario_data_open_prom.csv` | `config_open_prom.yaml` | `lci-open-prom.xlsx` | 3.12 cut-off |
 
 The current `1_export_packages.ipynb` activates FORECAST and ITOM PoR. The EDM-I and Open-PROM external scenarios are present but commented out in the scenario composition cell.
 
@@ -1255,7 +1365,7 @@ Although the result filename ends in `.gzip`, it is a Parquet dataset and should
 from pathlib import Path
 import pandas as pd
 
-results_file = Path("results_YYYYMMDD_HHMMSS.gzip")
+results_file = Path("results/impacts/results_YYYYMMDD_HHMMSS.gzip")
 df = pd.read_parquet(results_file, engine="pyarrow")
 df = df.loc[df["value"].notna() & df["value"].ne(0)].copy()
 ```
@@ -1437,7 +1547,7 @@ Run the following checks before treating a result as final.
 ### Prospective package
 
 - The ecoinvent version in `config.py`, each active descriptor, and each custom inventory is compatible.
-- `remind-transience_por.zip` was regenerated after any scenario, mapping, or inventory change.
+- `results/datapackages/remind-transience_por.zip` was regenerated after any scenario, mapping, or inventory change.
 - The package contains the intended years and both combined scenario names.
 - `unlinked.log` and notebook output contain no unresolved exchange that affects the analysis.
 
@@ -1448,7 +1558,7 @@ Run the following checks before treating a result as final.
 - Production changes are considered alongside environmental changes.
 - Negative contributions have a documented physical or accounting explanation.
 - The selected climate method is consistent with the stated biogenic-carbon convention.
-- The exact `results_*.gzip` file used for figures is recorded.
+- The exact `results/impacts/results_*.gzip` or `results/edges/results_edges_por_*.gzip` file used for figures is recorded.
 
 ### Recommended run record
 
@@ -1460,6 +1570,7 @@ For a reproducible study, record:
 - REMIND pathway and package years;
 - external scenario combination;
 - hashes or version dates of source workbooks;
+- the PoR inventory staging manifest and `results/input_snapshots/<sha256>/` snapshot, when used;
 - settings changed in each notebook;
 - generated Pathways ZIP name and result filename;
 - LCIA methods;
@@ -1814,10 +1925,13 @@ Create the following four elements:
 scenario_data/scenario_data_<module>.csv
 configuration_file/config_<module>.yaml
 inventories/lci-<module>.xlsx
-datapackage_<module>.json
+datapackages/datapackage_<module>.json
 ```
 
-Then load its descriptor with `datapackage.Package`, add it to the `external scenarios` list in `1_export_packages.ipynb`, and validate version compatibility with every other active module.
+Then load its descriptor with `datapackage.Package(..., base_path=str(ROOT))`,
+add it to the `external scenarios` list in `1_export_packages.ipynb`, and validate
+version compatibility with every other active module. The descriptor lives in
+`datapackages/`, but its resource links stay relative to the repository root.
 
 ### Develop a new regional case study
 

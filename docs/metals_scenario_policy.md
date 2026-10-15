@@ -129,6 +129,12 @@ assumptions. The resulting ZIP embeds resolved configuration and source snapshot
 alongside hashes, so the selected values can be recovered even after live files
 are edited.
 
+Generated packages are stored in `results/datapackages/`, including the
+`__metals-<case>` suffix for non-baseline cases. Notebook 1 prints the final path
+for notebook 2. The archive is moved only after native export completes; its
+embedded policy provenance and inventories are unchanged. Policy audit CSV/JSON
+files remain under `export/metals_policy/`, not in the results directory.
+
 ## Available non-ferrous cases
 
 | Case | Meaning |

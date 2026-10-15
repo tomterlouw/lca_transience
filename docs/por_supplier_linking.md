@@ -67,6 +67,15 @@ ndb.create_datapackage(...)
 
 The current notebook uses `attach_por_pathways_export(ndb, stage="pathways")` instead of attaching only the internal builder. This includes the same supplier-linking hook and binds the mapping guard to the **concrete package instance**, including stale class aliases or instance overrides. After the normal update/linking step it validates and snapshots the small activity identities for every scenario before matrices are written. Matrix preparation can then release/mutate inventory dictionaries without erasing mapping metadata. A malformed real provider fails at this preflight with scenario/year/sector/variable context; diagnostics are retained separately. Scenario identities/order are checked before using the snapshot.
 
+External input descriptors now live in `datapackages/` and are loaded with the
+repository root as their explicit resource base. Completed Pathways archives
+are stored under `results/datapackages/`; `config.py` owns these shared paths.
+The native `create_datapackage(name=...)` still receives a bare metadata slug.
+Notebook 1 relocates the completed ZIP rather than passing a directory in the
+package name or changing the working directory. Supplier-linking audits stay
+under `export/por_supplier_linking/`; no linking rules or inventory contents
+change because of this reorganization.
+
 The package cell reloads only repo-owned helper modules, not premise, and prints the actual premise version/module path and Python executable. This addresses stale imports in long-lived notebook kernels; the kernelspec display name alone is not proof of the running package version. The installed environment `premise_pathways` contains 2.3.8, while `premise_pathways_new` contains 2.5.2 in the inspected setup. The class adapter has a versioned marker so an old wrapper can be upgraded instead of being mistaken for the current fix.
 
 Both constructor calls receive `fresh_scenario_definitions(...)` from `por_scenario_inputs.py`. This reconstructs supported scenario inputs and discards previous applied-sector flags, stores, checkpoints, validation reports and other runtime state without copying those large objects. External datapackage resources retain their identity; mutable input lists/dictionaries are independent. This prevents the preceding 2050 Brightway build from contaminating the six-year package. Unknown public input fields raise an explicit compatibility error rather than being silently dropped. The notebook's existing OCE-only Brightway selection is retained, with its deletion/export names limited to the same selection; the Pathways package still includes CL and OCE for all six years.

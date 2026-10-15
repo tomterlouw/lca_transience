@@ -107,6 +107,86 @@ they do not add a browser notebook server. If you need JupyterLab, install it
 separately with `python -m pip install jupyterlab`, then run `python -m pip check`
 and record the installed server version with the analysis provenance.
 
+## Shared inventory source configuration
+
+The optional shared-master workflow needs no extra Python dependencies or cloud
+credentials. OneDrive handles authentication and synchronization; this repo
+stages a local file, not a SharePoint browser URL. The same staging step is used
+with both premise profiles.
+
+1. Share the master `lci-itom_por.xlsx` or its folder with the other editors, and
+   use OneDrive to sync the SharePoint/shared folder locally. Each collaborator
+   may have a different absolute path. Microsoft explains [SharePoint synchronization](https://support.microsoft.com/en-us/sharepoint/sync/sync-sharepoint-and-teams-files-with-your-computer).
+2. In File Explorer select **Always keep on this device** for the workbook. Save
+   changes and wait for OneDrive synchronization to complete before building.
+   A local path alone does not prove that the workbook is shared or up to date
+   on the server; see [Microsoft's file-availability guidance](https://support.microsoft.com/en-us/sharepoint/sync/work-with-synced-files-in-file-explorer).
+3. Create `inventory_sources.local.json` in the repository root. This file is
+   ignored by Git; use your own absolute local synced path, not this placeholder:
+
+   ```json
+   {
+     "itom_por": "C:/Users/YOUR_USER/OneDrive - YOUR_ORGANISATION/Shared inventories/lci-itom_por.xlsx"
+   }
+   ```
+
+4. Restart an existing notebook kernel after pulling the new workflow, then run
+   `1_export_packages.ipynb` from the beginning. When either `create_dbs` or
+   `create_db_package` is true, its input setup stages the inventory once, before
+   `Package(...)`, `NewDatabase(...)` or `PathwaysDataPackage(...)` construction.
+   Keep the datapackage resource path as `inventories/lci-itom_por.xlsx`.
+
+For a session-specific override, set the environment variable in PowerShell
+**before launching the notebook process/kernel from that shell**:
+
+```powershell
+$env:ITOM_POR_SHARED_INVENTORY = 'C:\Users\YOUR_USER\OneDrive - YOUR_ORGANISATION\Shared inventories\lci-itom_por.xlsx'
+```
+
+A kernel already running in VS Code does not inherit later changes to another
+terminal's environment. The local JSON configuration avoids that ambiguity and
+does not need a `.env` parser.
+
+The source selection order is:
+
+1. An explicit `stage_itom_inventory(source=...)` argument.
+2. `ITOM_POR_SHARED_INVENTORY` in the current Python process environment.
+3. The `itom_por` entry in `inventory_sources.local.json`.
+4. With no shared source configured, the canonical local
+   `inventories/lci-itom_por.xlsx`.
+
+For an intentional one-off preflight outside notebook 1:
+
+```python
+from config import stage_itom_inventory
+
+inventory_stage = stage_itom_inventory()  # before creating any builders/policies
+```
+
+The stage operation validates the XLSX ZIP structure and CRC checksums, verifies
+source stability while copying, and copies the workbook without changing its
+bytes or exchanges. Only a validated snapshot replaces the canonical workbook,
+using an atomic replacement. Old/new snapshots are retained by content hash at
+`results/input_snapshots/<sha256>/lci-itom_por.xlsx`, alongside timestamped
+staging manifests recording the chosen source, shared/local mode and SHA-256.
+Keep this provenance with the YAML/Git revision and generated package name.
+It records the exact local bytes used, not a SharePoint server-version identifier.
+
+The shared master is never overwritten, and no changes are copied back to the
+cloud. A missing configured source or an invalid/unstable workbook fails clearly;
+it does not silently fall back to the last local snapshot. Correct the local
+path/sync status or intentionally remove the shared-source setting and use an
+approved canonical local workbook. Do not disable validation merely to continue
+with an unknown inventory version.
+
+Do not restage or edit the canonical workbook during a model run: supplier-linking
+guards deliberately reject changed inputs after policy creation. A restage
+requires new builders and policies. Shared edits made during a run are picked up
+on the next build; save and finish syncing first. Staging a newer inventory also
+makes an older package potentially stale, so regenerate rather than mixing new
+input hashes with old scenario matrices. Inventory snapshots and source paths
+remain local research records and may contain licensed or sensitive information.
+
 ## Optional legacy comparison
 
 Use a separate environment; do not combine two conflicting profiles:
