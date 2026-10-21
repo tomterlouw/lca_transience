@@ -18,7 +18,7 @@ SCENARIO_FILES = {case: f"primary_secondary_split_{case}.yaml" for case in SCENA
 ALIAS_FILE = "primary_secondary_split.yaml"
 COMBINED_FILE = "metal_shares_2050_scenarios.yaml"
 MANIFEST_FILE = "share_generation_manifest.json"
-GENERATOR_VERSION = 1
+GENERATOR_VERSION = 2
 TOLERANCE = 1e-6
 
 
@@ -177,6 +177,14 @@ def _inputs(baseline, evidence_csv, mapping_csv):
             raise ShareDataError(f"{evidence_csv}: empty/duplicate family {family!r}")
         evidence[family] = {case: _number(row[f"secondary_share_2050_{case}"], f"{family}/{case}") for case in SCENARIOS}
         evidence[family].update({field: row.get(field) or "" for field in columns[4:]})
+        anchor_year, anchor_share = row.get("anchor_year"), row.get("anchor_secondary_share")
+        if bool(anchor_year) != bool(anchor_share):
+            raise ShareDataError(f"{family}: anchor_year and anchor_secondary_share must be supplied together")
+        if anchor_year:
+            if not str(anchor_year).isdigit() or not 2020 < int(anchor_year) < 2050:
+                raise ShareDataError(f"{family}: anchor_year must be an integer between 2020 and 2050")
+            evidence[family]["anchor_year"] = int(anchor_year)
+            evidence[family]["anchor_secondary_share"] = _number(anchor_share, f"{family}/anchor_secondary_share")
     mapping = {}
     for row in _read_csv(mapping_csv, ("product", "family")):
         product, family = (row.get("product") or "").strip(), (row.get("family") or "").strip()
@@ -195,7 +203,15 @@ def _generated_cases(baseline, evidence, mapping):
     for case in SCENARIOS:
         scenario = deepcopy(baseline)
         for product, entry in scenario.items():
-            secondary = evidence[mapping[product]][case]
+            record = evidence[mapping[product]]
+            secondary = record[case]
+            if "anchor_year" in record:
+                year, share = record["anchor_year"], record["anchor_secondary_share"]
+                if year in entry["shares"]["secondary"] and not math.isclose(
+                        entry["shares"]["secondary"][year], share, rel_tol=0, abs_tol=1e-12):
+                    raise ShareDataConflictError(f"{product}: source curve conflicts with evidence anchor in {year}")
+                entry["shares"]["secondary"][year] = share
+                entry["shares"]["primary"][year] = 1.0 - share
             entry["shares"]["secondary"][2050] = secondary
             entry["shares"]["primary"][2050] = 1.0 - secondary
         result[case] = validate_share_mapping(scenario, label=f"generated/{case}")

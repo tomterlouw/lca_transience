@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "repository": "https://github.com/polca/premise",
+  "branch_at_review": "master",
+  "commit": "d5362d8ce1df66c20c7e71c91051a1b88e46c583",
+  "commit_date_utc": "2026-10-15T15:12:23Z",
+  "review_date": "2026-10-20",
+  "files": {
+    "secondary_supply_activities.yaml": {
+      "local_file": "secondary_supply_activities.yaml",
+      "url": "https://raw.githubusercontent.com/polca/premise/d5362d8ce1df66c20c7e71c91051a1b88e46c583/premise/data/metals/secondary_supply_activities.yaml",
+      "sha256": "7fa070cf59aae49260d8464e6e7315bed521edfe919ccb591e2eddef5147ed65",
+      "user_attachment_byte_match": true
+    },
+    "primary_secondary_split.yaml": {
+      "local_file": "primary_secondary_split.yaml",
+      "url": "https://raw.githubusercontent.com/polca/premise/d5362d8ce1df66c20c7e71c91051a1b88e46c583/premise/data/metals/primary_secondary_split.yaml",
+      "sha256": "cb56e74eb4ce0fa2d24cc96f6eacc681df2a6989c4edb7e1cbe346ebea54c8e1",
+      "user_attachment_byte_match": true
+    }
+  },
+  "interpretation": "Within-secondary supplier weights are not total recycled-input shares. Pinning this mapping does not approve all products or future targets. Installed premise packages are never overwritten."
+}

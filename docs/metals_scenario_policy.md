@@ -93,8 +93,9 @@ selection. These derived files are for consistency/provenance.
 The folder's `.gitattributes` preserves YAML/CSV/JSON line endings so Git checkout
 conversion does not invalidate the manifest's exact-byte source hashes.
 The policy reads the selected named source. Generation covers the existing product table, whereas
-the LCI override deliberately remains restricted to the five validated refined
-non-ferrous metals. Generating 103 product records does
+the LCI override deliberately remains restricted to ten reviewed product rules:
+the original five refined non-ferrous metals, World lithium carbonate, and
+gold, silver, platinum and palladium. Generating 103 product records does
 not make 103 recycling inventories or authorize 103 market overrides.
 
 Valid edits to the named conservative/baseline/optimistic YAML files are retained
@@ -122,6 +123,14 @@ a conflict: choose `"yaml"` to use that YAML or explicitly force workbook
 re-extraction. The default YAML mode does not read/reimport the workbook and
 therefore does not overwrite a deliberately edited YAML reference.
 
+The workbook also contains `Scenario assumptions` and `Evidence` documentation
+for the active products, including observed precious-metal supply components,
+their denominator, the 2025 anchor and the separately labelled future
+sensitivities. These sheets are an explanatory snapshot, not an additional
+runtime control: edits there do not change the policy. The original 103-product
+`Shares` table and its reference values are retained. Default YAML mode consumes
+the evidence/mapping CSVs and named YAMLs; XLSX mode reads `Shares` only.
+
 Changing a consumed named file, policy configuration or raw input
 invalidates a loaded builder's source fingerprint. Reload the selection and
 construct a fresh builder, rather than exporting an object built under old
@@ -140,7 +149,7 @@ files remain under `export/metals_policy/`, not in the results directory.
 | Case | Meaning |
 |---|---|
 | `baseline` | Audit-only. Native premise output is unchanged. |
-| `reference` | Fixed documented 2020 recycled-input fractions for the five supported refined products. Future production/background inventories still apply. |
+| `reference` | Fixed documented 2020 recycled-input fractions for the ten configured products, within each rule's geographic scope. Future production/background inventories still apply. |
 | `conservative` | Minimum recycled-input trajectory. Keep a higher native share rather than forcing it down. |
 | `moderate_recycling` | Minimum trajectory read from the historical generated baseline-data file. This is an explicit override, not native premise baseline. |
 | `high_recycling` | Higher minimum trajectory, subject to the same supplier/grade checks. This is a sensitivity, not a validated scrap forecast. |
@@ -157,6 +166,103 @@ second parameter store:
 | Nickel, class 1 | 0.2028465% | 20% | 25% | 30% |
 | Cobalt | 0.5716258% | 20% | 30% | 40% |
 | Lead | 54.9162034% | 65% | 77% | 85% |
+| Lithium carbonate, battery grade (World only) | 0.08404146% | approximately 22.3% | approximately 22.3% | approximately 37.3% |
+| Gold | 0.4426657% | 27.6660% | 37.6660% | 47.6660% |
+| Silver | 8.4636523% | 18.9236% | 28.9236% | 38.9236% |
+| Platinum | 4.4600386% | 21.7765% | 31.7765% | 41.7765% |
+| Palladium | 15.5485524% | 32.2398% | 42.2398% | 52.2398% |
+
+The four precious-metal conservative endpoints hold the reported **2025**
+secondary-supply fraction constant to 2050. Moderate/high endpoints add **10/20
+percentage points**, respectively, as analyst-selected sensitivities. Those
+increments are not forecasts reported by the source organisations. The generated
+curves retain the catalogue's 2020 value, pass through a common observed 2025
+anchor, then interpolate linearly to the chosen 2050 endpoint. Reference still
+selects the fixed 2020 value; native baseline is unchanged. The first six products
+retain their previous values and 2020–2050 interpolation.
+
+### Literature-reviewed extension, 20 October 2026
+
+The initial extension added lithium carbonate; the subsequent review also
+activated qualified supply-mix sensitivities for four precious metals.
+The existing World market already consumes recovered generic lithium carbonate
+from `treatment of used Li-ion battery, hydrometallurgical treatment`, GLO.
+The explicit `supply_products` interface retains that inherited grade proxy;
+it does not establish battery-grade purity or introduce an unmodelled upgrade.
+The GLO market is not overridden because a positive compatible secondary recipe
+was not verified there. The previous five product rules are unchanged.
+
+The [IEA Global Critical Minerals Outlook 2026](https://www.iea.org/reports/global-critical-minerals-outlook-2026),
+pages 145 and 350, supports approximate 2050 ratios of `250 / 1122` in the
+STEPS-context base case and `560 / 1501` in HDS. Numerators and denominators are
+kt of elemental Li; these are global secondary-supply/total-demand ratios,
+not end-of-life collection rates. Applying them to carbonate is an explicit
+representative-compound sensitivity. Conservative and moderate share the same
+base endpoint rather than inventing a third published projection. HDS is not
+an automatic mapping to CL/OCE or to an IAM pathway.
+
+No complete 2026 intermediate-year recycling series was verified. At the user's
+request, lithium nevertheless uses the same linear minimum-share interpolation
+as the other metals, from the documented 2020 reference fraction to the 2050
+endpoint, clamped outside that interval. This straight line is an explicit
+modelling assumption, not an IEA intermediate-year forecast. At every database
+year the applied fraction is `max(native_share, floor(year))`; a higher native
+share is never reduced. No `minimum_target_years` gate is enabled for lithium.
+`reference` and `primary_only` remain explicitly labelled counterfactuals.
+
+Pinned premise supplier selectors and their SHA256 provenance are stored under
+`configuration_file/upstream/premise_metals`, from commit
+`d5362d8ce1df66c20c7e71c91051a1b88e46c583` (15 October 2026). The two supplied
+attachments byte-match that commit's files. A non-baseline opt-in rule uses
+`secondary_source_product` to load name/product/location selectors. Their
+within-secondary technology/location weights are not applied; the native
+secondary recipe is retained and rescaled as a whole. Baseline performs no
+optional upstream-source I/O. Installed premise packages are never modified.
+
+The complete scope, rejected denominator conversions, precious-metal benchmarks,
+and deferred candidates are recorded in [the literature review](metals_literature_review.md).
+
+### Precious metals: observed anchors and explicit sensitivities
+
+The 2025 gold and silver anchors use `recycled / (mine production + recycled)`.
+They exclude hedging, official sales and stock movements. Platinum and palladium
+use `open-loop secondary / (primary + open-loop secondary)` from Johnson
+Matthey's 2026 report; closed-loop industrial recirculation is not added again.
+The global fractions are representative supply assumptions applied to configured
+World/GLO markets, not independently measured fractions for each geography.
+
+- Gold: 1,404.3 t recycled and 3,671.6 t mined, from the
+  [World Gold Council, full-year 2025 supply](https://www.gold.org/goldhub/research/gold-demand-trends/gold-demand-trends-full-year-2025/supply).
+- Silver: 197.6 Moz recycled and 846.6 Moz mined, from the
+  [World Silver Survey 2026](https://silverinstitute.org/wp-content/uploads/2026/04/World-Silver-Survey-2026.pdf).
+- Platinum: 1,547 thousand oz secondary and 5,557 thousand oz primary;
+  palladium: 3,135 thousand oz secondary and 6,589 thousand oz primary, from
+  [Johnson Matthey, May 2026, pp. 27–30](https://matthey.com/documents/161599/509428/pgm-market-report-26.pdf/a2d115af-bf7c-f589-29e9-6beacf8a4452).
+
+Existing same-product recovery LCIs are retained, with their process burdens and
+within-group supplier weights. Gold's electronics-scrap route is an explicit
+proxy for a broader recycled-gold supply mix, not a new jewellery-refining LCI.
+Platinum/palladium use the pinned name/product/location selector interfaces.
+Gold uses an exact local activity-name rule because the pinned GLO selector does
+not match every actual SE/RoW provider geography; no provider location is invented.
+
+For silver, only the explicitly approved electronics-scrap and waste-x-ray-film
+recovery routes count as secondary. `treatment of crust from Parkes process for
+lead production` is assigned to the **primary remainder** using an exact-name,
+documented exception. This is not a claim that all Parkes feedstock is primary:
+the stream may include industrial residues of unresolved origin. It is excluded
+from the claimed recycled fraction because primary lead production can also
+generate Parkes crust. All its existing burdens remain, and it scales with the
+non-secondary remainder. Other unrecognised treatment routes still fail the
+sensitivity rather than silently becoming primary. The pinned upstream source
+files remain unchanged.
+
+The 2025 integrated-refinery LCI of
+[Cespi et al.](https://doi.org/10.1016/j.cesys.2025.100310), with its
+[public inventory dataset](https://amsacta.unibo.it/id/eprint/8288/), is documented
+as a candidate for a later technology-recipe improvement. It is **not imported**
+by this extension and no published aggregate impact factor is substituted for
+an LCI. Zinc, tin, rhodium and magnet-material additions remain separate work.
 
 The reference fractions come from
 `primary_vs_secondary_metals/scenario_data/metal_primary_secondary_shares.yaml`.
@@ -165,8 +271,10 @@ recycled content in every region. For example, the actual exported copper market
 has approximately 19.93% secondary supply; `reference` intentionally uses the
 documented 20% reference setting. `baseline` retains the actual native recipe.
 
-For minimum cases, linear interpolation between 2020 and 2050 supplies the floor
-`f(year)`, with endpoint values outside that interval. The effective share is
+For the original six products, linear interpolation between 2020 and 2050 supplies
+the floor `f(year)`. Precious-metal curves additionally pass through the 2025
+anchor and use piecewise-linear interpolation. Both clamp to endpoint values
+outside their covered interval. The effective share is
 `max(native_share, f(year))`. Thus selecting a conservative case cannot turn
 cast-alloy aluminium from about 68.8% recycled input into the conservative file's
 45% endpoint (or the moderate file's 60%), nor reduce an older premise native
@@ -281,6 +389,9 @@ They record policy/source fingerprints, installed premise/ecoinvent versions,
 scenario/year, observed and requested/effective shares, affected identities,
 changed supplies and skipped/unsupported markets. Inspect the actual audit rather
 than assuming the selector changed every market in a sector.
+The scientific metadata and supplier records identify the evidence, target
+assumptions, approved secondary routes and any primary-remainder exception, so
+an applied percentage can be traced to its source and classification boundary.
 
 The configuration is `configuration_file/metals_scenario_policy.yaml`; numeric
 case inputs live in the share-data folder. To extend it:
@@ -300,9 +411,13 @@ case inputs live in the share-data folder. To extend it:
    protection. Review audits for zero-change/unsupported cases.
 5. Export from a fresh builder and compare complete signed impact totals.
 
-Ores, concentrates, explicit-primary products, and products without validated
-secondary providers such as zinc/rare-earth markets remain outside this curated
-policy. Their native modelling is retained and the configuration documents why.
+Ores, concentrates, explicit-primary products, and products without both
+appropriate prospective evidence and validated secondary providers remain outside
+this curated policy. Zinc, tin, manganese, magnesium, rhodium and rare-earth
+extensions are deferred until their specific inventory and denominator gaps are
+resolved; that does not mean no literature or recycling technologies exist.
+Their native modelling is retained and the configuration documents why. Existing generated placeholder
+targets for those products are not active LCI overrides.
 An unsupported nonzero target fails rather than manufacturing a recycling route.
 For a scientifically stronger high-recycling case, the next step is to couple
 product lifetimes, future waste quantities, collection and recovery yields,

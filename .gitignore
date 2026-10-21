@@ -47,6 +47,7 @@ tests/*
 !tests/test_metals_notebook.py
 !tests/test_metal_share_generation.py
 !tests/test_metals_share_connection.py
+!tests/test_metals_precious_extension.py
 !tests/test_native_inventory_access.py
 !tests/test_por_brightway_export.py
 !tests/test_artifact_layout.py
@@ -59,13 +60,15 @@ tests/*
 !tests/test_por_inventory_store.py
 !tests/test_por_linking_performance.py
 /tmp/por_px_purity/
+/tmp/metals_expansion/
 
 # Keep the small, live share inputs/scenarios with their repo-owned workflow.
-# The workbook remains local; YAML mode does not depend on its presence.
+# The documented workbook is versioned; YAML mode does not depend on its presence.
 !primary_vs_secondary_metals/scenario_data/
 primary_vs_secondary_metals/scenario_data/*
 !primary_vs_secondary_metals/scenario_data/.gitattributes
 !primary_vs_secondary_metals/scenario_data/metal_primary_secondary_shares.yaml
+!primary_vs_secondary_metals/scenario_data/metal_primary_secondary_shares.xlsx
 !primary_vs_secondary_metals/scenario_data/metal_2050_literature_evidence.csv
 !primary_vs_secondary_metals/scenario_data/metal_product_family_mapping.csv
 !primary_vs_secondary_metals/scenario_data/primary_secondary_split.yaml

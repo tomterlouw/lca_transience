@@ -294,10 +294,12 @@ gold:
   shares:
     primary:
       2020: 0.995573343
-      2050: 0.8
+      2025: 0.7233397033038476
+      2050: 0.6233397033038476
     secondary:
       2020: 0.004426657
-      2050: 0.2
+      2025: 0.27666029669615244
+      2050: 0.3766602966961524
 graphite:
   name: market for graphite
   reference product: graphite
@@ -414,20 +416,20 @@ lithium carbonate, battery grade:
   shares:
     primary:
       2020: 0.999159585
-      2050: 0.75
+      2050: 0.7771836007130125
     secondary:
       2020: 0.000840414604538239
-      2050: 0.25
+      2050: 0.22281639928698752
 lithium hydroxide, battery grade:
   name: market for lithium hydroxide, battery grade
   reference product: lithium hydroxide, battery grade
   shares:
     primary:
       2020: 1.0
-      2050: 0.75
+      2050: 0.7771836007130125
     secondary:
       2020: 0.0
-      2050: 0.25
+      2050: 0.22281639928698752
 dolomite:
   name: market for dolomite
   reference product: dolomite
@@ -546,20 +548,24 @@ palladium:
   shares:
     primary:
       2020: 0.844514476
-      2050: 0.75
+      2025: 0.6776018099547512
+      2050: 0.5776018099547511
     secondary:
       2020: 0.155485524
-      2050: 0.25
+      2025: 0.3223981900452489
+      2050: 0.4223981900452489
 platinum:
   name: market for platinum
   reference product: platinum
   shares:
     primary:
       2020: 0.955399614
-      2050: 0.75
+      2025: 0.7822353603603603
+      2050: 0.6822353603603604
     secondary:
       2020: 0.044600386
-      2050: 0.25
+      2025: 0.21776463963963963
+      2050: 0.31776463963963963
 platinum group metal concentrate:
   name: market for platinum group metal concentrate
   reference product: platinum group metal concentrate
@@ -826,10 +832,12 @@ silver:
   shares:
     primary:
       2020: 0.915363477
-      2050: 0.8
+      2025: 0.8107642214135223
+      2050: 0.7107642214135224
     secondary:
       2020: 0.084636523
-      2050: 0.2
+      2025: 0.18923577858647767
+      2050: 0.28923577858647764
 strontium sulfate, 90% SrSO4:
   name: market for strontium sulfate, 90% SrSO4
   reference product: strontium sulfate, 90% SrSO4

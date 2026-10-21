@@ -28,7 +28,7 @@ cobalt,cobalt
 "copper, cathode",copper
 "gallium, semiconductor-grade",base_low
 "germanium, concentrate",nonmetal_low
-gold,precious_metals
+gold,gold
 graphite,graphite
 "graphite ore, mined",nonmetal_low
 hafnium tetrachloride,base_low
@@ -53,8 +53,8 @@ molybdenum,base_low
 "phosphate rock, beneficiated",nonmetal_low
 "phosphoric acid, fertiliser grade, without water, in 70% solution state",nonmetal_low
 "phosphorus, white, liquid",nonmetal_low
-palladium,pgm
-platinum,pgm
+palladium,palladium
+platinum,platinum
 platinum group metal concentrate,nonmetal_low
 potash salt,nonmetal_low
 rare earth carbonate concentrate,nonmetal_low
@@ -81,7 +81,7 @@ selenium,base_low
 sand,nonmetal_low
 silica sand,nonmetal_low
 "silicon, metallurgical grade",base_low
-silver,precious_metals
+silver,silver
 "strontium sulfate, 90% SrSO4",base_low
 sulfur,nonmetal_low
 pyrochlore concentrate,nonmetal_low

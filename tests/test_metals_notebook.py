@@ -21,6 +21,25 @@ def notebook_cells():
     return ["".join(cell["source"]) for cell in notebook["cells"] if cell["cell_type"] == "code"]
 
 
+def notebook_controls(case="baseline"):
+    """Read setup split across cells without executing datapackage/build steps."""
+    cells = notebook_cells()
+    start = next(index for index, source in enumerate(cells) if "NONFERROUS_METALS_SCENARIO =" in source)
+    pieces = []
+    for source in cells[start:]:
+        pieces.append(source.split("sps_op =", 1)[0])
+        if "sps_op =" in source:
+            break
+    tree = ast.parse("\n".join(pieces))
+    # Test defaults must not depend on the user's current notebook selection.
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Assign) and any(
+                isinstance(target, ast.Name) and target.id == "NONFERROUS_METALS_SCENARIO"
+                for target in node.targets):
+            node.value = ast.Constant(case)
+    return ast.unparse(ast.fix_missing_locations(tree))
+
+
 class MetalsNotebookTest(unittest.TestCase):
     def test_installed_matrix_writer_keeps_policy_supply_coefficients(self):
         from metals_scenario_policy import MetalSteelPolicy, apply_database, plan_database
@@ -63,8 +82,7 @@ class MetalsNotebookTest(unittest.TestCase):
         self.assertEqual(market["exchanges"][1]["amount"], 0.8)
 
     def test_controls_load_native_baseline_and_allow_configured_cases(self):
-        source = next(text for text in notebook_cells() if "NONFERROUS_METALS_SCENARIO =" in text)
-        controls = source.split("sps_op =", 1)[0]
+        controls = notebook_controls()
         namespace = {}
         with patch("primary_vs_secondary_metals.share_files.prepare_policy_share_data",
                    return_value={"status": "fixture_read_only", "product_count": 103}) as prepare, contextlib.redirect_stdout(io.StringIO()):
@@ -94,8 +112,7 @@ class MetalsNotebookTest(unittest.TestCase):
     def test_notebook_prepares_real_named_files_and_live_edits_change_planned_supply(self):
         import yaml
         from metals_scenario_policy import MetalSteelPolicy, StaleMetalPolicyError, plan_database
-        source = next(text for text in notebook_cells() if "NONFERROUS_METALS_SCENARIO =" in text)
-        controls = source.split("sps_op =", 1)[0]
+        controls = notebook_controls()
         source_dir = ROOT / "primary_vs_secondary_metals/scenario_data"
         with tempfile.TemporaryDirectory(prefix="connected_metal_shares_") as directory:
             directory = Path(directory)
@@ -104,6 +121,11 @@ class MetalsNotebookTest(unittest.TestCase):
                 shutil.copyfile(source_dir / filename, directory / filename)
             config = yaml.safe_load((ROOT / "configuration_file/metals_scenario_policy.yaml").read_text(encoding="utf-8"))
             config["share_data"]["directory"] = str(directory)
+            if config.get("secondary_supply_source"):
+                config["secondary_supply_source"] = {
+                    key: str((ROOT / "configuration_file" / value).resolve())
+                    for key, value in config["secondary_supply_source"].items()
+                }
             policy_path = directory / "policy.yaml"
             policy_path.write_text(yaml.safe_dump(config), encoding="utf-8")
             namespace = {}

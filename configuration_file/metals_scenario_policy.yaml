@@ -43,6 +43,60 @@ metadata:
         Stock-flow-informed scenarios include 77% secondary lead in 2050.
         The 65% and 85% endpoints below bracket this as repo sensitivities.
 
+    iea_critical_minerals_2026:
+      url: https://www.iea.org/reports/global-critical-minerals-outlook-2026
+      pdf: https://iea.blob.core.windows.net/assets/19c60aa0-ee07-4a20-a138-33c967ac5008/GlobalCriticalMineralsOutlook2026.pdf
+      accessed: 2026-10-20
+      note: >-
+        Pages 145 and 350 give approximate 2050 recycled lithium supply of
+        250 kt in the STEPS-context base case and 560 kt in HDS, against total
+        global demand of 1122 and 1501 kt Li respectively. Derived fractions
+        are about 22.3% and 37.3%, not measured battery-grade carbonate shares.
+        No complete 2026 intermediate-year recycling series was verified.
+
+    wgc_gold_2025:
+      url: https://www.gold.org/goldhub/research/gold-demand-trends/gold-demand-trends-full-year-2025/supply
+      publication_date: 2026-01-29
+      accessed: 2026-10-20
+      note: >-
+        2025 physical supply anchor: recycled 1404.3 t divided by mine 3671.6 t
+        plus recycled 1404.3 t = 0.2766602966961524. Excludes net producer hedging.
+        This is not a 2050 forecast. Hold this anchor in conservative; add 0.10
+        and 0.20 absolute share in moderate/high as analyst-selected sensitivities.
+    silver_survey_2026:
+      url: https://silverinstitute.org/wp-content/uploads/2026/04/World-Silver-Survey-2026.pdf
+      accessed: 2026-10-20
+      note: >-
+        2025 physical supply anchor: recycled 197.6 Moz divided by mine 846.6 Moz
+        plus recycled 197.6 Moz = 0.1892357785864777. Excludes hedging, official
+        sector sales and stock movements. The 2050 increments are analyst
+        sensitivities, not published projections.
+    jm_pgm_2026:
+      url: https://matthey.com/documents/161599/509428/pgm-market-report-26.pdf/a2d115af-bf7c-f589-29e9-6beacf8a4452
+      publication_date: 2026-05-14
+      accessed: 2026-10-20
+      note: >-
+        May 2026 report pp27-30, 2025 actual estimates in thousand troy oz:
+        Pt secondary1547/(primary5557+secondary1547)=0.2177646396396396;
+        Pd secondary3135/(primary6589+secondary3135)=0.3223981900452489.
+        Open-loop secondary supply; industrial demand is net of closed-loop
+        recycling. No extra industrial closed-loop contribution is added.
+        These are 2025 anchors; 2050 increments are analyst-selected sensitivities.
+    ecoinvent_parkes_origin:
+      url: https://ecoquery.ecoinvent.org/3.11/cutoff/dataset/3511
+      accessed: 2026-10-20
+      note: >-
+        Primary lead production from concentrate also produces Parkes crust.
+        Its subsequent treatment is not sufficient evidence of post-consumer
+        or manufacturing-scrap recycling. Keep this silver stream in the
+        non-secondary remainder rather than expanding it as recycled supply.
+
+# Repo-owned, commit-pinned supplier selectors; never overwrite site-packages.
+# Their shares describe the recipe WITHIN secondary supply, not recycled content.
+secondary_supply_source:
+  file: upstream/premise_metals/secondary_supply_activities.yaml
+  provenance: upstream/premise_metals/provenance.json
+
 share_data:
   directory: ../primary_vs_secondary_metals/scenario_data
   manifest: share_generation_manifest.json
@@ -179,12 +233,152 @@ markets:
       Lower/upper sensitivity around the literature 77% secondary-production
       figure. The same remelting/recovery burdens are retained, not credited away.
 
+  - id: lithium_carbonate_battery_grade
+    sector: nonferrous
+    name: market for lithium carbonate, battery grade
+    reference product: lithium carbonate, battery grade
+    unit: kilogram
+    locations: [World]
+    source_product: lithium carbonate, battery grade
+    secondary_source_product: lithium carbonate, battery grade
+    # The existing World market already accepts this generic recovered product.
+    # This does not invent a new battery-grade purification inventory.
+    supply_products: ["lithium carbonate, battery grade", "lithium carbonate"]
+    supply_product_note: >-
+      Retain the existing native World market's recovered generic lithium
+      carbonate interface as an explicit grade-equivalence proxy. No further
+      purification, impurity removal, grade conversion, new recovery process
+      or assurance of battery-grade quality is inferred. GLO is not overridden
+      because no compatible positive secondary recipe was verified there.
+    secondary:
+      names: ["treatment of used Li-ion battery, hydrometallurgical treatment"]
+    evidence: [iea_critical_minerals_2026, iea_recycling_2024]
+    target_note: >-
+      Interpolate the minimum linearly between the documented 2020 reference
+      fraction and the 2050 endpoint, with endpoint clamping, as requested by
+      the user. This interpolation is a modelling assumption, not an IEA
+      intermediate-year recycling forecast. Conservative and moderate use the
+      same STEPS-context endpoint; high uses HDS. A higher native share is
+      retained. The global elemental-Li fraction is applied to this
+      carbonate market as a representative-compound sensitivity, not a verified
+      battery-grade forecast. Reference and primary-only remain explicit
+      counterfactuals; native baseline is unchanged.
+
+  - id: gold
+    sector: nonferrous
+    name: market for gold
+    reference product: gold
+    unit: kilogram
+    locations: [World, GLO]
+    source_product: gold
+    strict_secondary_matching: true
+    secondary:
+      names:
+        - treatment of precious metal from electronics scrap, in anode slime, precious metal extraction
+    evidence: [wgc_gold_2025]
+    secondary_matching_note: >-
+      Exact existing e-waste recovery identity, any existing provider location;
+      actual ecoinvent 3.12 includes SE/RoW while the pinned upstream selector
+      names GLO/RoW. Do not invent a GLO supplier or silently change geography.
+      Existing route weights and full recycling burdens are retained. This is
+      an explicit e-waste technology proxy for mixed global recycled gold,
+      including jewellery; no claim that it represents the actual scrap mix.
+    target_note: >-
+      Piecewise-linear floor through the unchanged 2020 model reference,
+      the reported 2025 physical-supply anchor, and 2050. Conservative holds
+      the 2025 anchor; moderate adds 10 percentage points and high adds 20.
+      Increments and interpolation are analyst assumptions, not WGC forecasts.
+
+  - id: silver
+    sector: nonferrous
+    name: market for silver
+    reference product: silver
+    unit: kilogram
+    locations: [World, GLO]
+    source_product: silver
+    strict_secondary_matching: true
+    secondary:
+      names:
+        - treatment of precious metal from electronics scrap, in anode slime, precious metal extraction
+        - treatment of waste x-ray film
+    primary_remainder_names:
+      - treatment of crust from Parkes process for lead production
+    primary_remainder_note: >-
+      Exclude Parkes-crust silver from the recycled numerator: this residue
+      can originate in primary lead refining and its name does not establish
+      recycled provenance. Retain its existing LCI in the non-secondary
+      remainder (reported under primary), not a claim of verified virgin
+      provenance for every residue input. Within-remainder weights are kept.
+    evidence: [silver_survey_2026, ecoinvent_parkes_origin]
+    secondary_matching_note: >-
+      Only the existing same-product e-waste and x-ray-film recovery providers
+      count as secondary. Existing route/location weights and burdens remain.
+      This inherited recipe is a proxy, not a future global scrap composition.
+      Unlisted recycling activities fail closed rather than becoming primary.
+    target_note: >-
+      Piecewise-linear floor through unchanged 2020 model reference, the 2025
+      secondary/(mine+secondary) anchor, and 2050. Conservative holds anchor;
+      moderate/high add 10/20 percentage points as analyst sensitivities.
+      Baseline remains untouched; the 2020 catalogue's classification is not
+      independently recalibrated to this narrower silver boundary.
+
+  - id: platinum
+    sector: nonferrous
+    name: market for platinum
+    reference product: platinum
+    unit: kilogram
+    locations: [World, GLO]
+    source_product: platinum
+    secondary_source_product: platinum
+    secondary:
+      names: [treatment of automobile catalyst]
+    evidence: [jm_pgm_2026]
+    secondary_matching_note: >-
+      Pinned same-product RER/RoW automobile-catalyst recovery selectors;
+      preserve existing technology/location weights and treatment burdens.
+      Represents the inherited secondary technology mix, not all global
+      recycled Pt sources. Do not add industrial closed-loop recycling again.
+    target_note: >-
+      Piecewise-linear floor through unchanged 2020 model reference, reported
+      2025 open-loop physical supply anchor, and 2050. Conservative holds
+      anchor; moderate/high add 10/20 percentage points as analyst-selected
+      sensitivities, not Johnson Matthey 2050 projections.
+
+  - id: palladium
+    sector: nonferrous
+    name: market for palladium
+    reference product: palladium
+    unit: kilogram
+    locations: [World, GLO]
+    source_product: palladium
+    secondary_source_product: palladium
+    secondary:
+      names:
+        - treatment of automobile catalyst
+        - treatment of precious metal from electronics scrap, in anode slime, precious metal extraction
+    evidence: [jm_pgm_2026]
+    secondary_matching_note: >-
+      Pinned same-product catalyst and electronics recovery selectors;
+      preserve existing process/location weights and full recycling burdens.
+      Vehicle electrification, scrap availability and future scrap composition
+      are not solved. Industrial closed-loop flows are not added again.
+    target_note: >-
+      Piecewise-linear floor through unchanged 2020 model reference, reported
+      2025 open-loop physical supply anchor, and 2050. Conservative holds
+      anchor; moderate/high add 10/20 percentage points as analyst-selected
+      sensitivities, not Johnson Matthey 2050 projections.
+
 excluded_scope:
   - products: [ores, concentrates, mineral feedstocks]
     reason: Mining inputs do not become recycled refined-metal markets by relabelling their supply.
   - products: ["aluminium, primary, ingot", "aluminium, primary, liquid"]
     reason: Explicit-primary product markets remain primary; no implicit grade conversion is added.
-  - products: [zinc, rare earth oxides, "lithium carbonate, battery grade", graphite]
-    reason: No validated same-product active secondary recipe and target mapping is provided here; leave native supplies unchanged.
+  - products: [zinc, rare earth oxides, graphite, tin, manganese, magnesium, rhodium]
+    reason: >-
+      No jointly verified same-product secondary recipe and appropriate future
+      recycled-input trajectory has been approved. Refined-zinc targets do not
+      apply to zinc concentrate; tin needs a complete recycling chain. New
+      precious-metal refinery data are a candidate, not an imported inventory. Leave
+      native supplies unchanged; see docs/metals_literature_review.md.
   - products: [steel, "steel, low-alloyed", "steel, unalloyed", "steel, chromium steel 18/8", "steel, chromium steel 18/10"]
     reason: All steel mixes and production routes remain endogenous to REMIND or the selected EDM-I model; no exogenous steel share overrides are permitted.

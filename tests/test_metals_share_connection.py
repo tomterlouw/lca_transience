@@ -8,8 +8,11 @@ import unittest
 
 import yaml
 
-from metals_scenario_policy import MetalPolicyError, MetalSteelPolicy, StaleMetalPolicyError, plan_database
-from tests.test_metals_scenario_policy import configuration, inventory, market
+from metals_scenario_policy import (
+    MetalPolicyError, MetalSteelPolicy, StaleMetalPolicyError, apply_database,
+    classify_supply, plan_database,
+)
+from tests.test_metals_scenario_policy import configuration, exchange, inventory, market
 
 
 class ShareConnectionTests(unittest.TestCase):
@@ -158,6 +161,378 @@ class ShareConnectionTests(unittest.TestCase):
         revised["copper, cathode"]["shares"]["primary"][2050] = 0.7499995
         self.write(self.selected_path, revised)
         self.assertAlmostEqual(self.selected(nonferrous_case="high_recycling").rules[0]["targets"]["high_recycling"][2050], 0.25)
+
+
+class PinnedSecondarySupplyTests(unittest.TestCase):
+    """Pinned provider identities do not import vendor behaviour or share weights."""
+
+    def setUp(self):
+        self.directory_context = tempfile.TemporaryDirectory()
+        self.directory = Path(self.directory_context.name)
+        self.addCleanup(self.directory_context.cleanup)
+        self.policy_path = self.directory / "policy.yaml"
+        self.source_path = self.directory / "upstream" / "secondary_supply_activities.yaml"
+        self.source_path.parent.mkdir()
+        self.provenance_path = self.source_path.with_name("provenance.json")
+        self.config = configuration()
+        self.rule = self.config["markets"][0]
+        self.rule["secondary_source_product"] = "copper, cathode"
+        self.config["secondary_supply_source"] = {
+            "file": "upstream/secondary_supply_activities.yaml", "provenance": "upstream/provenance.json",
+        }
+        self.source = {"copper, cathode": [{
+            "name": {"all": [{"startswith": "treatment of copper scrap"}, {"contains": "refining"}]},
+            "reference product": {"equals": "copper, cathode"},
+            "location": {"any": [{"equals": "World"}, {"equals": "RER"}]},
+            "shares": {2020: 1.0},
+        }]}
+        self.write_source()
+
+    def write_source(self):
+        self.source_path.write_text(yaml.safe_dump(self.source, sort_keys=False), encoding="utf-8")
+        self.provenance = {"schema_version": 1, "commit": "d" * 40, "files": {
+            "secondary_supply_activities.yaml": {"local_file": self.source_path.name,
+                                                  "sha256": sha256(self.source_path.read_bytes()).hexdigest()},
+        }}
+        self.provenance_path.write_text(json.dumps(self.provenance), encoding="utf-8")
+        self.policy_path.write_text(yaml.safe_dump(self.config, sort_keys=False), encoding="utf-8")
+
+    def selected(self, case="high_recycling"):
+        self.policy_path.write_text(yaml.safe_dump(self.config, sort_keys=False), encoding="utf-8")
+        return MetalSteelPolicy.from_file(self.policy_path, nonferrous_case=case)
+
+    def test_nonbaseline_loads_pinned_hash_dependencies_and_exports_receipt(self):
+        selected = self.selected()
+        self.assertEqual(set(selected.source_hashes), {
+            str(self.policy_path.resolve()), str(self.source_path.resolve()), str(self.provenance_path.resolve()),
+        })
+        receipt = selected.describe()["secondary_supply_sources"][0]
+        self.assertEqual(receipt["commit"], "d" * 40)
+        self.assertEqual(receipt["source_product"], "copper, cathode")
+        self.assertFalse(receipt["source_weights_applied"])
+        self.assertEqual(receipt["selector_count"], 1)
+        plan = plan_database(inventory(market()), selected, scenario={"year": 2050})
+        self.assertEqual(plan.audit[0]["secondary_supply_source_sha256"], receipt["sha256"])
+
+    def test_native_baseline_does_not_open_optional_upstream_sources(self):
+        self.source_path.unlink()
+        self.provenance_path.unlink()
+        selected = self.selected("baseline")
+        self.assertEqual(set(selected.source_hashes), {str(self.policy_path.resolve())})
+        self.assertEqual(plan_database(inventory(market()), selected, scenario={"year": 2050}).changes, ())
+
+    def test_all_selector_fields_must_match_and_unlisted_recycling_is_unknown(self):
+        selected = self.selected()
+        rule = selected.rules[0]
+        supplied = exchange("treatment of copper scrap, refining", 0.2)
+        self.assertEqual(classify_supply(supplied, rule), "secondary")
+        supplied["location"] = "RoW"
+        self.assertEqual(classify_supply(supplied, rule), "unknown")
+        supplied["name"] = "treatment of other copper waste"
+        self.assertEqual(classify_supply(supplied, rule), "unknown")
+        self.assertEqual(classify_supply(exchange("copper production, primary", 0.8), rule), "primary")
+        supplied["product"] = "copper, anode"
+        self.assertIsNone(classify_supply(supplied, rule))
+
+    def test_local_predicate_narrows_but_never_bypasses_upstream_selectors(self):
+        self.rule["secondary"] = {"names": ["treatment of copper scrap, refining, approved"]}
+        selected = self.selected()
+        rule = selected.rules[0]
+        self.assertEqual(classify_supply(exchange("treatment of copper scrap, refining, approved", 0.2), rule), "secondary")
+        self.assertEqual(classify_supply(exchange("treatment of copper scrap, refining, unreviewed", 0.2), rule), "unknown")
+        self.assertEqual(classify_supply(exchange("treatment of copper scrap, refining, approved", 0.2,
+                                                  location="RoW"), rule), "unknown")
+
+    def test_all_pinned_manifest_files_are_hash_checked_not_only_selected_map(self):
+        auxiliary = self.source_path.with_name("primary_secondary_split.yaml")
+        auxiliary.write_text("fixture: primary reference source\n", encoding="utf-8")
+        self.provenance["files"][auxiliary.name] = {
+            "local_file": auxiliary.name, "sha256": sha256(auxiliary.read_bytes()).hexdigest(),
+        }
+        self.provenance_path.write_text(json.dumps(self.provenance), encoding="utf-8")
+        selected = self.selected()
+        self.assertIn(str(auxiliary.resolve()), selected.source_hashes)
+        auxiliary.write_text("fixture: drift\n", encoding="utf-8")
+        with self.assertRaises(StaleMetalPolicyError):
+            selected.verify_sources()
+        with self.assertRaisesRegex(StaleMetalPolicyError, "provenance SHA256"):
+            self.selected()
+
+    def test_source_regional_weights_are_not_used_to_rebuild_recipe(self):
+        self.source["copper, cathode"] = [
+            {"name": {"equals": "treatment of copper scrap, refining"},
+             "reference product": {"equals": "copper, cathode"},
+             "location": {"equals": location}, "shares": {2020: weight}}
+            for location, weight in (("World", 0.999), ("RER", 0.001))
+        ]
+        self.write_source()
+        ds = market([exchange("copper production, primary", 0.8),
+                     exchange("treatment of copper scrap, refining", 0.1),
+                     exchange("treatment of copper scrap, refining", 0.1, location="RER")])
+        selected = self.selected()
+        plan = plan_database(inventory(ds), selected, scenario={"year": 2050})
+        out = apply_database(inventory(ds), plan)
+        self.assertAlmostEqual(out[0]["exchanges"][2]["amount"], 0.3)
+        self.assertAlmostEqual(out[0]["exchanges"][3]["amount"], 0.3)
+        self.assertAlmostEqual(plan.audit[0]["applied_supply_total"], 1.0)
+
+    def test_pinned_snapshot_and_provenance_cannot_drift(self):
+        selected = self.selected()
+        self.source_path.write_text(self.source_path.read_text() + "\n# drift\n", encoding="utf-8")
+        with self.assertRaises(StaleMetalPolicyError):
+            selected.verify_sources()
+        with self.assertRaisesRegex(StaleMetalPolicyError, "provenance SHA256"):
+            self.selected()
+        self.write_source()
+        self.provenance["commit"] = "moving-master"
+        self.provenance_path.write_text(json.dumps(self.provenance), encoding="utf-8")
+        with self.assertRaisesRegex(MetalPolicyError, "pinned 40-character commit"):
+            self.selected()
+
+    def test_empty_missing_unsupported_and_ambiguous_criteria_fail(self):
+        original = deepcopy(self.source)
+        variants = (
+            [], [{"name": {"equals": "treatment of copper scrap, refining"}}],
+            [{**original["copper, cathode"][0], "name": {"regex": ".*"}}],
+            [{**original["copper, cathode"][0], "name": {"contains": "scrap", "equals": "scrap"}}],
+            [{**original["copper, cathode"][0], "name": {"any": []}}],
+            original["copper, cathode"] * 2,
+        )
+        for records in variants:
+            with self.subTest(records=records):
+                self.source = {"copper, cathode": records}
+                self.write_source()
+                with self.assertRaises(MetalPolicyError):
+                    self.selected()
+
+    def test_overlapping_criteria_fail_on_actual_provider_instead_of_double_match(self):
+        self.source["copper, cathode"].append({
+            "name": {"startswith": "treatment of"}, "reference product": {"equals": "copper, cathode"},
+            "location": {"equals": "World"}, "shares": {2020: 0.0},
+        })
+        self.write_source()
+        selected = self.selected()
+        with self.assertRaisesRegex(MetalPolicyError, "ambiguous secondary-provider match"):
+            plan_database(inventory(market()), selected, scenario={"year": 2050})
+
+    def test_explicit_grade_whitelist_and_documented_interface_are_required(self):
+        self.source["copper, cathode"][0]["reference product"] = {"equals": "copper, anode"}
+        self.write_source()
+        with self.assertRaisesRegex(MetalPolicyError, "supply_products whitelist"):
+            self.selected()
+        self.rule["supply_products"] = ["copper, cathode", "copper, anode"]
+        with self.assertRaisesRegex(MetalPolicyError, "supply_product_note"):
+            self.selected()
+        self.rule["supply_product_note"] = "Fixture: explicitly declared upstream grade interface, not a conversion inventory."
+        selected = self.selected()
+        self.assertEqual(classify_supply(exchange("treatment of copper scrap, refining", 0.2,
+                                                  product="copper, anode"), selected.rules[0]), "secondary")
+
+    def test_opted_in_mapping_cannot_silently_bypass_source_loader(self):
+        with self.assertRaisesRegex(MetalPolicyError, "from_file"):
+            MetalSteelPolicy.from_mapping(self.config, nonferrous_case="high_recycling")
+        self.assertTrue(MetalSteelPolicy.from_mapping(self.config).baseline)
+
+    def test_primary_only_still_validates_provider_identities_but_never_reads_weights_as_target(self):
+        selected = self.selected("primary_only")
+        plan = plan_database(inventory(market()), selected, scenario={"year": 2050})
+        self.assertAlmostEqual(plan.audit[0]["applied_secondary_share"], 0.0)
+        self.assertIn(str(self.source_path.resolve()), selected.source_hashes)
+
+    def test_evidence_year_gate_prevents_unreviewed_minimum_interpolation(self):
+        self.rule["minimum_target_years"] = [2050]
+        selected = self.selected()
+        for year in (2025, 2030, 2040, 2045, 2060):
+            with self.subTest(year=year):
+                plan = plan_database(inventory(market()), selected, scenario={"year": year})
+                self.assertEqual(plan.changes, ())
+                self.assertEqual(plan.audit[0]["status"], "evidence_year_not_covered")
+                self.assertAlmostEqual(plan.audit[0]["applied_secondary_share"], 0.2)
+        covered = plan_database(inventory(market()), selected, scenario={"year": 2050})
+        self.assertEqual(len(covered.changes), 1)
+        self.assertAlmostEqual(covered.audit[0]["applied_secondary_share"], 0.6)
+
+    def test_evidence_year_gate_does_not_change_reference_primary_only_or_baseline(self):
+        self.rule["minimum_target_years"] = [2050]
+        for case, expected in (("reference", 0.2), ("primary_only", 0.0), ("baseline", 0.2)):
+            with self.subTest(case=case):
+                selected = self.selected(case)
+                plan = plan_database(inventory(market()), selected, scenario={"year": 2030})
+                self.assertNotEqual(plan.audit[0]["status"], "evidence_year_not_covered")
+                self.assertAlmostEqual(plan.audit[0]["applied_secondary_share"], expected)
+
+    def test_evidence_year_gate_rejects_empty_invalid_duplicate_or_nonfinite_years(self):
+        for years in ([], "2050", [2050, "2050"], [True], [float("nan")], [float("inf")], ["future"]):
+            with self.subTest(years=years):
+                self.rule["minimum_target_years"] = years
+                with self.assertRaises(MetalPolicyError):
+                    self.selected()
+
+
+class RealRepositoryLithiumExtensionTests(unittest.TestCase):
+    """Real reviewed policy/targets, synthetic inventories and no Brightway I/O."""
+
+    root = Path(__file__).resolve().parents[1]
+    policy_path = root / "configuration_file" / "metals_scenario_policy.yaml"
+
+    @staticmethod
+    def lithium_market(*, secondary_share=0.000840414604538239, location="World"):
+        product = "lithium carbonate, battery grade"
+        name = "market for " + product
+        return {"name": name, "reference product": product, "unit": "kilogram", "location": location,
+                "exchanges": [
+                    {"name": name, "amount": 1, "product": product, "unit": "kilogram",
+                     "location": location, "type": "production"},
+                    exchange("lithium carbonate production, from brine", 1 - secondary_share,
+                             product=product, location="CL"),
+                    exchange("treatment of used Li-ion battery, hydrometallurgical treatment", secondary_share,
+                             product="lithium carbonate", location="GLO"),
+                    exchange("transport, freight", 0.01, product="transport", unit="ton kilometer"),
+                    {"name": "Carbon dioxide, fossil", "type": "biosphere", "amount": 0.03},
+                ]}
+
+    def policy(self, case="baseline"):
+        return MetalSteelPolicy.from_file(self.policy_path, nonferrous_case=case)
+
+    def test_real_baseline_remains_ten_rule_audit_only_with_no_upstream_dependency(self):
+        selected = self.policy()
+        self.assertEqual(len(selected.rules), 10)
+        self.assertEqual(set(selected.source_hashes), {str(self.policy_path.resolve())})
+        ds = self.lithium_market()
+        db = inventory(ds)
+        before = deepcopy(db)
+        plan = plan_database(db, selected, scenario={"year": 2050})
+        self.assertEqual(plan.changes, ())
+        self.assertEqual(apply_database(db, plan, policy=selected), before)
+
+    def test_real_2050_literature_endpoints_drive_both_supply_groups(self):
+        for case, expected in (("conservative", 250 / 1122), ("moderate_recycling", 250 / 1122),
+                               ("high_recycling", 560 / 1501)):
+            with self.subTest(case=case):
+                selected = self.policy(case)
+                ds = self.lithium_market()
+                db = inventory(ds)
+                plan = plan_database(db, selected, scenario={"year": 2050})
+                self.assertEqual(len(plan.changes), 1)
+                self.assertAlmostEqual(plan.audit[0]["applied_secondary_share"], expected)
+                revised = apply_database(db, plan, policy=selected)[0]
+                self.assertAlmostEqual(revised["exchanges"][1]["amount"], 1 - expected)
+                self.assertAlmostEqual(revised["exchanges"][2]["amount"], expected)
+                self.assertAlmostEqual(sum(exc["amount"] for exc in revised["exchanges"][1:3]), 1)
+                self.assertEqual(revised["exchanges"][3:], ds["exchanges"][3:])
+
+    def test_real_minimum_cases_interpolate_linearly_in_intermediate_years(self):
+        reference = 0.000840414604538239
+        for case, endpoint in (("conservative", 250 / 1122), ("moderate_recycling", 250 / 1122),
+                               ("high_recycling", 560 / 1501)):
+            selected = self.policy(case)
+            rule = next(rule for rule in selected.rules if rule["id"] == "lithium_carbonate_battery_grade")
+            self.assertNotIn("minimum_target_years", rule)
+            self.assertEqual(set(rule["targets"][case]), {2020, 2050})
+            self.assertAlmostEqual(rule["targets"][case][2020], reference)
+            self.assertAlmostEqual(rule["targets"][case][2050], endpoint)
+            for year in (2025, 2030, 2035, 2040, 2045, 2050):
+                with self.subTest(case=case, year=year):
+                    ds = self.lithium_market()
+                    # Preserve the market's gross material demand, including
+                    # distribution losses, rather than normalising it to output.
+                    for exchange_row in ds["exchanges"][1:3]:
+                        exchange_row["amount"] *= 1.01
+                    db = inventory(ds)
+                    expected = reference + (endpoint - reference) * (year - 2020) / 30
+                    plan = plan_database(db, selected, scenario={"year": year})
+                    self.assertEqual(len(plan.changes), 1)
+                    self.assertNotEqual(plan.audit[0]["status"], "evidence_year_not_covered")
+                    self.assertAlmostEqual(plan.audit[0]["target_secondary_share"], expected)
+                    self.assertAlmostEqual(plan.audit[0]["applied_secondary_share"], expected)
+                    revised = apply_database(db, plan, policy=selected)[0]
+                    self.assertAlmostEqual(revised["exchanges"][1]["amount"], 1.01 * (1 - expected))
+                    self.assertAlmostEqual(revised["exchanges"][2]["amount"], 1.01 * expected)
+                    self.assertAlmostEqual(sum(exc["amount"] for exc in revised["exchanges"][1:3]), 1.01)
+                    self.assertEqual(revised["exchanges"][3:], ds["exchanges"][3:])
+
+    def test_real_minimum_curves_clamp_to_2020_and_2050_endpoints(self):
+        reference = 0.000840414604538239
+        for case, endpoint in (("conservative", 250 / 1122), ("moderate_recycling", 250 / 1122),
+                               ("high_recycling", 560 / 1501)):
+            selected = self.policy(case)
+            for year, expected in ((2015, reference), (2020, reference), (2050, endpoint), (2055, endpoint)):
+                with self.subTest(case=case, year=year):
+                    plan = plan_database(inventory(self.lithium_market()), selected, scenario={"year": year})
+                    self.assertAlmostEqual(plan.audit[0]["target_secondary_share"], expected)
+                    self.assertAlmostEqual(plan.audit[0]["applied_secondary_share"], expected)
+
+    def test_real_minimum_curves_preserve_higher_native_intermediate_shares(self):
+        for case in ("conservative", "moderate_recycling", "high_recycling"):
+            selected = self.policy(case)
+            for year in (2025, 2030, 2035, 2040, 2045):
+                with self.subTest(case=case, year=year):
+                    db = inventory(self.lithium_market(secondary_share=0.8))
+                    before = deepcopy(db)
+                    plan = plan_database(db, selected, scenario={"year": year})
+                    self.assertEqual(plan.changes, ())
+                    self.assertEqual(plan.audit[0]["status"], "already_satisfied")
+                    self.assertAlmostEqual(plan.audit[0]["applied_secondary_share"], 0.8)
+                    self.assertEqual(apply_database(db, plan, policy=selected), before)
+
+    def test_real_reference_and_primary_only_counterfactuals_are_explicit(self):
+        for case, expected in (("reference", 0.000840414604538239), ("primary_only", 0.0)):
+            with self.subTest(case=case):
+                selected = self.policy(case)
+                ds = self.lithium_market(secondary_share=0.1)
+                plan = plan_database(inventory(ds), selected, scenario={"year": 2030})
+                self.assertAlmostEqual(plan.audit[0]["applied_secondary_share"], expected)
+
+    def test_real_policy_keeps_steel_unrelated_products_and_higher_native_shares(self):
+        selected = self.policy("high_recycling")
+        lithium = self.lithium_market(secondary_share=0.8)
+        steel = market(steel=True)
+        unreviewed = {"name": "market for rhodium", "reference product": "rhodium", "unit": "kilogram",
+                      "location": "World", "exchanges": []}
+        db = inventory(lithium) + [steel, unreviewed]
+        before = deepcopy(db)
+        plan = plan_database(db, selected, scenario={"year": 2050})
+        self.assertEqual(plan.changes, ())
+        self.assertEqual(plan.stats["matched_markets"], 1)
+        self.assertEqual(plan.audit[0]["status"], "already_satisfied")
+        self.assertEqual(apply_database(db, plan, policy=selected), before)
+
+    def test_original_five_high_targets_remain_unchanged(self):
+        selected = self.policy("high_recycling")
+        expected = {"aluminium, cast alloy": 0.70, "copper, cathode": 0.45, "nickel, class 1": 0.30,
+                    "cobalt": 0.40, "lead": 0.85}
+        observed = {rule["reference product"]: rule["targets"]["high_recycling"][2050]
+                    for rule in selected.rules if rule["reference product"] in expected}
+        self.assertEqual(observed, expected)
+
+    def test_pinned_source_and_provenance_hashes_are_verified_dependencies(self):
+        selected = self.policy("high_recycling")
+        directory = self.root / "configuration_file" / "upstream" / "premise_metals"
+        provenance_path = directory / "provenance.json"
+        provenance = json.loads(provenance_path.read_text(encoding="utf-8"))
+        self.assertEqual(provenance["commit"], "d5362d8ce1df66c20c7e71c91051a1b88e46c583")
+        expected = {
+            "secondary_supply_activities.yaml": "7fa070cf59aae49260d8464e6e7315bed521edfe919ccb591e2eddef5147ed65",
+            "primary_secondary_split.yaml": "cb56e74eb4ce0fa2d24cc96f6eacc681df2a6989c4edb7e1cbe346ebea54c8e1",
+        }
+        for name, fingerprint in expected.items():
+            path = directory / name
+            self.assertEqual(sha256(path.read_bytes()).hexdigest(), fingerprint)
+            self.assertEqual(provenance["files"][name]["sha256"], fingerprint)
+            self.assertEqual(selected.source_hashes[str(path.resolve())], fingerprint)
+        self.assertEqual(selected.source_hashes[str(provenance_path.resolve())],
+                         sha256(provenance_path.read_bytes()).hexdigest())
+        selected.verify_sources()
+
+    def test_real_exact_li_recovery_refines_broad_upstream_treatment_pattern(self):
+        selected = self.policy("high_recycling")
+        rule = next(rule for rule in selected.rules if rule["reference product"] == "lithium carbonate, battery grade")
+        known = self.lithium_market()["exchanges"][2]
+        self.assertEqual(classify_supply(known, rule), "secondary")
+        unreviewed = dict(known, name="treatment of unrelated lithium-bearing waste")
+        self.assertEqual(classify_supply(unreviewed, rule), "unknown")
+        foreign = dict(known, location="RER")
+        self.assertEqual(classify_supply(foreign, rule), "unknown")
 
 
 if __name__ == "__main__":

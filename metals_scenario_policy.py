@@ -192,6 +192,126 @@ def _is_steel_rule(rule):
     return rule.get("sector") == "steel" or any(re.search(r"\bsteel\b", str(label), flags=re.IGNORECASE) for label in labels)
 
 
+def _validate_supplier_condition(condition, label):
+    """Validate the small, explicit selector grammar in premise's data file."""
+    if not isinstance(condition, dict) or len(condition) != 1:
+        raise MetalPolicyError(f"{label}: supplier conditions need exactly one supported operator")
+    operator, value = next(iter(condition.items()))
+    if operator in {"equals", "startswith", "contains"}:
+        if not isinstance(value, str) or not value.strip():
+            raise MetalPolicyError(f"{label}: {operator} needs a nonempty string")
+    elif operator in {"all", "any"}:
+        if not isinstance(value, list) or not value:
+            raise MetalPolicyError(f"{label}: {operator} needs a nonempty condition list")
+        for index, child in enumerate(value):
+            _validate_supplier_condition(child, f"{label}/{operator}/{index}")
+    else:
+        raise MetalPolicyError(f"{label}: unsupported supplier operator {operator!r}")
+
+
+def _matches_supplier_condition(value, condition):
+    operator, operand = next(iter(condition.items()))
+    if operator == "all":
+        return all(_matches_supplier_condition(value, child) for child in operand)
+    if operator == "any":
+        return any(_matches_supplier_condition(value, child) for child in operand)
+    if not isinstance(value, str):
+        return False
+    if operator == "equals":
+        return value == operand
+    if operator == "startswith":
+        return value.startswith(operand)
+    return operand in value
+
+
+def _validated_supplier_selectors(records, rule, label):
+    if not isinstance(records, list) or not records:
+        raise MetalPolicyError(f"{label}: a nonempty secondary-provider list is required")
+    fields = ("name", "reference product", "location")
+    result, seen = [], set()
+    allowed_products = _strings(rule.get("supply_products", (rule["reference product"],)))
+    for index, record in enumerate(records):
+        if not isinstance(record, dict) or set(record) - {*fields, "shares"} or not all(field in record for field in fields):
+            raise MetalPolicyError(f"{label}/{index}: secondary providers require name, reference product and location selectors")
+        selector = {field: deepcopy(record[field]) for field in fields}
+        for field, condition in selector.items():
+            _validate_supplier_condition(condition, f"{label}/{index}/{field}")
+        if not any(_matches_supplier_condition(product, selector["reference product"]) for product in allowed_products):
+            raise MetalPolicyError(f"{label}/{index}: supplier product is not in the explicit supply_products whitelist")
+        if "shares" in record:
+            _validate_share_specification(record["shares"], f"{label}/{index}/shares", regional=False)
+        fingerprint = _digest(selector)
+        if fingerprint in seen:
+            raise MetalPolicyError(f"{label}: duplicate/ambiguous secondary-provider selectors")
+        seen.add(fingerprint)
+        result.append(selector)
+    return result
+
+
+def _load_secondary_supply_data(config, policy_path, nonferrous_case, source_hashes):
+    """Load pinned provider selectors, never their within-secondary weights.
+
+    Native baseline does not read optional source files. Opted-in sensitivity
+    rules use this repo-owned snapshot, rather than whichever premise release
+    happens to be installed. Existing technology/location weights are preserved.
+    """
+    if config.get("nonferrous_cases", {}).get(nonferrous_case, {}).get("mode") == "native":
+        return
+    rules = [rule for rule in config.get("markets", []) if isinstance(rule, dict) and "secondary_source_product" in rule]
+    if not rules:
+        return
+    specification = config.get("secondary_supply_source")
+    if not isinstance(specification, dict) or not specification.get("file"):
+        raise MetalPolicyError("Opted-in secondary rules require secondary_supply_source.file")
+
+    def resolve(name):
+        path = Path(name)
+        return path.resolve() if path.is_absolute() else (policy_path.parent / path).resolve()
+
+    source_path = resolve(specification["file"])
+    source = _read_share_document(source_path, source_hashes)
+    receipt = {"path": str(source_path), "sha256": source_hashes[str(source_path)]}
+    if specification.get("provenance"):
+        provenance_path = resolve(specification["provenance"])
+        provenance = _read_share_document(provenance_path, source_hashes)
+        if provenance.get("schema_version") != 1 or not re.fullmatch(r"[a-fA-F0-9]{40}", str(provenance.get("commit", ""))):
+            raise MetalPolicyError("Secondary-supply provenance requires schema_version: 1 and a pinned 40-character commit")
+        files = provenance.get("files")
+        if not isinstance(files, dict):
+            raise MetalPolicyError("Secondary-supply provenance requires a files mapping")
+        matching = []
+        for entry in files.values():
+            if not isinstance(entry, dict) or not entry.get("local_file"):
+                raise MetalPolicyError("Secondary-supply provenance file entries require local_file and sha256")
+            local = Path(entry["local_file"])
+            local = local.resolve() if local.is_absolute() else (provenance_path.parent / local).resolve()
+            declared = entry.get("sha256")
+            if not isinstance(declared, str) or not re.fullmatch(r"[a-fA-F0-9]{64}", declared):
+                raise MetalPolicyError(f"Pinned source {local}: provenance requires a SHA256")
+            try:
+                observed = sha256(local.read_bytes()).hexdigest()
+            except OSError as error:
+                raise MetalPolicyError(f"Pinned source is unavailable: {local}") from error
+            if observed != declared:
+                raise StaleMetalPolicyError(f"Pinned secondary-supply snapshot does not match its provenance SHA256: {local}")
+            source_hashes[str(local)] = observed
+            if local == source_path:
+                matching.append(entry)
+        if len(matching) != 1 or matching[0].get("sha256") != receipt["sha256"]:
+            raise StaleMetalPolicyError("Pinned secondary-supply snapshot does not match its provenance SHA256")
+        receipt.update(commit=provenance["commit"], provenance_path=str(provenance_path),
+                       provenance_sha256=source_hashes[str(provenance_path)])
+    for rule in rules:
+        product = rule["secondary_source_product"]
+        if not isinstance(product, str) or product not in source:
+            raise MetalPolicyError(f"Secondary-supply source has no product {product!r} for {rule.get('id')!r}")
+        rule["_secondary_supply_selectors"] = _validated_supplier_selectors(source[product], rule, product)
+        rule["secondary_supply_source"] = {**receipt, "source_product": product,
+                                           "selector_count": len(rule["_secondary_supply_selectors"]),
+                                           "source_weights_applied": False}
+    config["_secondary_supply_provenance"] = receipt
+
+
 def _reject_exogenous_steel(config, steel_case="baseline"):
     message = "Steel supply remains endogenous to IAM/EDM-I. Exogenous steel cases, rules and share files are not supported; remove the steel override configuration and use steel_case='baseline' only for backward compatibility"
     if steel_case != "baseline":
@@ -330,6 +450,7 @@ class MetalSteelPolicy:
         if isinstance(configuration, dict):
             _reject_exogenous_steel(configuration, steel_case)
             _load_share_data(configuration, policy_path, nonferrous_case, source_hashes)
+            _load_secondary_supply_data(configuration, policy_path, nonferrous_case, source_hashes)
         return cls.from_mapping(configuration, nonferrous_case=nonferrous_case, steel_case=steel_case,
                                 path=policy_path, source_hashes=source_hashes)
 
@@ -365,6 +486,26 @@ class MetalSteelPolicy:
                 raise MetalPolicyError(f"Rule {rule['id']!r}: only kilogram material markets can be adjusted")
             if rule["sector"] == "nonferrous" and any(term in rule["reference product"].lower() for term in ("ore", "concentrate", "primary")):
                 raise MetalPolicyError(f"Rule {rule['id']!r}: ores, concentrates and explicit-primary products cannot be recycling markets")
+            if "strict_secondary_matching" in rule and not isinstance(rule["strict_secondary_matching"], bool):
+                raise MetalPolicyError(f"Rule {rule['id']}: strict_secondary_matching must be boolean")
+            if "primary_remainder_names" in rule:
+                names = rule["primary_remainder_names"]
+                if (not isinstance(names, list) or not names
+                        or any(not isinstance(name, str) or not name.strip() or name != name.strip() for name in names)
+                        or len(set(names)) != len(names)):
+                    raise MetalPolicyError(f"Rule {rule['id']}: primary_remainder_names needs unique exact activity names")
+                if not isinstance(rule.get("primary_remainder_note"), str) or not rule["primary_remainder_note"].strip():
+                    raise MetalPolicyError(f"Rule {rule['id']}: primary_remainder_names requires primary_remainder_note")
+                if not rule.get("secondary") or any(_predicate(name, rule["secondary"]) for name in names):
+                    raise MetalPolicyError(f"Rule {rule['id']}: primary remainder must not overlap the explicit secondary predicate")
+            if "minimum_target_years" in rule:
+                years = rule["minimum_target_years"]
+                if not isinstance(years, list) or not years or any(isinstance(year, bool) for year in years):
+                    raise MetalPolicyError(f"Rule {rule['id']}: minimum_target_years must be a nonempty list of finite unique years")
+                normalized = [_float(year, f"{rule['id']}/minimum_target_years") for year in years]
+                if len(set(normalized)) != len(normalized):
+                    raise MetalPolicyError(f"Rule {rule['id']}: minimum_target_years must contain unique years")
+                rule["minimum_target_years"] = normalized
             targets = rule.get("targets", {})
             if not isinstance(targets, dict):
                 raise MetalPolicyError(f"Rule {rule['id']}: targets must map case names to share specifications")
@@ -377,6 +518,19 @@ class MetalSteelPolicy:
                 if key in rule:
                     _validate_share_specification(rule[key], f"{rule['id']}/{key}")
             selected = nonferrous_case if rule["sector"] == "nonferrous" else steel_case
+            if "secondary_source_product" in rule:
+                if not isinstance(rule["secondary_source_product"], str) or not rule["secondary_source_product"].strip():
+                    raise MetalPolicyError(f"Rule {rule['id']}: secondary_source_product must be a nonempty product key")
+                products = _strings(rule.get("supply_products", (rule["reference product"],)))
+                if any(product != rule["reference product"] for product in products) and not (
+                        "supply_products" in rule and isinstance(rule.get("supply_product_note"), str)
+                        and rule["supply_product_note"].strip()):
+                    raise MetalPolicyError(f"Rule {rule['id']}: a secondary product-grade interface needs explicit supply_products and supply_product_note")
+                selectors = rule.get("_secondary_supply_selectors")
+                if cases[selected]["mode"] != "native" and selectors is None:
+                    raise MetalPolicyError(f"Rule {rule['id']}: load pinned secondary providers with MetalSteelPolicy.from_file() before applying a sensitivity")
+                if selectors is not None:
+                    _validated_supplier_selectors(selectors, rule, rule["secondary_source_product"])
             if cases[selected]["mode"] in ("minimum", "target") and selected not in targets and selected != "primary_only":
                 raise MetalPolicyError(f"Rule {rule['id']}: missing target for selected case {selected!r}")
         fingerprint = _digest({"configuration": config, "nonferrous_case": nonferrous_case, "steel_case": steel_case})
@@ -403,7 +557,18 @@ class MetalSteelPolicy:
                 "native_baseline": self.baseline, "policy_sha256": self.fingerprint,
                 "policy_file": str(self.path) if self.path else None, "output_suffix": self.case_suffix,
                 "market_rules": len(self.rules),
-                "share_data_sources": deepcopy(self.configuration.get("_share_data_provenance", []))}
+                "share_data_sources": deepcopy(self.configuration.get("_share_data_provenance", [])),
+                "secondary_supply_sources": [deepcopy(rule["secondary_supply_source"]) for rule in self.rules
+                                             if rule.get("secondary_supply_source")],
+                "scientific_assumptions": {rule["id"]: {
+                    "evidence_ids": list(rule.get("evidence", [])),
+                    "evidence_details": {key: deepcopy(self.configuration.get("metadata", {}).get("sources", {}).get(key, {}))
+                                         for key in rule.get("evidence", [])},
+                    "target_note": rule.get("target_note"),
+                    "secondary_matching_note": rule.get("secondary_matching_note"),
+                    "primary_remainder_names": list(rule.get("primary_remainder_names", [])),
+                    "primary_remainder_note": rule.get("primary_remainder_note")}
+                    for rule in self.rules}}
 
     def case_name(self, sector):
         return self.nonferrous_case if sector == "nonferrous" else self.steel_case
@@ -476,8 +641,32 @@ def classify_supply(exchange: Mapping, rule: Mapping) -> str | None:
     text = name.lower()
     if text.startswith(("market for ", "market group for ")):
         return "aggregate"
-    if _predicate(name, rule.get("secondary")) or (not rule.get("secondary") and any(term in text for term in SECONDARY_TERMS)):
+    # A documented exact-name exception can retain unresolved refinery residues
+    # in the non-secondary remainder without pretending they are recycled metal.
+    if name in rule.get("primary_remainder_names", ()):
+        return "primary"
+    selectors = rule.get("_secondary_supply_selectors")
+    if selectors is not None:
+        values = {"name": name, "reference product": exchange.get("product", exchange.get("reference product")),
+                  "location": exchange.get("location")}
+        matches = [selector for selector in selectors if all(
+            _matches_supplier_condition(values[field], condition) for field, condition in selector.items())]
+        if len(matches) > 1:
+            raise MetalPolicyError(f"Rule {rule.get('id')}: ambiguous secondary-provider match for {_exc_identity(exchange)!r}")
+        if matches:
+            # A local exact-name predicate may narrow a broad upstream selector;
+            # it can never bypass the pinned product/location criteria.
+            if rule.get("secondary") and not _predicate(name, rule["secondary"]):
+                return "unknown"
+            return "secondary"
+        # An unlisted recycling process is not evidence of primary production.
+        # Fail the plan rather than silently shifting that stream to primary.
+        if any(term in text for term in SECONDARY_TERMS):
+            return "unknown"
+    elif _predicate(name, rule.get("secondary")) or (not rule.get("secondary") and any(term in text for term in SECONDARY_TERMS)):
         return "secondary"
+    if rule.get("strict_secondary_matching") and any(term in text for term in SECONDARY_TERMS):
+        return "unknown"
     if _predicate(name, rule.get("primary")) or not rule.get("primary"):
         return "primary"
     return "unknown"
@@ -543,12 +732,32 @@ def _region_targeted(rule, settings, case, location):
     return True
 
 
-def _share_data_audit(rule):
+def _share_data_audit(rule, sources=None):
     receipt = rule.get("share_data_source", {})
+    provider_source = rule.get("secondary_supply_source", {})
     return {"share_data_case": receipt.get("case"), "share_data_path": receipt.get("path"),
             "share_data_sha256": receipt.get("sha256"), "share_data_source_product": receipt.get("source_product"),
             "share_data_targets": deepcopy(receipt.get("effective_targets")),
-            "share_data_manifest_sha256": receipt.get("manifest_sha256")}
+            "share_data_manifest_sha256": receipt.get("manifest_sha256"),
+            "secondary_supply_source_path": provider_source.get("path"),
+            "secondary_supply_source_sha256": provider_source.get("sha256"),
+            "secondary_supply_source_commit": provider_source.get("commit"),
+            "secondary_supply_source_product": provider_source.get("source_product"),
+            "secondary_source_weights_applied": provider_source.get("source_weights_applied"),
+            "evidence_ids": list(rule.get("evidence", [])),
+            "evidence_details": {key: deepcopy((sources or {}).get(key, {})) for key in rule.get("evidence", [])},
+            "target_note": rule.get("target_note"),
+            "secondary_matching_note": rule.get("secondary_matching_note"),
+            "primary_remainder_names": list(rule.get("primary_remainder_names", [])),
+            "primary_remainder_note": rule.get("primary_remainder_note")}
+
+
+def _audit_suppliers(groups):
+    return {f"applied_{role}_suppliers": [
+        {"name": exc.get("name"), "reference product": exc.get("product", exc.get("reference product")),
+         "location": exc.get("location"), "unit": exc.get("unit"), "amount": exc.get("amount")}
+        for _, exc in groups[role] if float(exc.get("amount", 0)) > 0]
+        for role in ("primary", "secondary")}
 
 
 def _groups(exchanges, rule):
@@ -751,13 +960,22 @@ def plan_database(database: Iterable[Mapping], policy: MetalSteelPolicy, *, scen
                "target_secondary_share": native_share, "applied_secondary_share": native_share,
                "status": "native_preserved", "warnings": "; ".join(warnings), "seeded_roles": "",
                "recipe_source_market": None, "recipe_source_exchanges_sha256": None,
-               "policy_sha256": policy.fingerprint, **_share_data_audit(rule)}
+               "policy_sha256": policy.fingerprint,
+               **_share_data_audit(rule, policy.configuration.get("metadata", {}).get("sources")),
+               **_audit_suppliers(groups)}
         if settings["mode"] == "native":
             if groups["aggregate"]:
                 row["status"] = "native_aggregate_preserved"
                 row["warnings"] += ("; " if row["warnings"] else "") + "Regional market hierarchy retained; aggregate inputs do not establish a recycled fraction"
             if not math.isclose(total, 1, rel_tol=0, abs_tol=1e-6) and not groups["aggregate"]:
                 row["warnings"] += ("; " if row["warnings"] else "") + "Native material inputs do not sum to 1 kg (not changed)"
+            audit.append(row)
+            continue
+        evidence_years = rule.get("minimum_target_years")
+        if settings["mode"] == "minimum" and evidence_years is not None and year not in evidence_years:
+            row["status"] = "evidence_year_not_covered"
+            row["minimum_target_years"] = list(evidence_years)
+            row["warnings"] += ("; " if row["warnings"] else "") + "No reviewed minimum-share target for this year; native supply retained without interpolation"
             audit.append(row)
             continue
         if not _region_targeted(rule, settings, case, dataset.get("location")):
@@ -813,6 +1031,7 @@ def plan_database(database: Iterable[Mapping], policy: MetalSteelPolicy, *, scen
             raise MetalPolicyError(f"{label}: planned material balance did not conserve native gross supply")
         row.update(status="planned", applied_secondary_share=after_secondary / after_total, applied_supply_total=after_total,
                    seeded_roles=", ".join(seeded_roles), changed_exchange_count=sum(a != b for a, b in zip(exchanges, revised)) + abs(len(revised) - len(exchanges)))
+        row.update(_audit_suppliers(revised_groups))
         if seeded_roles:
             row["recipe_source_market"] = activity_identity(reference)
             row["recipe_source_exchanges_sha256"] = _digest(list(reference.get("exchanges", [])))
@@ -822,7 +1041,8 @@ def plan_database(database: Iterable[Mapping], policy: MetalSteelPolicy, *, scen
         if rule["id"] not in observed_rules:
             audit.append({"rule_id": rule["id"], "sector": rule["sector"], "case": policy.case_name(rule["sector"]),
                           "status": "market_not_present", "name": rule["name"], "reference product": rule["reference product"],
-                          "year": year, "policy_sha256": policy.fingerprint, **_share_data_audit(rule)})
+                          "year": year, "policy_sha256": policy.fingerprint,
+                          **_share_data_audit(rule, policy.configuration.get("metadata", {}).get("sources"))})
     stats = {"matched_markets": len([row for row in audit if row["status"] != "market_not_present"]),
              "changed_markets": len(changes), "changed_exchanges": sum(row.get("changed_exchange_count", 0) for row in audit),
              "native_baseline": policy.baseline, "nonferrous_case": policy.nonferrous_case, "steel_case": policy.steel_case,
