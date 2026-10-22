@@ -233,6 +233,35 @@ markets:
       Lower/upper sensitivity around the literature 77% secondary-production
       figure. The same remelting/recovery burdens are retained, not credited away.
 
+  - id: lithium_carbonate_generic
+    sector: nonferrous
+    name: market for lithium carbonate
+    reference product: lithium carbonate
+    unit: kilogram
+    locations: [GLO]
+    source_product: lithium carbonate
+    supply_products: ["lithium carbonate"]
+    strict_secondary_matching: true
+    secondary:
+      names: ["treatment of used Li-ion battery, hydrometallurgical treatment"]
+    evidence: [iea_critical_minerals_2026, iea_recycling_2024]
+    secondary_matching_note: >-
+      Rescale only the positive same-product recovery supply already present
+      in the native GLO carbonate market. Preserve its full treatment inventory,
+      primary-route weights, gross supply and transport exchanges. Do not add
+      a recovery process, avoided-burden credit or battery-grade conversion.
+    target_note: >-
+      Apply the existing lithium evidence-family endpoints as global elemental-Li
+      representative-compound sensitivities, not verified carbonate forecasts.
+      The 2020 reference fraction 0.000840414604538239 is the inherited generic
+      carbonate share, confirmed in the exported ecoinvent 3.12 GLO market.
+      Minimum floors interpolate linearly from 2020 to 2050 and retain higher
+      native shares. Ordinary hydroxide benefits through its existing carbonate
+      input; no separate hydroxide floor or credit is added. Battery-grade GLO
+      carbonate/hydroxide remain native. Baseline is unchanged. Existing RELICS
+      Lithium-only factors do not cover Spodumene, so complete elemental-Li
+      extraction reductions cannot be inferred from that indicator alone.
+
   - id: lithium_carbonate_battery_grade
     sector: nonferrous
     name: market for lithium carbonate, battery grade

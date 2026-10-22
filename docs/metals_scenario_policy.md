@@ -93,10 +93,11 @@ selection. These derived files are for consistency/provenance.
 The folder's `.gitattributes` preserves YAML/CSV/JSON line endings so Git checkout
 conversion does not invalidate the manifest's exact-byte source hashes.
 The policy reads the selected named source. Generation covers the existing product table, whereas
-the LCI override deliberately remains restricted to ten reviewed product rules:
-the original five refined non-ferrous metals, World lithium carbonate, and
-gold, silver, platinum and palladium. Generating 103 product records does
-not make 103 recycling inventories or authorize 103 market overrides.
+the LCI override deliberately remains restricted to eleven reviewed market rules
+for ten metal families: the original five refined non-ferrous metals, two
+lithium-carbonate products, and gold, silver, platinum and palladium. The local
+104-product reference table includes the added generic carbonate; it is not a
+catalogue of 104 constructed recycling inventories or approved market overrides.
 
 Valid edits to the named conservative/baseline/optimistic YAML files are retained
 when upstream inputs are unchanged. They are recorded as manual outputs, and
@@ -128,7 +129,8 @@ for the active products, including observed precious-metal supply components,
 their denominator, the 2025 anchor and the separately labelled future
 sensitivities. These sheets are an explanatory snapshot, not an additional
 runtime control: edits there do not change the policy. The original 103-product
-`Shares` table and its reference values are retained. Default YAML mode consumes
+`Shares` reference values are retained, with one generic-carbonate record added
+to keep the 104-product local source consistent with YAML mode. Default YAML mode consumes
 the evidence/mapping CSVs and named YAMLs; XLSX mode reads `Shares` only.
 
 Changing a consumed named file, policy configuration or raw input
@@ -149,7 +151,7 @@ files remain under `export/metals_policy/`, not in the results directory.
 | Case | Meaning |
 |---|---|
 | `baseline` | Audit-only. Native premise output is unchanged. |
-| `reference` | Fixed documented 2020 recycled-input fractions for the ten configured products, within each rule's geographic scope. Future production/background inventories still apply. |
+| `reference` | Fixed documented 2020 recycled-input fractions for the eleven configured market rules, within each rule's geographic scope. Future production/background inventories still apply. |
 | `conservative` | Minimum recycled-input trajectory. Keep a higher native share rather than forcing it down. |
 | `moderate_recycling` | Minimum trajectory read from the historical generated baseline-data file. This is an explicit override, not native premise baseline. |
 | `high_recycling` | Higher minimum trajectory, subject to the same supplier/grade checks. This is a sensitivity, not a validated scrap forecast. |
@@ -166,6 +168,7 @@ second parameter store:
 | Nickel, class 1 | 0.2028465% | 20% | 25% | 30% |
 | Cobalt | 0.5716258% | 20% | 30% | 40% |
 | Lead | 54.9162034% | 65% | 77% | 85% |
+| Lithium carbonate, generic (GLO only) | 0.08404146% | approximately 22.3% | approximately 22.3% | approximately 37.3% |
 | Lithium carbonate, battery grade (World only) | 0.08404146% | approximately 22.3% | approximately 22.3% | approximately 37.3% |
 | Gold | 0.4426657% | 27.6660% | 37.6660% | 47.6660% |
 | Silver | 8.4636523% | 18.9236% | 28.9236% | 38.9236% |
@@ -178,8 +181,9 @@ percentage points**, respectively, as analyst-selected sensitivities. Those
 increments are not forecasts reported by the source organisations. The generated
 curves retain the catalogue's 2020 value, pass through a common observed 2025
 anchor, then interpolate linearly to the chosen 2050 endpoint. Reference still
-selects the fixed 2020 value; native baseline is unchanged. The first six products
-retain their previous values and 2020–2050 interpolation.
+selects the fixed 2020 value; native baseline is unchanged. The original six
+products retain their previous values and 2020–2050 interpolation; the added
+generic carbonate uses the same lithium-family endpoints and interval.
 
 ### Literature-reviewed extension, 20 October 2026
 
@@ -189,8 +193,9 @@ The existing World market already consumes recovered generic lithium carbonate
 from `treatment of used Li-ion battery, hydrometallurgical treatment`, GLO.
 The explicit `supply_products` interface retains that inherited grade proxy;
 it does not establish battery-grade purity or introduce an unmodelled upgrade.
-The GLO market is not overridden because a positive compatible secondary recipe
-was not verified there. The previous five product rules are unchanged.
+The **battery-grade GLO** market is not overridden because a positive compatible
+secondary recipe was not verified there. The previous five product rules are
+unchanged.
 
 The [IEA Global Critical Minerals Outlook 2026](https://www.iea.org/reports/global-critical-minerals-outlook-2026),
 pages 145 and 350, supports approximate 2050 ratios of `250 / 1122` in the
@@ -209,6 +214,43 @@ modelling assumption, not an IEA intermediate-year forecast. At every database
 year the applied fraction is `max(native_share, floor(year))`; a higher native
 share is never reduced. No `minimum_target_years` gate is enabled for lithium.
 `reference` and `primary_only` remain explicitly labelled counterfactuals.
+
+### Generic lithium carbonate and upstream hydroxide, 22 October 2026
+
+An audit of the current premise 2.5.5/ecoinvent 3.12 exported matrices found that
+the lithium markets actually used here are GLO, not World. The existing World
+battery-grade rule therefore did not change those markets. A separate
+`lithium_carbonate_generic` rule now targets exactly `market for lithium
+carbonate`, product `lithium carbonate`, kilogram, GLO. Its native positive
+recycling input is `treatment of used Li-ion battery, hydrometallurgical
+treatment`, product `lithium carbonate`, GLO. This is a same-product interface,
+not an extension of the battery-grade equivalence proxy.
+
+The local reference fraction is approximately 0.08404146%, documented from the
+existing generic-carbonate recipe. The same elemental-Li evidence and linear
+2020–2050 sensitivity are reused for this compound market. Only its existing
+primary/secondary supply quantities are reweighted; the recovery inventory,
+its energy/material inputs and emissions, within-group provider weights and
+distribution exchanges remain intact. No burden-free recycled material, new
+recovery technology or avoided-burden credit is added. The audit records this
+rule's native, target and effective shares separately from battery-grade supply.
+
+Ordinary `lithium hydroxide production`, GLO, already consumes approximately
+**1.622797 kg of generic lithium carbonate per kg hydroxide** in the inspected
+matrices. Its burdens therefore change upstream through the carbonate market;
+there is no separate hydroxide share target, invented hydroxide recycling
+supplier or second credit. This coefficient describes the current inventory,
+not a hard-coded policy conversion. Battery-grade hydroxide and battery-grade
+GLO carbonate remain native; direct primary-producer links are not silently
+rerouted through the generic market.
+
+Re-export with a fresh builder in notebook 1 and recalculate in notebook 2.
+Existing archives/results do not change automatically. The selected RELICS
+`Lithium` method in the inspected setup characterizes the `Lithium` resource
+flow but not `Spodumene`; it is therefore not a complete elemental-lithium
+extraction indicator across these routes. Connecting generic carbonate does
+not resolve that separate LCIA coverage issue or guarantee a large reduction
+in the currently reported lithium result.
 
 Pinned premise supplier selectors and their SHA256 provenance are stored under
 `configuration_file/upstream/premise_metals`, from commit
@@ -271,8 +313,8 @@ recycled content in every region. For example, the actual exported copper market
 has approximately 19.93% secondary supply; `reference` intentionally uses the
 documented 20% reference setting. `baseline` retains the actual native recipe.
 
-For the original six products, linear interpolation between 2020 and 2050 supplies
-the floor `f(year)`. Precious-metal curves additionally pass through the 2025
+For the original six products and generic lithium carbonate, linear interpolation
+between 2020 and 2050 supplies the floor `f(year)`. Precious-metal curves additionally pass through the 2025
 anchor and use piecewise-linear interpolation. Both clamp to endpoint values
 outside their covered interval. The effective share is
 `max(native_share, f(year))`. Thus selecting a conservative case cannot turn

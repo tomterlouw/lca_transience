@@ -85,7 +85,7 @@ class MetalsNotebookTest(unittest.TestCase):
         controls = notebook_controls()
         namespace = {}
         with patch("primary_vs_secondary_metals.share_files.prepare_policy_share_data",
-                   return_value={"status": "fixture_read_only", "product_count": 103}) as prepare, contextlib.redirect_stdout(io.StringIO()):
+                   return_value={"status": "fixture_read_only", "product_count": 104}) as prepare, contextlib.redirect_stdout(io.StringIO()):
             exec(compile(controls, "metals_notebook_controls", "exec"), namespace)
             policy = namespace["selected_metal_steel_policy"]
             self.assertEqual((policy.nonferrous_case, policy.steel_case), ("baseline", "baseline"))
@@ -131,7 +131,7 @@ class MetalsNotebookTest(unittest.TestCase):
             namespace = {}
             # Import/validate the notebook's controls without any production-file writes.
             with patch("primary_vs_secondary_metals.share_files.prepare_policy_share_data",
-                       return_value={"status": "fixture_read_only", "product_count": 103}), contextlib.redirect_stdout(io.StringIO()):
+                       return_value={"status": "fixture_read_only", "product_count": 104}), contextlib.redirect_stdout(io.StringIO()):
                 exec(compile(controls, "metals_notebook_controls", "exec"), namespace)
             namespace["METALS_POLICY_FILE"] = policy_path
             namespace["NONFERROUS_METALS_SCENARIO"] = "high_recycling"
@@ -139,7 +139,7 @@ class MetalsNotebookTest(unittest.TestCase):
                 original_policy = namespace["load_selected_metal_steel_policy"]()
             selected_path = directory / "primary_secondary_split_optimistic.yaml"
             selected = yaml.safe_load(selected_path.read_text(encoding="utf-8"))
-            self.assertEqual(len(selected), 103)
+            self.assertEqual(len(selected), 104)
             selected["copper, cathode"]["shares"]["secondary"][2050] = 0.60
             selected["copper, cathode"]["shares"]["primary"][2050] = 0.40
             selected_path.write_text(yaml.safe_dump(selected), encoding="utf-8")

@@ -4,9 +4,9 @@ metadata:
   generator_version: 2
   source: yaml
   source_sha256:
-    metal_primary_secondary_shares.yaml: 73f8c17baf1f8962bb3d056e7a8163c8eca7397a41a8fc2f47acd7090f484d29
-    metal_2050_literature_evidence.csv: c74056a08d75d4ad40673842106f423f45e0c815ab13899b92066b472b2c2331
-    metal_product_family_mapping.csv: 5d92d5d6eac3fd4fc778c583554e56fc7ec2e64d5a616061bc833f46d0194d35
+    metal_primary_secondary_shares.yaml: f41a3918de338536106feb5e8a204456cb1276b89ce74fdb5153d122c0e27c42
+    metal_2050_literature_evidence.csv: 255082306f3c7b37e131cb7be5b90963f1d0db5d53c64203efe341d51b333a1c
+    metal_product_family_mapping.csv: d874e38e0f6abf827d6b287b39e0957213cdd6b1be41173458091a2b01d24c35
   scenario_files:
     conservative: primary_secondary_split_conservative.yaml
     baseline: primary_secondary_split_baseline.yaml
@@ -73,12 +73,17 @@ evidence:
     notes: '2050 endpoints: approximate secondary250kt / total1122kt Li in STEPS-context
       base case; 560kt /1501kt in HDS. Conservative and moderate deliberately share
       the same base endpoint. Numerators are rounded; do not interpret stored precision
-      as forecast accuracy. Global elemental-Li share is an explicit representative-compound
-      proxy for the existing World battery-grade carbonate market; native generic
-      recovered-carbonate interface retained without inventing purification. At the
-      user''s request the floor scales linearly from the 2020 reference to 2050 with
-      endpoint clamping and higher-native-share preservation; this is a modelling
-      assumption rather than a verified IEA intermediate-year recycling trajectory.'
+      as forecast accuracy. Global elemental-Li fractions are representative-compound
+      sensitivities for ordinary GLO carbonate and the existing World battery-grade
+      carbonate interface, not compound-grade forecasts. Preserve existing recovery
+      LCIs and burdens; no new purification or credit. Ordinary hydroxide benefits
+      only through its existing carbonate input; battery-grade GLO markets remain
+      native. The generic reference 0.000840414604538239 is the inherited carbonate
+      share confirmed in exported ecoinvent 3.12 GLO supply. At the user''s request
+      floors scale linearly from 2020 to 2050 with clamping and higher-native-share
+      preservation; not a verified IEA intermediate-year trajectory. Existing RELICS
+      Lithium-only factors omit Spodumene and do not measure complete elemental-Li
+      extraction.'
   graphite:
     conservative: 0.1
     baseline: 0.15
@@ -633,6 +638,16 @@ products:
         secondary:
           2020: 0.0
           2050: 0.0
+    lithium carbonate:
+      name: market for lithium carbonate
+      reference product: lithium carbonate
+      shares:
+        primary:
+          2020: 0.9991595853954618
+          2050: 0.7771836007130125
+        secondary:
+          2020: 0.000840414604538239
+          2050: 0.22281639928698752
     lithium carbonate, battery grade:
       name: market for lithium carbonate, battery grade
       reference product: lithium carbonate, battery grade
@@ -1674,6 +1689,16 @@ products:
         secondary:
           2020: 0.0
           2050: 0.0
+    lithium carbonate:
+      name: market for lithium carbonate
+      reference product: lithium carbonate
+      shares:
+        primary:
+          2020: 0.9991595853954618
+          2050: 0.7771836007130125
+        secondary:
+          2020: 0.000840414604538239
+          2050: 0.22281639928698752
     lithium carbonate, battery grade:
       name: market for lithium carbonate, battery grade
       reference product: lithium carbonate, battery grade
@@ -2715,6 +2740,16 @@ products:
         secondary:
           2020: 0.0
           2050: 0.0
+    lithium carbonate:
+      name: market for lithium carbonate
+      reference product: lithium carbonate
+      shares:
+        primary:
+          2020: 0.9991595853954618
+          2050: 0.6269153897401731
+        secondary:
+          2020: 0.000840414604538239
+          2050: 0.3730846102598268
     lithium carbonate, battery grade:
       name: market for lithium carbonate, battery grade
       reference product: lithium carbonate, battery grade

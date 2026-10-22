@@ -140,6 +140,7 @@ class ExportNotebookSafetyTest(unittest.TestCase):
                 super().__delitem__(name)
 
         registry = Registry({"target_CL": {}, "target_OCE": {}, "remind_2050_other": {}})
+        inventory_snapshot = object()
 
         class Builder:
             def __init__(self, **kwargs):
@@ -160,6 +161,8 @@ class ExportNotebookSafetyTest(unittest.TestCase):
                           {"model": "remind", "pathway": "test", "year": 2050}],
             "DB_NAME_INIT": "test_source", "EI_VERSION": "3.12",
             "KEY_PREMISE": "test_placeholder", "BIOSPHERE_DB": "test_biosphere",
+            "itom_inventory_snapshot": inventory_snapshot,
+            "verify_itom_inventory_snapshot": lambda snapshot: self.assertIs(snapshot, inventory_snapshot),
             "load_selected_metal_steel_policy": lambda: SimpleNamespace(case_suffix=""),
             "pd": SimpleNamespace(DataFrame=lambda rows: rows), "display": lambda rows: None,
         }
@@ -209,6 +212,7 @@ class ExportNotebookSafetyTest(unittest.TestCase):
         brightway = next(source for source in cells if "if create_dbs:" in source)
         package = next(source for source in cells if "if create_db_package:" in source)
         resource = object()
+        inventory_snapshot = object()
         definitions = [{"model": "remind", "pathway": "test", "year": 2050,
                         "external scenarios": [{"scenario": label, "data": resource}],
                         "applied functions": ["electricity", "external"],
@@ -242,7 +246,9 @@ class ExportNotebookSafetyTest(unittest.TestCase):
                      "pr": SimpleNamespace(NewDatabase=Builder, PathwaysDataPackage=Package),
                      "bd": SimpleNamespace(databases={}), "scenario_names": ["OCE", "CL"],
                      "scenarios": definitions, "DB_NAME_INIT": "test", "EI_VERSION": "3.12",
-                     "KEY_PREMISE": "placeholder", "BIOSPHERE_DB": "test"}
+                     "KEY_PREMISE": "placeholder", "BIOSPHERE_DB": "test",
+                     "itom_inventory_snapshot": inventory_snapshot,
+                     "verify_itom_inventory_snapshot": lambda snapshot: self.assertIs(snapshot, inventory_snapshot)}
         namespace.update(pd=SimpleNamespace(DataFrame=lambda rows: SimpleNamespace(head=lambda n: rows)),
                          display=lambda value: None, Path=Path,
                          PATHWAYS_PACKAGE_BASENAME="remind-transience_por",
@@ -267,6 +273,156 @@ class ExportNotebookSafetyTest(unittest.TestCase):
         self.assertEqual({item["year"] for item in packages[0].scenarios}, set(years))
         self.assertEqual(definitions[0]["_inventory_checkpoint"], "old_2050_cache")
         self.assertIsNot(packages[0].scenarios[0]["external scenarios"], definitions[0]["external scenarios"])
+
+
+class ReferenceDatabaseSafetyTest(unittest.TestCase):
+    """A rejected reference must not destroy any existing Brightway database."""
+
+    def run_reference_function(self, *, failure=None, target="reference"):
+        root = Path(__file__).resolve().parents[1]
+        notebook = json.loads((root / "1_export_packages.ipynb").read_text(encoding="utf-8"))
+        source = next("".join(cell["source"]) for cell in notebook["cells"]
+                      if cell["cell_type"] == "code"
+                      and "def generate_reference_database():" in "".join(cell["source"]))
+        function = next(node for node in ast.parse(source).body
+                        if isinstance(node, ast.FunctionDef)
+                        and node.name == "generate_reference_database")
+        events = []
+
+        class Registry(dict):
+            def __delitem__(self, name):
+                events.append(("delete", name))
+                super().__delitem__(name)
+
+        registry = Registry({"reference": {}, "reference_copy": {}, "source": {}, "other": {}})
+
+        class Builder:
+            def __init__(self, **kwargs):
+                events.append(("construct", kwargs))
+                if failure == "construct":
+                    raise RuntimeError("Synthetic reference construction failure")
+
+            def update(self):
+                raise AssertionError("Reference preparation must not run scenario transformations")
+
+            def write_db_to_brightway(self, *, name):
+                events.append(("write", name))
+
+        def preflight(builder):
+            self.assertIsInstance(builder, Builder)
+            events.append(("preflight", None))
+            if failure == "preflight":
+                raise RuntimeError("Synthetic reference validation failure")
+            return []
+
+        namespace = {
+            "bd": SimpleNamespace(
+                databases=registry,
+                projects=SimpleNamespace(set_current=lambda name: events.append(("project", name))),
+            ),
+            "pr": SimpleNamespace(
+                NewDatabase=Builder, clear_cache=lambda: events.append(("clear_cache", None)),
+            ),
+            "PROJECT_NAME": "test_project", "NAME_REF_DB": target,
+            "DB_NAME_INIT": "source", "EI_VERSION": "3.12",
+            "KEY_PREMISE": "placeholder", "BIOSPHERE_DB": "test_biosphere",
+        }
+        exec(compile(ast.Module(body=[function], type_ignores=[]), "reference_cell", "exec"), namespace)
+        with patch("premise_compat.preflight_reference_database_export", side_effect=preflight,
+                   create=True), contextlib.redirect_stdout(io.StringIO()):
+            if failure is not None:
+                with self.assertRaisesRegex(RuntimeError, "Synthetic reference"):
+                    namespace["generate_reference_database"]()
+            elif target == "source":
+                with self.assertRaisesRegex(ValueError, "differ from the source"):
+                    namespace["generate_reference_database"]()
+            else:
+                namespace["generate_reference_database"]()
+        return registry, events
+
+    def test_replacement_is_exact_and_follows_successful_preflight(self):
+        registry, events = self.run_reference_function()
+        self.assertEqual(set(registry), {"reference_copy", "source", "other"})
+        self.assertEqual([event[0] for event in events],
+                         ["project", "clear_cache", "construct", "preflight", "delete", "write"])
+        self.assertEqual(events[-2:], [("delete", "reference"), ("write", "reference")])
+
+    def test_failed_construction_preserves_all_existing_databases(self):
+        registry, events = self.run_reference_function(failure="construct")
+        self.assertEqual(set(registry), {"reference", "reference_copy", "source", "other"})
+        self.assertNotIn("delete", [event[0] for event in events])
+        self.assertNotIn("write", [event[0] for event in events])
+
+    def test_failed_validation_preserves_all_existing_databases(self):
+        registry, events = self.run_reference_function(failure="preflight")
+        self.assertEqual(set(registry), {"reference", "reference_copy", "source", "other"})
+        self.assertEqual(events[-1][0], "preflight")
+        self.assertNotIn("delete", [event[0] for event in events])
+        self.assertNotIn("write", [event[0] for event in events])
+
+    def test_reference_must_not_replace_source_database(self):
+        registry, events = self.run_reference_function(target="source")
+        self.assertEqual(set(registry), {"reference", "reference_copy", "source", "other"})
+        self.assertEqual(events, [])
+
+    def test_new_reference_does_not_delete_existing_databases(self):
+        registry, events = self.run_reference_function(target="new_reference")
+        self.assertEqual(set(registry), {"reference", "reference_copy", "source", "other"})
+        self.assertNotIn("delete", [event[0] for event in events])
+        self.assertEqual(events[-1], ("write", "new_reference"))
+
+
+class ReferencePreflightCompatibilityTest(unittest.TestCase):
+    def preflight(self, builder, events):
+        from premise_compat import preflight_reference_database_export
+
+        with patch("premise_compat.install_premise_source_duplicate_guard",
+                   side_effect=lambda **kwargs: events.append("install")), patch(
+                       "premise_compat.attach_native_inventory_export_guard",
+                       side_effect=lambda target: events.append(("attach", target))):
+            return preflight_reference_database_export(builder, verbose=False)
+
+    def test_older_builder_without_semantic_certification_remains_supported(self):
+        events = []
+        builder = SimpleNamespace(scenarios=[{}])
+        self.assertEqual(self.preflight(builder, events), [])
+        self.assertEqual(events, ["install", ("attach", builder)])
+
+    def test_each_reference_scenario_is_certified_and_checked(self):
+        events = []
+        scenarios = [{"year": 2025}, {"year": 2050}]
+        reports = [SimpleNamespace(raise_for_errors=lambda year=year:
+                                   events.append(("check", year))) for year in (2025, 2050)]
+
+        def certify(scenario):
+            events.append(("certify", scenario["year"]))
+            return reports[scenarios.index(scenario)]
+
+        builder = SimpleNamespace(scenarios=scenarios, _ensure_semantic_certification=certify)
+        self.assertEqual(self.preflight(builder, events), reports)
+        self.assertEqual(events[2:], [("certify", 2025), ("check", 2025),
+                                      ("certify", 2050), ("check", 2050)])
+
+    def test_native_validation_failures_propagate_without_resetting_cached_reports(self):
+        for failure_stage in ("certify", "report"):
+            with self.subTest(failure_stage=failure_stage):
+                events = []
+                cached = object()
+                scenario = {"_validation_report": cached}
+
+                def fail():
+                    raise RuntimeError("Native reference validation failed")
+
+                def certify(active):
+                    self.assertIs(active, scenario)
+                    if failure_stage == "certify":
+                        fail()
+                    return SimpleNamespace(raise_for_errors=fail)
+
+                builder = SimpleNamespace(scenarios=[scenario], _ensure_semantic_certification=certify)
+                with self.assertRaisesRegex(RuntimeError, "Native reference validation failed"):
+                    self.preflight(builder, events)
+                self.assertIs(scenario["_validation_report"], cached)
 
 
 if __name__ == "__main__":

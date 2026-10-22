@@ -92,12 +92,12 @@ class PreciousRepositoryPolicyTests(unittest.TestCase):
     def row_for(plan, product):
         return next(row for row in plan.audit if row["reference product"] == product)
 
-    def test_ten_products_are_explicitly_configured_and_native_baseline_is_noop(self):
+    def test_eleven_market_products_are_explicitly_configured_and_native_baseline_is_noop(self):
         selected = self.policy()
-        self.assertEqual(len(selected.rules), 10)
+        self.assertEqual(len(selected.rules), 11)
         self.assertEqual({rule["reference product"] for rule in selected.rules},
                          {"aluminium, cast alloy", "copper, cathode", "nickel, class 1",
-                          "cobalt", "lead", "lithium carbonate, battery grade", *OBSERVED_2025})
+                          "cobalt", "lead", "lithium carbonate, battery grade", "lithium carbonate", *OBSERVED_2025})
         self.assertEqual(set(selected.source_hashes), {str(POLICY.resolve())})
         db = sum((inventory(precious_market(product)) for product in OBSERVED_2025), [])
         # Even an anomalous native steel recipe must be preserved exactly.
@@ -390,7 +390,7 @@ class EvidenceAnchorValidationTests(unittest.TestCase):
         self.assertEqual(GENERATOR_VERSION, 2)
         self.assertEqual(manifest["generator_version"], GENERATOR_VERSION)
         self.assertEqual(manifest["manual_outputs"], [])
-        self.assertEqual(manifest["product_count"], 103)
+        self.assertEqual(manifest["product_count"], 104)
 
 
 class MetalsWorkbookConsistencyTests(unittest.TestCase):
@@ -407,11 +407,11 @@ class MetalsWorkbookConsistencyTests(unittest.TestCase):
         self.formulas = load_workbook(self.path, read_only=True, data_only=False)
         self.addCleanup(self.formulas.close)
 
-    def test_original_103_product_shares_match_the_unchanged_reference_yaml(self):
+    def test_104_product_shares_match_the_reference_yaml_with_generic_carbonate(self):
         from primary_vs_secondary_metals.metals_primary_vs_secondary import read_excel_shares
         workbook_shares = read_excel_shares(self.path)
         yaml_shares = load_yaml(self.path.with_suffix(".yaml"))
-        self.assertEqual(len(workbook_shares), 103)
+        self.assertEqual(len(workbook_shares), 104)
         self.assertEqual(set(workbook_shares), set(yaml_shares))
         for product, entry in workbook_shares.items():
             with self.subTest(product=product):
@@ -423,11 +423,11 @@ class MetalsWorkbookConsistencyTests(unittest.TestCase):
                         self.assertAlmostEqual(entry["shares"][role][year],
                                                yaml_shares[product]["shares"][role][year])
 
-    def test_documented_ten_product_assumptions_match_all_live_policy_cases(self):
+    def test_documented_eleven_market_assumptions_match_all_live_policy_cases(self):
         rows = list(self.values["Scenario assumptions"].iter_rows(
-            min_row=6, max_row=15, max_col=7, values_only=True))
-        self.assertEqual(len(rows), 10)
-        self.assertEqual(len({row[0] for row in rows}), 10)
+            min_row=6, max_row=16, max_col=7, values_only=True))
+        self.assertEqual(len(rows), 11)
+        self.assertEqual(len({row[0] for row in rows}), 11)
         policies = {case: MetalSteelPolicy.from_file(POLICY, nonferrous_case=case)
                     for case in ("reference", *CASE_INCREMENT)}
         rules_by_case = {case: {rule["reference product"]: rule for rule in selected.rules}

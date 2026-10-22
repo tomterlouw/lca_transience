@@ -410,6 +410,16 @@ spodumene:
     secondary:
       2020: 0.0
       2050: 0.0
+lithium carbonate:
+  name: market for lithium carbonate
+  reference product: lithium carbonate
+  shares:
+    primary:
+      2020: 0.9991595853954618
+      2050: 0.6269153897401731
+    secondary:
+      2020: 0.000840414604538239
+      2050: 0.3730846102598268
 lithium carbonate, battery grade:
   name: market for lithium carbonate, battery grade
   reference product: lithium carbonate, battery grade

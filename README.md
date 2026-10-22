@@ -2,27 +2,30 @@
 
 ### Prospective Life Cycle Assessment Framework for Industrial Transition Pathways
 
-[![Python](https://img.shields.io/badge/python-3.11-blue.svg)]()
+[![Python](https://img.shields.io/badge/python-3.11%20%7C%203.12-blue.svg)]()
 [![License: BSD-3-Clause](https://img.shields.io/badge/License-BSD%203--Clause-blue.svg)](LICENSE)
 
-**LCA_TRANSIENCE** is an open and modular framework for **prospective life cycle assessment (LCA)** of future industrial systems. It connects scenario results from integrated assessment and industrial optimization models to foreground life cycle inventories, prospective background databases, and environmental impact calculations.
+**LCA_TRANSIENCE** helps you assess how an industrial system could change its environmental footprint as its production routes, feedstocks, imports and wider supply chains change. It connects industrial-model scenarios to life cycle inventories and follows their impacts through future background economies.
 
-The framework was developed within the **TRANSIENCE Horizon Europe project**. Its current implementation combines:
+The starting point is often a practical question: a model says that a chemical cluster will use a different technology or buy a different feedstock in 2040, but what does that change mean for emissions, resource extraction and the places where those burdens occur? Answering it requires more than assigning a future electricity mix to today's product inventory. The production routes, intermediate markets, trade flows and process boundaries also need to agree with the industrial scenario.
 
-- Integrated Assessment Model (IAM) pathways from REMIND;
-- sector and technology pathways from TRANSIENCE models such as ITOM, FORECAST, EDM-I, and Open-PROM;
-- custom foreground inventories for emerging and transformed industrial processes;
-- prospective background inventories generated with [`premise`](https://github.com/polca/premise);
-- scenario calculations and contribution analysis with [`pathways`](https://github.com/polca/pathways) and Brightway.
+This repository provides that integration layer. It uses [`premise`](https://github.com/polca/premise) to construct prospective inventories and [`Pathways`](https://github.com/polca/pathways) and Brightway to calculate and inspect impacts. It adds the model-specific data preparation, custom inventories, cluster-market definitions, supplier-linking rules, material-supply sensitivities and analysis notebooks needed for the case study. It does not replace those packages or introduce a separate LCA calculation engine.
 
-The main case study represents the **Port of Rotterdam (PoR)** chemical cluster under the **CL** and **OCE** scenarios. The architecture is transferable to other industrial clusters, sectors, technologies, and regions.
+Developed within the **TRANSIENCE Horizon Europe project**, the main case study is the **Port of Rotterdam (PoR)** chemical cluster under the **CL** and **OCE** industrial scenarios. The active workflow combines a REMIND background, FORECAST inputs and ITOM cluster data. Additional configurations are provided for EDM-I and Open-PROM; their presence in the repository does not mean that every module is active or interchangeable in a given run.
+
+The same approach can be adapted to another industrial cluster, a smaller group of plants or a different product system. The current PoR inventories and geographic rules are a worked case, not universal defaults for those new applications.
 
 > [!IMPORTANT]
 > This repository is a research workflow, not a turnkey LCA model. Reproducing a result requires a compatible ecoinvent database, valid `premise` access, the relevant scenario input files, and consistency among the scenario CSV, YAML mapping, inventory workbook, datapackage descriptor, and ecoinvent version.
 
+> [!NOTE]
+> **Recommended modelling version: premise 2.5.5.** The current recycling comparisons use this version because its metal-resource correction distinguishes secondary recovery from primary extraction. Earlier inspected inventories could wrongly assign direct virgin-resource flows to recycling activities. This recommendation is specific to the workflow and checks described below, not a claim that every inventory or indicator is now validated. See [why premise 2.5.5 is recommended](#why-premise-255-is-recommended).
+
 ## Contents
 
 - [What the framework does](#what-the-framework-does)
+- [What this adds to premise and Pathways](#what-this-adds-to-premise-and-pathways)
+- [Where to start](#where-to-start)
 - [Audience, scope, and conceptual model](#audience-scope-and-conceptual-model)
 - [Workflow at a glance](#workflow-at-a-glance)
 - [Repository structure](#repository-structure)
@@ -44,6 +47,7 @@ The main case study represents the **Port of Rotterdam (PoR)** chemical cluster 
 - [Data requirements and limitations](#data-requirements-and-limitations)
 - [Applications](#applications)
 - [Related repositories](#related-repositories)
+- [Future developments](#future-developments)
 - [Contributors and acknowledgement](#contributors-and-acknowledgement)
 - [License and citation](#license-and-citation)
 
@@ -64,7 +68,63 @@ The framework deliberately separates four kinds of information:
 3. **Inventory content** — process-level technosphere and biosphere exchanges.
 4. **Prospective background assumptions** — economy-wide changes supplied by the IAM and implemented by `premise`.
 
-This separation makes it possible to update model results without rewriting inventories, or to improve an inventory without changing the external scenario data.
+This separation lets you change a scenario quantity without redefining its process recipe, or improve a recipe without editing the industrial model's reported production. You still need to rebuild the affected package and recalculate results. Saved databases and figures do not acquire a new assumption simply because an input file has changed.
+
+For example, a future cluster may obtain methanol from several routes and use it in olefin production. The scenario supplies the route volumes; the mapping decides which inventories represent those routes; the inventories describe their energy, material and emission exchanges; and the prospective background supplies the upstream electricity, fuels and other inputs. The analysis can then compare both the annual cluster footprint and the footprint per unit of product.
+
+## What this adds to premise and Pathways
+
+You can already build prospective LCAs with premise and Pathways alone. Premise supports external scenarios and geographic transformations; Pathways supports multi-scenario calculations, contribution analysis and regionalized methods. LCA_TRANSIENCE supplies a reusable, case-specific workflow around these capabilities. Its added value is the connected modelling decisions and checks, not an exclusive capability that the underlying packages lack.
+
+| Question | Role of the underlying tools | What is provided here |
+| --- | --- | --- |
+| How does the background economy change? | Premise transforms the source LCI database using supported IAM and external-scenario inputs. | A configured scenario composition linking the background to industrial-model data, with explicit input paths and export steps. |
+| What happens in a particular cluster or group of plants? | External scenarios can add technologies and markets, but the foreground boundary and mapping must be supplied. | ITOM converters, route- and mode-specific mappings, custom process inventories, local markets and checks on production and trade reconciliation. |
+| Do copied local processes actually buy from the intended suppliers? | Native transformation and linking provide the starting inventory graph. | Post-update supplier resolution, protected import and renewable-power recipes, topology-aware geographic choices, link audits and cycle checks. |
+| What changes if more metal input is secondary? | Native premise modelling supplies the baseline metal inventories and markets. | Optional, documented non-ferrous recycled-input sensitivities controlled from notebook 1, with actual-share audits and retained recycling burdens. Steel remains endogenous. |
+| Where in the supply chain are impacts attributed? | Pathways calculates location- and activity-resolved contributions. | A geographic analysis notebook distinguishing NL, foreign countries and unresolved aggregate geographies, with scenario comparisons and exportable figures. |
+| Does the same emission or resource use have different impacts in different places? | Pathways can use EDGES regionalized characterization. | A separate EDGES notebook with selected methods, location checks and result provenance, kept distinct from ordinary geographic contribution analysis. |
+| Can another researcher follow the calculation? | The packages expose the data and calculation interfaces. | Input snapshots, configuration files, reviewed compatibility adapters, classification safeguards, focused tests and the accompanying modelling documentation. |
+
+### Industrial clusters without a new IAM region
+
+A cluster does not have to be an IAM region to be modelled as a foreground system. You can represent its plants, routes and local intermediate markets explicitly while drawing on national, European and global background suppliers. This is useful when a national industrial average would hide the transition being studied.
+
+In the PoR case, many foreground activities have location `NL`, while the selected technology names, scenario volumes and replacement rules identify the cluster system. That is sufficient for a cluster-specific production model, but **`NL` is not a Port of Rotterdam coordinate or boundary**. A result attributed to NL can also contain upstream Dutch activities outside the port. Adding a smaller foreground system does not automatically provide plant-level emission locations or finer regionalized characterization.
+
+### Three different meanings of regionalization
+
+The distinction matters when you explain results to someone who did not build the model:
+
+1. **Supplier regionalization changes the inventory links.** An eligible process may obtain an input from a more appropriate NL or European supplier, while an explicitly imported product keeps its foreign origin. Supplier choice is based on the modelled supply and geographic rules, not on selecting the lowest impact score.
+2. **Geographic contribution analysis groups calculated burdens.** Notebook 3 asks which activity locations contribute to the result. Grouping an existing result does not change its exchanges or characterization factors.
+3. **Regionalized LCIA changes the characterization of relevant flows.** Notebook 4 uses EDGES for supported location-sensitive impacts. Its interpretation depends on geographic coverage, flow matching and the method's spatial resolution.
+
+These analyses can complement one another, but they do not answer the same question. The [regional case-study guidance](#develop-a-new-regional-case-study) explains what needs to change when moving beyond the current NL/PoR application.
+
+### Primary and secondary materials in context
+
+The material scenarios change the recycled-input share of selected **non-ferrous background markets**. A polymer can therefore benefit through metals used in electricity infrastructure, equipment, catalysts or other upstream inputs, even if its own resin recipe is unchanged. Which of those chains matters must be established by contribution analysis rather than assumed.
+
+This is not a model of local plastic collection or polymer recycling, and it does not solve global scrap availability. The supported options include a version-native `baseline`, a fixed reference case and alternative recycling sensitivities. Existing recovery inventories and their burdens are retained. More ambitious shares are conditional modelling assumptions, not proof that the required scrap quantity and quality will be available.
+
+The distinction between a configured target and an applied market share is central. An absent or differently graded market may not be changed by a rule that looks relevant by name. The lithium example is documented in the [metals policy guide](docs/metals_scenario_policy.md): generic GLO carbonate is supported, but battery-grade GLO markets remain native, and the inspected RELICS lithium definition does not cover `Spodumene`. A small indicator change must not be presented as evidence that lithium recycling offers little benefit.
+
+## Where to start
+
+You do not need to read every implementation note before opening the project. Choose a route that matches what you are trying to do:
+
+| Your starting point | Suggested reading and first action |
+| --- | --- |
+| You want to understand the study | Read the scope and workflow below, then the [PoR modelling conventions](#port-of-rotterdam-modelling-conventions) and [result interpretation](#interpreting-results). No calculation is needed to understand these boundaries. |
+| You have an existing package and want to analyse it | Confirm its scenario, year, ecoinvent version and material case. Start with notebook 2, then notebook 3; use notebook 4 when regionalized characterization is part of the question. |
+| You want to reproduce the PoR calculation | Follow [installation and access](#installation-and-access), the pre-flight checklist and the PoR quick start. Obtain the licensed inventories and industrial data before beginning a full build. |
+| You want to adapt it to another cluster | First define the products, plants, imports, exports and functional demand. Then use [extending the framework](#extending-the-framework); do not start by replacing every `NL` string with another country. |
+| You want to change a process or recycling assumption | Find the owning inventory, mapping or share input, record the change, and test one scenario/year before rebuilding the full study. Read the relevant assumptions guide first. |
+
+For a first calculation, choose one scenario and one year, keep the native metals baseline, and write a Pathways package without also exporting every scenario to Brightway. Check that a small, understandable result is correct before enabling extra years, material sensitivities or regionalized methods. This reduces debugging time without replacing scientific validation.
+
+Some essential inputs are licensed or shared separately and are not supplied by a Git clone. If those files are unavailable, you can still inspect the configuration, contracts and tests, but the repository does not provide a substitute dataset that reproduces the published or local study results.
 
 ## Audience, scope, and conceptual model
 
@@ -200,10 +260,13 @@ and certified inventory-store access are in `premise_compat.py`. Supplier
 resolution, post-update linking and reviewed inventory compatibility remain
 separate because they serve different stages of the workflow.
 
-The four former helper files are removed, not retained as forwarding wrappers.
-All repo notebooks, scripts and tests use their consolidated destinations.
-Restart long-lived notebook kernels after updating; no scenario quantities,
-LCI exchanges or modelling assumptions change merely because of this refactor.
+For a normal calculation, you work mainly with the numbered notebooks and their
+input settings. The helper modules enforce the shared rules; they are not a
+second series of scripts that must be run by hand. Older helper names were
+consolidated into the modules above rather than kept as forwarding wrappers.
+Restart an existing notebook kernel after updating the code so that imports use
+the current functions. A module refactor alone does not change scenario quantities,
+LCI exchanges or modelling assumptions.
 See [helper responsibilities and import migration](docs/helper_modules.md).
 
 ### Generated files
@@ -243,53 +306,117 @@ You need:
 
 - Git;
 - Conda or Mamba;
-- Python 3.11;
+- a Python version compatible with the chosen environment; the current premise 2.5.5 working environment uses Python 3.12;
 - a licensed ecoinvent account with access to the required database release;
 - a valid `premise` key;
 - JupyterLab, Jupyter Notebook, or an IDE capable of running notebooks;
 - the project-specific scenario files required by the modules you activate.
 
-The default setup targets **premise 2.5.2**, Python 3.11 and Brightway 2.5. It pins
-the actual Pathways Git commit observed in the newer working environment, since
-the two installed builds both report 1.0.4 but contain different code. Shared
-numerical/runtime pins live in `requirements-common.txt`; `requirements.txt`
-adds the current profile. The portable `lca_transience.yml` references that same
-pip file, so pip and Conda installs do not maintain two independent package lists.
+For new work on this case study, use **premise 2.5.5 with Brightway 2.5** and keep
+that environment separate from older comparison installations. The inspected
+working setup uses Python 3.12.15, ecoinvent 3.12 cut-off and a pinned Pathways
+source revision. Its installed packages pass `python -m pip check`.
 
-The optional `requirements-legacy.txt` / `lca_transience_legacy.yml` pair preserves
-the premise 2.3.8 comparison profile in a separate environment. It is not the
-default. See [dependency files, installation and reproducibility](docs/environment_setup.md).
+There are three version choices to keep separate: the premise release, the
+ecoinvent inventory release and the LCIA factor set used by Pathways. Selecting
+premise 2.5.5 does not automatically select ecoinvent 3.12 characterization factors
+or establish that a resource indicator covers all relevant flows.
+
+### Why premise 2.5.5 is recommended
+
+The reason is methodological as well as technical. Premise corrects some metal
+resource exchanges to address distortions caused by allocation in primary
+production. That correction must distinguish primary extraction from secondary
+recovery. In the earlier inspected 2.5.2 exports, recycling activities such as
+copper-scrap electrolytic refining and cobalt recovery from used batteries could
+receive direct virgin-metal resource exchanges. Increasing their market shares
+could then appear to increase extraction from nature for the wrong reason.
+
+The inspected **2.5.5 implementation identifies secondary activities before
+applying the primary-resource correction**. Checks on the newer exports confirmed
+that the affected copper and cobalt recovery activities no longer had those
+spurious direct resource inputs. This makes 2.5.5 the recommended starting point
+for the repo's recycled-input comparisons. The correction does not make recycling
+burden-free: its electricity, chemicals, infrastructure, emissions and upstream
+resource requirements remain part of the LCA.
+
+This is not a blanket guarantee that all metal results are complete. Market-grade
+coverage, allocation, supplier recipes and characterization still need checking.
+In particular, the lithium limitations described in the [metals guide](docs/metals_scenario_policy.md#generic-lithium-carbonate-and-upstream-hydroxide-22-october-2026)
+remain separate from the copper/cobalt correction. Native premise baselines also
+remain version-dependent; switching versions is a model change, not just a faster
+way of reproducing the same database.
+
+### Environment profiles and what the files currently install
+
+The recommendation above is newer than the portable dependency snapshots in the
+repository. **The commands `pip install -r requirements.txt` and `conda env create
+-f lca_transience.yml` still select premise 2.5.2, not 2.5.5.** Those files have
+not been silently repinned by this documentation update. Use the explicit 2.5.5
+recipe below for the recommended setup, or use the older files deliberately when
+reproducing an earlier calculation.
+
+| Purpose | premise | Python | Pathways source revision | How to select it |
+| --- | --- | --- | --- | --- |
+| Recommended current modelling setup, checked locally on 22 October 2026 | 2.5.5 | Inspected working environment: 3.12.15 | `a7d510d45192b5f95c76360e78a89224abea97e4` | Explicit installation recipe below; verify the resulting environment. |
+| Retained earlier installation profile | 2.5.2 | 3.11 | `82e736438d13c7b465361914534229cf3860bf46` | `requirements.txt` or `lca_transience.yml`. |
+| Optional legacy comparison | 2.3.8 | 3.11 | `f9187faeab92be4dd7a9fe5e90256870b33bc618` | `requirements-legacy.txt` or `lca_transience_legacy.yml`, in a separate environment. |
+
+The inspected Pathways builds report the same package version, 1.0.4, despite
+different source revisions. Record `direct_url.json` as well as the version label.
+The [environment guide](docs/environment_setup.md) explains the retained
+2.5.2/2.3.8 manifests, shared dependencies and legacy setup. It should not be read
+as a claim that those files install the recommended 2.5.5 stack.
 
 ### Clone and create the environment
 
 ```bash
 git clone https://github.com/tomterlouw/lca_transience.git
 cd lca_transience
-conda env create -f lca_transience.yml
-conda activate premise_pathways_new
-```
-
-If you use Mamba, the equivalent creation command is:
-
-```bash
-mamba env create -f lca_transience.yml
-```
-
-If `premise_pathways_new` already exists, keep the working installation and test
-a fresh environment instead: `conda env create -f lca_transience.yml -n lca_transience_252`.
-These files do not automatically modify your current environments. Run creation
-from the repository root; the requirements include paths are relative.
-
-For pip-only installation in an already-created Python 3.11 environment, use:
-
-```bash
-python -m pip install -r requirements.txt
+conda create -n lca_transience_255 -c conda-forge python=3.12 pip git
+conda activate lca_transience_255
+python -m pip install -r requirements-common.txt "premise[bw25]==2.5.5" "pathways @ git+https://github.com/polca/pathways.git@a7d510d45192b5f95c76360e78a89224abea97e4" "bw-processing==1.5" "matrix-utils==0.8" "lxml==5.4.0"
 python -m pip check
 ```
 
-Git must be available for the pinned Pathways source. Do not install current and
-legacy requirement profiles together. The setup guide includes venv activation,
-kernel registration, optional browser-notebook tools and legacy commands.
+The long pip command is one command; the quotes also work in PowerShell. It
+combines the shared direct dependency pins with the observed 2.5.5 core choices,
+rather than installing the 2.5.2 profile and assuming that its name means
+"latest". Git is needed to install Pathways at the specified revision.
+
+If you use Mamba, substitute its environment creation command and then run the
+same pip installation in the activated environment:
+
+```bash
+mamba create -n lca_transience_255 -c conda-forge python=3.12 pip git
+```
+
+If that environment name already exists, use a different name for a clean test.
+Do not overwrite a working modelling environment simply to follow an example.
+Run the commands from the repository root, and register a matching notebook
+kernel after checking the installation.
+
+This recipe documents the inspected interpreter family and core package choices;
+it is **not a fully resolved, hash-locked environment**. A fresh installation has
+not been created as part of this README rewrite. Resolver changes and platform
+differences can affect transitive packages, so run the checks below and retain
+the resolved environment with any result you plan to archive or publish.
+
+To reproduce the retained **2.5.2** profile instead, use its existing files in a
+separate environment:
+
+```bash
+conda env create -f lca_transience.yml -n lca_transience_252
+conda activate lca_transience_252
+python -m pip check
+```
+
+Its pip-only equivalent is `python -m pip install -r requirements.txt` in a
+separate Python 3.11 environment. Do not combine the 2.5.2 and 2.3.8 profiles, or
+pass `requirements.txt` alongside a conflicting 2.5.5 pin in one install command.
+The environment guide includes venv activation and legacy instructions. The
+shared dependencies provide a notebook kernel; install JupyterLab separately
+if you need a browser-based notebook server rather than an IDE kernel.
 
 ### Configure credentials
 
@@ -327,12 +454,31 @@ python -m pip check
 python -c "import sys, importlib.metadata as m; print(sys.executable); print({p: m.version(p) for p in ('premise', 'pathways', 'bw2data', 'bw2calc', 'edges')})"
 ```
 
-The expected Python major/minor version is 3.11, with premise 2.5.2 in the default
-profile. Register the kernel with
-`python -m ipykernel install --user --name premise_pathways_new --display-name "TRANSIENCE (premise 2.5.2)"`
-and select it in VS Code/Jupyter. If you chose a custom environment name, use a
-matching kernel name. The environment display name alone does not prove that
-the running package versions or Pathways source commit match the selected profile.
+For the recommended setup, check that premise reports 2.5.5 and that the running
+interpreter belongs to the intended Python 3.12 environment. Register it with:
+
+```bash
+python -m ipykernel install --user --name lca_transience_255 --display-name "TRANSIENCE (premise 2.5.5)"
+```
+
+Select that kernel in VS Code/Jupyter. Then run this short check **inside the
+notebook**, not just in a terminal:
+
+```python
+import sys
+import importlib.metadata as metadata
+
+print(sys.executable)
+print("premise:", metadata.version("premise"))
+print("Pathways:", metadata.version("pathways"))
+print(metadata.distribution("pathways").read_text("direct_url.json"))
+```
+
+For a retained older profile, verify its own expected versions instead. A kernel
+display name is only a label; it does not prove which interpreter or source
+revision is running. The repo-owned compatibility code supports several inspected
+premise APIs, but a successful import or `pip check` does not establish numerical
+equivalence across releases.
 
 ### Working-directory requirement
 
@@ -410,7 +556,7 @@ Complete this checklist before a full package build. It is faster to detect an i
 
 ### Software and access
 
-- [ ] The current `premise_pathways_new` environment (premise 2.5.2), or your explicitly selected alternative, is active.
+- [ ] The selected environment and notebook kernel agree. For new recycling analyses, use the recommended premise 2.5.5 setup; use 2.5.2 or 2.3.8 only as an explicitly recorded comparison.
 - [ ] The notebook kernel points to that environment.
 - [ ] `private_keys.py` exists locally and is ignored by Git.
 - [ ] The ecoinvent account can access version 3.12 cut-off.
@@ -421,7 +567,7 @@ Complete this checklist before a full package build. It is faster to detect an i
 
 - [ ] `PROJECT_NAME` in `config.py` is the intended project.
 - [ ] `DB_NAME_INIT`, `NAME_REF_DB`, and `BIOSPHERE_DB` use the intended ecoinvent version.
-- [ ] No valuable database will match the notebook's `remind_2050` deletion condition.
+- [ ] The exact selected export targets and `NAME_REF_DB` have been reviewed. Any existing database with one of those names is backed up or deliberately replaceable.
 - [ ] Existing databases from an older test run will not be mistaken for newly generated output.
 
 ### PoR scenario inputs
@@ -445,6 +591,8 @@ Complete this checklist before a full package build. It is faster to detect an i
 - [ ] The REMIND pathway is appropriate for both external scenarios.
 - [ ] The package years match the intended reporting years.
 - [ ] The list of LCIA methods and units has been reviewed.
+- [ ] The Pathways LCIA factor version is explicit and relevant flows are covered; an ecoinvent 3.12 inventory does not automatically select 3.12 factors or a validated RELICS extension.
+- [ ] The effective `NONFERROUS_METALS_SCENARIO` matches the intended run, and notebook 2 selects the resulting package, including any case suffix.
 - [ ] The PBR exclusion setting is documented.
 - [ ] The treatment of CCS, biogenic carbon, recycling, and avoided products is documented.
 - [ ] The desired output is clear: Brightway databases, a Pathways ZIP, or both.
@@ -462,7 +610,11 @@ For a new mapping, begin with a smoke test. A successful import is not sufficien
 
 ## Quick start: Port of Rotterdam
 
-The following sequence reproduces the intended PoR workflow, assuming the CL and OCE source workbooks and custom inventories are available.
+The sequence below takes you from the supplied ITOM workbooks to an interpretable
+PoR result. It assumes that the CL/OCE files, custom inventories, licensed source
+database and premise access are available. For a first run, keep the industrial
+inputs intact but select fewer output scenarios/years. Do not remove required
+converter inputs simply to shorten a build.
 
 ### 1. Convert both ITOM scenarios
 
@@ -482,7 +634,7 @@ The combined file must contain both `CL` and `OCE`; it is the file referenced by
 
 ### 2. Inspect the scenario package inputs
 
-Terminal p-xylene is now treated as already purified, following the ITOM team's
+Terminal p-xylene is treated as already purified, following the ITOM team's
 clarification. The converter preserves the original raw-labelled ITOM rows and
 adds two derived local-supply rows: purified terminal supply and non-terminal
 extraction. They sum to the original local extraction output, with proportional
@@ -491,7 +643,8 @@ its additional 1:1 purification step. All 14 scenario/year balances and source
 hashes are recorded in `scenario_data/p_xylene_terminal_purity_audit.json`.
 See [terminal p-xylene purity and reconciliation](docs/por_px_terminal_purity.md).
 
-Review these three linked resources together:
+Review the three active resources together, and distinguish them from the
+supporting inventory record:
 
 - `scenario_data/scenario_data_itom_por.csv` — quantities by scenario, region, variable, unit, and year;
 - `configuration_file/config_itom_por.yaml` — scenario-to-inventory mapping;
@@ -514,13 +667,29 @@ Open `1_export_packages.ipynb`, run it from top to bottom, and verify the user s
 
 ```python
 create_db_package = True
-create_dbs = True
+create_dbs = False
+NONFERROUS_METALS_SCENARIO = "baseline"
 ```
 
 - `create_db_package=True` creates `results/datapackages/remind-transience_por.zip`, which is required by `2_calc_impacts.ipynb` (non-baseline metals cases retain their case suffix).
-- `create_dbs=True` also writes scenario-specific databases to the configured Brightway project. This is useful for inspection but takes additional time and disk space.
+- Set `create_dbs=True` when you also need scenario-specific databases in the configured Brightway project. This is useful for inspection but takes additional time and disk space.
 
-For routine Pathways calculations, you can set `create_dbs=False` after confirming that the package workflow works correctly.
+Treat these as your intended settings, not a promise about saved notebook state.
+The notebooks are also working analysis files and may be saved with a high
+recycling case or a short year list. Check the last effective assignment to each
+setting, restart the kernel and run in order. Begin with one scenario and one
+year if you are checking a new installation or mapping. Add the second scenario
+once the suppliers, quantities and one product result are understood.
+
+The smoke-run size is set in the notebook's builder cells, not in the converter.
+For the Pathways route, pass one selected entry from the existing `scenarios`
+list and one year to `pr.PathwaysDataPackage(...)`, for example
+`scenarios=package_scenarios[:1]` and `years=[2050]`. Keep the prepared input data
+and descriptor scenario list intact. The first entry is not inherently a baseline
+or a particular ITOM case: inspect its external-scenario labels. When returning
+to a full comparison, restore the intended scenario list and year sequence.
+For the optional Brightway route, also align `bw_scenarios` and
+`bw_scenario_names`; do not change one without the other.
 
 > [!CAUTION]
 > When `create_dbs=True`, the notebook replaces only the explicitly selected scenario database names, after successful updating, linking and an inventory-readability preflight. Replacement is not atomic: a later writer failure can still leave a target absent. Use a dedicated project, inspect the deletion cell, and back up any database that must be retained. The repo-owned [native export compatibility guard](docs/por_supplier_linking.md#native-brightway-checkpoint-compatibility-premise-252) handles premise 2.5.2's legacy-Arrow delta-base reader mismatch without disabling corruption checks.
@@ -531,20 +700,37 @@ The notebook currently composes two scenarios from:
 - the FORECAST `fc_nz` external scenario;
 - either the ITOM PoR `CL` or `OCE` external scenario.
 
-The package years are `2025, 2030, 2035, 2040, 2045, 2050`.
+Check the [module compatibility table](#current-external-scenario-modules) before
+building this combination. The current FORECAST descriptor declares ecoinvent
+3.10 and PoR declares 3.12. Premise's import/version handling and the resulting
+supplier/flow matches must be reviewed; the fact that this is the active
+composition is not a blanket validation of every cross-version inventory.
+
+A full trajectory normally uses `2025, 2030, 2035, 2040, 2045, 2050`. The working
+notebook may instead select only `[2025, 2050]` for an endpoint comparison. Check
+the `years` passed to `PathwaysDataPackage` and the year coordinate in the saved
+package; a progress message referring to a six-year package is not evidence that
+six years were exported. Rebuild if an intended intermediate year is absent.
 
 ### 4. Calculate impacts
 
-Open `2_calc_impacts.ipynb` and check:
+Open `2_calc_impacts.ipynb` and select the package produced by the previous step.
+For a native-baseline calculation, the relevant settings are:
 
 ```python
 exclude_obsolete_pbr = True
-name_zip_file = "remind-transience_por.zip"
+name_zip_file = str(resolve_package_path("remind-transience_por.zip"))
 ```
+
+For a high-recycling comparison, select
+`remind-transience_por__metals-high_recycling.zip` instead. Keep the baseline and
+sensitivity results separately identified. A package filename without a material
+case suffix is not interchangeable with the suffixed package merely because both
+contain CL and OCE.
 
 The bare archive filename is resolved against `results/datapackages/`; an
 explicit archive path can be selected instead. Keep the package's metadata name
-as a bare slug, not a directory path. Both supported premise versions initially
+as a bare slug, not a directory path. The inspected premise export workflows initially
 write their ZIP in the working directory; notebook 1 relocates the completed
 archive to the configured result directory without changing its contents or
 changing the working directory.
@@ -557,6 +743,13 @@ Then run the notebook from top to bottom. It:
 - calculates the selected LCIA methods for `NL`, all package years, and all available scenarios;
 - exports a timestamped `results/impacts/results_*.gzip` file;
 - prepares total, product-level, and contribution figures.
+
+Before the main calculation, inspect the printed LCIA ecoinvent version and
+available methods. In the current notebook source the explicit 3.12 argument is
+commented out, so a Pathways default can select 3.11 factors. Follow the
+[LCIA-version guidance](#inventory-version-and-lcia-version) below rather than
+assuming that the inventory version controls this choice. Standard 3.12 methods
+and RELICS availability need to be checked separately.
 
 The notebook disables multiprocessing automatically when more than one scenario is calculated. This avoids a common Windows inter-process serialization error while allowing single-scenario runs to use multiprocessing.
 
@@ -657,7 +850,7 @@ For example, `datapackages/datapackage_itom_por.json` connects:
 ```text
 scenario_data/scenario_data_itom_por.csv
 configuration_file/config_itom_por.yaml
-inventories/lci-itom_por-mode-aware.xlsx
+inventories/lci-itom_por.xlsx
 ```
 
 The descriptor also declares the supported scenarios, ecoinvent version, system model, data schema, contributor, license, and minimum `premise` version.
@@ -746,31 +939,55 @@ The exact activity `name`, `reference product`, `unit`, and `location` are part 
 
 The reference database is deliberately generated without selected prospective transformations, so it can serve as a stable source for custom inventory preparation. Do not delete or rename it while an inventory-development step depends on it.
 
-Non-ferrous metals are controlled in this same notebook through `NONFERROUS_METALS_SCENARIO`, defaulting to `"baseline"`, which preserves the active premise version's native inventory quantities and supplier links. This deliberately retains older premise's interpolated non-ferrous shares versus newer premise's existing secondary fractions; it does not force the baselines to be identical. Steel remains endogenous to the selected IAM or explicitly enabled EDM-I link: there is no additional steel scenario selector, recycled-content floor or primary-only override. No separate metals notebook, spreadsheet-generation script or edits inside `site-packages` are needed.
+#### Choosing a primary/secondary metal case
 
-`metals_scenario_policy.py` reads the repo-owned `configuration_file/metals_scenario_policy.yaml` and its live numeric inputs in `primary_vs_secondary_metals/scenario_data/`, and applies the same validated post-update non-ferrous policy to both export routes, before PoR linking and classification capture. Optional reference, conservative/moderate/high recycling and primary-only cases now cover **ten product rules**: aluminium cast alloy, copper cathode, nickel class 1, cobalt, lead, World battery-grade lithium carbonate, gold, silver, platinum and palladium. The original six targets are unchanged. Precious-metal curves pass through documented 2025 secondary-supply anchors; conservative holds those fractions to 2050, while moderate/high add 10/20 percentage points as explicit analyst sensitivities, not published forecasts. Piecewise-linear floors retain a higher native share. Lithium retains its 2020–2050 line and inherited generic-carbonate grade proxy, without inventing purification. Silver's Parkes-process input is excluded from the claimed recycled fraction and retained in the primary remainder, since its feedstock origin is not necessarily recycled. Existing recovery LCIs and their burdens are retained; new refinery LCIs are documented candidates, not silently imported. All steel grades and unsupported ores/grades remain outside this override. Steel quantities and future inventories continue to follow IAM/EDM-I; an electric primary route is not recycled merely because it uses electricity. The policy does not solve scrap-stock feasibility or recalculate logistics. See [evidence, assumptions and deferred candidates](docs/metals_literature_review.md).
+The same export notebook lets you ask a separate question: what happens if the background supply chains use more secondary metal? Set `NONFERROUS_METALS_SCENARIO` before constructing the builders. Start with `"baseline"` for a first run. This leaves the active premise version's native prospective inventory quantities and supplier links unchanged; it does not mean that the background is frozen at today's ecoinvent values. Older premise releases may interpolate their installed non-ferrous targets, while newer releases retain recognised native secondary fractions. The repo does not force those version-native baselines to be identical.
 
-Notebook 1 automatically prepares named conservative/baseline/optimistic share YAMLs through `primary_vs_secondary_metals.share_files`, using the raw reference YAML and evidence/mapping CSVs by default (`METALS_SHARE_SOURCE = "yaml"`). Missing/empty or stale generated files, the baseline alias, combined document and generation manifest are maintained without a separate script. Valid manual edits to named cases are retained when raw inputs are unchanged; simultaneous raw-input and named-output changes stop with a conflict. Set `FORCE_METALS_SHARE_REGENERATION = True` only to deliberately regenerate after reviewing/backing up edits. Explicit `METALS_SHARE_SOURCE = "xlsx"` instead reads the reference workbook without modifying it; independently edited extracted YAML values then require choosing YAML mode or explicit re-extraction.
+For a sensitivity run, choose `reference`, `conservative`, `moderate_recycling`, `high_recycling` or `primary_only`. These cases change the primary/secondary mix in approved background markets, using their existing production and recovery inventories. The energy, materials, emissions and waste-treatment burdens of recycling remain in the LCA. The calculation does not make recovered metal burden-free, add an avoided-production credit, or assume that recycling happens within the Port of Rotterdam. It is a sensitivity of the wider supply chains serving the cluster, not a model of local plastic recycling.
 
-The metals workbook retains its original 103-product `Shares` table and adds `Scenario assumptions` and `Evidence` documentation with source reports, supply numerators/denominators, derived 2025 anchors, future assumptions and deferred candidates. Those documentation sheets are not additional runtime controls. YAML mode continues to use the live CSV/YAML sources; XLSX mode reads `Shares` only. Reports retain the scientific assumptions and supplier-classification details alongside the actual applied shares.
+Steel is treated separately. Its market mixes and production routes remain endogenous to the selected IAM or explicitly enabled EDM-I link. There is no additional steel scenario selector, recycled-content floor or primary-only override. An electric primary route is not classified as recycling merely because it uses electricity. No separate metals notebook, spreadsheet-generation script or edits inside `site-packages` are needed.
 
-The historical data file `primary_secondary_split_baseline.yaml` is selected by **`moderate_recycling`**, not the native `baseline` selector. Reference uses year 2020 of `metal_primary_secondary_shares.yaml`, and conservative/high use their separately named files. Floor cases retain a higher native share rather than reducing cast aluminium to the source files' 45%/60% values. The generator's wider 103-product table does not activate unsupported LCI overrides or create steel sensitivities. Commit-pinned upstream premise YAMLs and hash provenance are in `configuration_file/upstream/premise_metals`; opt-in supplier selectors preserve existing within-secondary recipe weights. The installed premise package is not edited.
+The implementation in `metals_scenario_policy.py` reads `configuration_file/metals_scenario_policy.yaml` and the live numeric inputs in `primary_vs_secondary_metals/scenario_data/`. It applies the same validated post-update policy to both Brightway and Pathways exports, before PoR supplier linking and classification capture. The approved scope is **eleven market rules for ten metal families**:
 
-Alternative cases use a `__metals-<case>` suffix in database/package names, while baseline keeps the existing names. The notebook prints the selected ZIP for notebook 2. CSV/JSON audits are saved under `export/metals_policy/`, and the ZIP includes `metal_steel_policy.json` with the selected non-ferrous case, resolved configuration, source snapshots/fingerprints and provenance; its historical filename does not enable a steel override. Changing consumed share files or raw inputs invalidates the loaded selection: reload it and construct fresh builders. See [non-ferrous cases, endogenous steel, live source files and safeguards](docs/metals_scenario_policy.md).
+- aluminium cast alloy, copper cathode, nickel class 1, cobalt and lead;
+- generic lithium carbonate in `GLO` and battery-grade lithium carbonate in `World`;
+- gold, silver, platinum and palladium.
 
-The additional PoR supplier-linking step is now maintained in `por_supplier_linking.py`. The export notebook attaches it after the normal premise update for both Brightway output and the internal builder used by `PathwaysDataPackage`. It applies explicit PoR replacement rules, protects import sourcing and the fixed renewable-power recipe, preserves exchange quantities/uncertainty, validates suppliers, and writes CSV/JSON change reports under `export/por_supplier_linking/`. The old manually added pre-market hook is disabled in memory where present; no installed package file needs editing. A scoped export guard prevents later geographic preparation from undoing validated links. See [post-update supplier linking](docs/por_supplier_linking.md) for selection, cache transactions, limits and rerun instructions.
+The conservative, moderate and high cases are **minimum recycled-input floors**, not prescribed shares at every site. The applied share is the higher of the native share and the interpolated floor. This matters for cast aluminium, where a native share can already exceed the source files' 45% or 60% endpoints. The original six targets are unchanged. Precious-metal curves pass through documented 2025 secondary-supply anchors; conservative holds those fractions to 2050, while moderate/high add 10/20 percentage points as analyst sensitivities, not published forecasts. Both carbonate rules use the lithium family's assumed linear 2020–2050 trajectory.
 
-Policy version 4 also uses a reusable **inventory supplier compatibility adapter** before PoR imports. Rules in `configuration_file/inventory_supplier_compatibility.yaml` select reviewed, exact provider identities in priority order and can load a versioned repo-owned fallback inventory when no native candidate exists. The first rule handles Moroccan commercial PV at medium versus low voltage without changing the 50% solar/50% wind quantities. Import and protected linking share the same per-consumer decision, and rule/fallback hashes invalidate stale prepared exports. Add another scoped YAML rule for a future supplier rename; do not edit installed premise files or guess a lower-impact provider. See [inventory supplier compatibility](docs/inventory_supplier_compatibility.md) for the schema, fallback provenance, tests and restart/rebuild instructions.
+Product quality and inventory boundaries still matter. Only the supported `World` battery-grade carbonate interface retains an inherited generic recovered-carbonate grade proxy; no additional purification is invented. Ordinary hydroxide benefits upstream through its existing generic-carbonate input, without a second override or credit. Battery-grade `GLO` carbonate/hydroxide remain native. Silver's Parkes-process input is kept in the non-secondary remainder because its feedstock origin is not established as recycled. Unsupported ores and grades are not overridden, and proposed new refinery inventories are not silently imported.
 
-Supplier-linking policy version 2 also completes declared domestic product supply **inside regionalized background markets**. For example, `market for nitrobenzene` in NL now uses the configured NL `nitrobenzene production` counterpart rather than retaining the inherited RoW production link. Technology quantities/shares and ancillary transport remain unchanged; explicit country imports, unconfigured producers and constructed PoR market mixes are not redirected. Reports identify these corrections with `regionalized_market_product_supply`, and flag absent domestic counterparts with `unavailable_local_supplier`. This follows the specified regionalization, not a rule to select whichever supplier has the lowest impact.
+These assumptions make a useful controlled comparison, but they do not establish that the required scrap stocks, collection systems or product quality will be available. Nor does the policy recalculate transport logistics. Check the **applied** market shares in the audit rather than inferring coverage from the chosen scenario name. A target for an absent market does not change a different market automatically. Lithium also has a separate LCIA limitation: the inspected RELICS definition counts the `Lithium` resource flow but not `Spodumene`. A small reported lithium change therefore cannot be read as a complete assessment of lithium recycling. See [evidence, assumptions and deferred candidates](docs/metals_literature_review.md).
 
-Policy version 6 also preserves verified, unchanged self-consuming loss exchanges in standard electricity markets. Their original amounts and uncertainty remain intact and are reported separately in the audit; newly introduced self-links and non-electricity self-supply remain forbidden. This is built into the same linker for both premise versions and both export routes, without another adapter file. See [inherited electricity losses](docs/por_supplier_linking.md#inherited-electricity-loss-self-inputs-policy-version-6).
+#### Where the metal assumptions are read
 
-After updating this helper, restart the notebook kernel and rebuild Brightway databases and the Pathways ZIP through Step 4. The export guard rejects old validation tags without the current `linking_policy_version`. Existing databases, matrices, results and figures are not retroactively repaired by changing the Python source alone. Recalculate Step 5 after selecting the rebuilt package.
+Notebook 1 automatically prepares named conservative/baseline/optimistic share YAMLs through `primary_vs_secondary_metals.share_files`. By default, `METALS_SHARE_SOURCE = "yaml"` reads the raw reference YAML and evidence/mapping CSVs. Missing, empty or stale generated files, the baseline alias, combined document and generation manifest are maintained in the same workflow.
 
-Supplier-linking policy version 3 further regionalizes eligible **inputs inside those NL production inventories**. It uses the shared resolver even when a RoW/GLO/World link is valid: NL first, then the selected IAM region, then a matching wholly covering reference region. For example, nitrobenzene production uses EUR heat, NL medium-voltage electricity, European nitric acid/water markets and RER construction rather than inherited global proxies. The electricity market/group alias must match voltage, reference product and unit. The shared geography also loads the repo-owned additional ecoinvent 3.12 topology and recognizes `RER w/o RU`.
+Valid manual edits to named cases are retained when raw inputs are unchanged. If both raw inputs and named outputs have changed, generation stops with a conflict so that one set of assumptions is not silently overwritten. Set `FORCE_METALS_SHARE_REGENERATION = True` only after reviewing and backing up edits that you intend to replace. With `METALS_SHARE_SOURCE = "xlsx"`, the workflow instead reads the reference workbook without modifying it. Independently edited extracted YAML values then require a deliberate choice between YAML mode and re-extraction.
 
-Amounts, uncertainty, biosphere emissions and transport distances are preserved. Import/fixed-power inventories and explicit foreign material/process sourcing are protected; operational energy in copied NL plants is sourced for NL. No supplier is chosen by the lowest LCIA score, and no European provider is assumed to be universally lower-impact. Remaining eligible broad proxies without appropriate substitutes are flagged as `retained_geographic_proxy` in the audits. Version 2 validation tags must be rebuilt before exporting under version 3.
+The metals workbook contains the original 103 `Shares` records plus generic lithium carbonate, giving 104 local reference records. Its `Scenario assumptions` and `Evidence` sheets explain source reports, supply numerators/denominators, 2025 anchors, future assumptions and deferred candidates. Those two sheets are documentation, not additional runtime controls. YAML mode uses the live CSV/YAML sources; XLSX mode reads `Shares` only. A 104-product source table does not mean that 104 recycling overrides are active.
+
+One historical filename is easy to misread: `primary_secondary_split_baseline.yaml` supplies **`moderate_recycling`**, not the native `baseline` selector. `reference` uses year 2020 of `metal_primary_secondary_shares.yaml`; conservative/high use their separately named files. Commit-pinned upstream premise YAMLs and hash provenance are retained under `configuration_file/upstream/premise_metals`, with their original catalogue unchanged. Opt-in supplier selectors preserve the existing weights within secondary supply. The installed premise package is not edited.
+
+Alternative cases receive a `__metals-<case>` suffix in database/package names, while baseline keeps the standard names. The notebook prints the ZIP to select in notebook 2. CSV/JSON audits are written under `export/metals_policy/`; the ZIP also contains `metal_steel_policy.json` with the selected case, resolved configuration, source snapshots/fingerprints and provenance. Its historical filename does not enable a steel override. If a consumed share file or raw input changes, reload the selection and construct fresh builders. The full parameter and safeguard reference is in [non-ferrous cases, endogenous steel and live source files](docs/metals_scenario_policy.md).
+
+#### Completing the cluster's supplier links
+
+Creating an NL copy of a process does not by itself make every embedded supplier Dutch. For example, a copied nitrobenzene market could still buy RoW nitrobenzene, and its NL producer could still retain generic worldwide electricity or chemical inputs. The repo-owned step in `por_supplier_linking.py` checks these eligible links after the normal premise update. It is attached to both Brightway output and the internal builder used by `PathwaysDataPackage`.
+
+The linker applies the declared PoR replacement rules and completes domestic product supply inside regionalized background markets. Thus the configured `market for nitrobenzene`, NL, can use the declared NL `nitrobenzene production` counterpart. It does not redirect explicit country imports, unconfigured producers or constructed PoR market mixes. Technology quantities/shares and ancillary transport are unchanged. The audit labels these corrections `regionalized_market_product_supply` and reports a missing domestic counterpart as `unavailable_local_supplier`.
+
+It also reviews eligible inputs inside the NL production inventories, even where an inherited RoW/GLO/World link is technically valid. The shared resolver considers NL first, then the selected IAM region, then a matching reference region that wholly covers the consuming location. Depending on available suppliers, this can replace broad proxies with NL medium-voltage electricity, EUR heat, European nitric acid/water markets or RER construction. Electricity market/group aliases must match voltage, reference product and unit. The shared geography loads the repo-owned additional ecoinvent 3.12 topology and recognises `RER w/o RU`.
+
+This is geographical matching under explicit modelling rules, **not an optimisation for the lowest environmental score**. A European provider is not assumed to be universally lower-impact. Explicit foreign material/process sourcing, imported products and the fixed renewable-power recipe are protected, while eligible operational energy in copied NL plants is sourced for NL. Exchange quantities, uncertainty, biosphere emissions and transport distances are preserved. Where no suitable regional supplier exists, the audit retains and flags the broad proxy as `retained_geographic_proxy` rather than inventing a local activity.
+
+The reusable **inventory supplier compatibility adapter** runs before PoR inventories are imported. Rules in `configuration_file/inventory_supplier_compatibility.yaml` select reviewed exact provider identities in priority order; a versioned repo-owned fallback inventory can be loaded if no native candidate exists. The first rule handles Moroccan commercial PV at medium versus low voltage without changing the 50% solar/50% wind quantities. Import and protected post-linking use the same per-consumer decision, and rule/fallback hashes invalidate stale prepared exports. For another supplier rename, add a scoped, documented YAML rule rather than editing installed premise files or guessing a substitute. See [inventory supplier compatibility](docs/inventory_supplier_compatibility.md) for its schema, provenance and tests.
+
+Supplier checks also distinguish an invalid new self-link from an inherited electricity-market loss exchange. Verified, unchanged self-consuming loss exchanges in standard electricity markets retain their original amounts and uncertainty and are reported separately. Newly introduced self-links and non-electricity self-supply remain forbidden. This is included in the same linker for both export routes and supported premise versions, without another adapter file. See [inherited electricity losses](docs/por_supplier_linking.md#inherited-electricity-loss-self-inputs-policy-version-6).
+
+CSV/JSON change reports are saved under `export/por_supplier_linking/`. A scoped export guard prevents later geographic preparation from undoing validated links; where an old manually added pre-market hook is present, it is disabled in memory. No installed package file needs editing. The technical policy history includes domestic market-supply completion in version 2, embedded-input regionalization in version 3, compatibility decisions in version 4 and inherited electricity-loss handling in version 6. For current selection rules, cache transactions and limitations, see [post-update supplier linking](docs/por_supplier_linking.md).
+
+After a linking-policy change, restart the notebook kernel and rebuild the Brightway databases and Pathways ZIP through Step 4. The export guard rejects old validation tags without the current `linking_policy_version`; version 2 tags, for example, cannot certify version 3 regionalization. Existing databases, matrices, results and figures are not repaired retroactively by changing Python source. Select the rebuilt package and recalculate Step 5.
 
 ### Step 5 — Calculate environmental impacts
 
@@ -790,19 +1007,27 @@ The current aggregate PoR calculation does not enable the optional `double_accou
 
 ### Step 6 — Analyze activity locations
 
-`3_regionalization_impacts.ipynb` groups contribution results into:
+After calculating a footprint, a useful next question is where its contributing activities are located. `3_regionalization_impacts.ipynb` reads the contribution results and groups them into:
 
 - **NL-located activities** — datasets whose activity location is `NL` or an `NL-*` subregion;
 - **Explicitly outside NL** — datasets assigned to a specific non-NL country or subnational code;
 - **Aggregate / unresolved geography** — datasets with locations such as `RER`, `EUR`, `GLO`, or `RoW`.
 
-This is an **activity-location attribution**, not a fully spatially resolved LCIA. An `NL` location does not distinguish the Port of Rotterdam from the rest of the Netherlands, and an aggregate European or global provider cannot be allocated to a country without additional information.
+This is **activity-location attribution**. It reorganises an existing result; it does not change supplier links or recalculate characterization factors. The distinction from two other operations in the workflow is important:
+
+| Operation | What changes? | Question it helps answer |
+| --- | --- | --- |
+| Supplier regionalization during package construction | Eligible supplier links in the inventory | Is this NL process connected to an appropriate regional electricity, heat or material supplier? |
+| Activity-location attribution in notebook 3 | Grouping and presentation of calculated contributions | Which burdens are associated with activities located in NL, explicitly abroad, or an unresolved aggregate region? |
+| Regionalized LCIA in notebook 4 | Characterization using the selected location-specific factors | How does the location used by the method affect the characterized impact? |
+
+An `NL` activity location does not distinguish the Port of Rotterdam from the rest of the Netherlands. A European or global provider cannot be assigned to a country without additional information, and its activity location is not necessarily a measured emission point or receptor location. Keep the aggregate/unresolved category visible rather than distributing it between countries by assumption. In this case study, the foreground identifies the modelled cluster; the `NL` code alone does not define the cluster boundary.
 
 ### Step 7 — Calculate regionalized LCIA with EDGES
 
-`4_edges_regionalized_impacts.ipynb` recalculates the selected PoR final-product system with location-specific characterization factors. Its initial methods are AWARE 2.0 country-level water scarcity (unspecified consumption), IMPACT World+ 2.1 particulate matter formation and terrestrial acidification. These default factors are static; the inventories and production quantities remain prospective.
+`4_edges_regionalized_impacts.ipynb` goes beyond grouping results by location: it recalculates the selected PoR final-product system with location-specific characterization factors through the Pathways–EDGES interface. This is useful when a kilogram of the same elementary flow can have a different characterized consequence depending on the location represented by the method. Its initial methods are AWARE 2.0 country-level water scarcity (unspecified consumption), IMPACT World+ 2.1 particulate matter formation and terrestrial acidification. These default factors are static; the inventories and production quantities remain prospective. This workflow does not forecast how local water scarcity, exposure or ecosystem sensitivity will evolve.
 
-First rebuild `results/datapackages/remind-transience_por.zip` after inventory/config changes, then set `RUN_CALCULATION=True`. The notebook initially calculates 2025 and 2050, uses a fresh Pathways object, and passes `edges_methods=` without ordinary `methods=`. Both multiprocessing options are disabled for this Windows workflow. Set `RUN_CALCULATION=False` on later runs to load the separate `results/edges/results_edges_por_*.gzip` export and its JSON sidecar, or set `RESULTS_FILE` explicitly. Ordinary LCIA exports are not regionalized by postprocessing.
+First rebuild the selected Pathways package after inventory/config changes, then set `RUN_CALCULATION=True`. The baseline archive is `results/datapackages/remind-transience_por.zip`; select the suffixed archive explicitly when assessing a material sensitivity, and keep the EDGES input choice consistent with the comparison being reported. The notebook initially calculates 2025 and 2050, uses a fresh Pathways object, and passes `edges_methods=` without ordinary `methods=`. Both multiprocessing options are disabled for this Windows workflow. Set `RUN_CALCULATION=False` on later runs to load the separate `results/edges/results_edges_por_*.gzip` export and its JSON sidecar, or set `RESULTS_FILE` explicitly. Ordinary LCIA exports are not regionalized by postprocessing.
 
 The notebook preserves the obsolete-PBR exclusion and takes active PoR demand aliases from the YAML. Standalone CCS variables are excluded by default because MTO storage burdens are embedded in the product inventories. Review this selection if other independent CCS services are enabled. NL remains the demand region and worldwide supply-chain contributions remain included.
 
@@ -810,7 +1035,7 @@ Four figures compare scenario/year blocks, absolute geographic shares, contribut
 
 Outputs are written under `figs/edges_por/` as PNG/PDF figures and CSV audit tables. Calculation and plot manifests record input/result hashes, method identities, units and the selected demand boundary. The notebook supports plotting one or more scenarios; the difference figure requires both CL and OCE.
 
-The inspected Pathways 1.0.4 adapter does not pass activity classifications to EDGES. The notebook therefore rejects classification-dependent methods and initially uses AWARE's classification-independent `unspecified` variant. It also limits this workflow to biosphere-based regional methods. Aggregate-geography fallback does not reveal the underlying countries or receptor locations. Check method matching, emission compartments, country proxies and water balances before interpreting the figures.
+The inspected Pathways 1.0.4 adapter does not pass activity classifications to EDGES. The notebook therefore rejects classification-dependent methods and initially uses AWARE's classification-independent `unspecified` variant. It also limits this workflow to biosphere-based regional methods. Aggregate-geography fallback does not reveal the underlying countries or receptor locations. Check method matching, emission compartments, country proxies and water balances before interpreting the figures. In particular, an unresolved `GLO` or `RoW` process does not become spatially precise merely because a regionalized method can calculate a fallback factor for it.
 
 ## Data contracts and file formats
 
@@ -935,7 +1160,7 @@ Use `add` only when the added exchange genuinely belongs to every unit supplied 
 
 ### Custom inventory-workbook contract
 
-The inventory workbooks use the Brightway Excel importer layout. In the active `lci-itom_por-mode-aware.xlsx`, each activity block contains metadata followed by an `Exchanges` table.
+The inventory workbooks use the Brightway Excel importer layout. In the active `lci-itom_por.xlsx`, each activity block contains metadata followed by an `Exchanges` table.
 
 Activity metadata normally includes:
 
@@ -1294,12 +1519,26 @@ For each item, add the source, affected files, responsible reviewer, decision da
 
 | Module | Descriptor | Scenarios in descriptor | Scenario data | Mapping | Inventory | Declared ecoinvent |
 |---|---|---|---|---|---|---|
-| ITOM PoR | `datapackages/datapackage_itom_por.json` | `CL`, `OCE` | `scenario_data_itom_por.csv` | `config_itom_por.yaml` | `lci-itom_por-mode-aware.xlsx` | 3.12 cut-off |
+| ITOM PoR | `datapackages/datapackage_itom_por.json` | `CL`, `OCE` | `scenario_data_itom_por.csv` | `config_itom_por.yaml` | `lci-itom_por.xlsx` | 3.12 cut-off |
 | FORECAST | `datapackages/datapackage_forecast.json` | `fc_nz` | `scenario_data_forecast_all.csv` | `config_forecast.yaml` | `lci-forecast.xlsx` | 3.10 cut-off |
 | EDM-I | `datapackages/datapackage_edm_i.json` | `NDC_LTT`, `CBAM`, `INDEPENDENCE` | `scenario_data_edm_i.csv` | `config_edm_i.yaml` | `lci-edm-i.xlsx` | 3.10 cut-off |
 | Open-PROM | `datapackages/datapackage_open_prom.json` | `NDC-EI` | `scenario_data_open_prom.csv` | `config_open_prom.yaml` | `lci-open-prom.xlsx` | 3.12 cut-off |
 
 The current `1_export_packages.ipynb` activates FORECAST and ITOM PoR. The EDM-I and Open-PROM external scenarios are present but commented out in the scenario composition cell.
+
+Read this as a list of available model links, not a menu of interchangeable
+backgrounds. REMIND supplies the active IAM background. ITOM adds the cluster's
+production structure, FORECAST adds the selected ammonia/methanol information,
+and the optional EDM-I and Open-PROM configurations provide additional sector
+or energy-system inputs when deliberately enabled. Open-PROM is connected through
+the external-scenario interface here; enabling its descriptor does not by itself
+establish that every REMIND sector has been replaced.
+
+Before combining modules, decide which one owns each affected market or sector,
+whether their scenario narratives agree and which transformation runs last.
+Review the declared ecoinvent releases in the descriptors: the 3.10 declarations
+above must not be silently treated as native 3.12 inventories. Successful import
+is not sufficient evidence of compatible flows, grades or provider identities.
 
 ## Interpreting results
 
@@ -1332,6 +1571,39 @@ For carbon capture and storage, distinguish at least:
 
 Avoid counting the same stored carbon once as reduced direct emissions and again as a negative storage exchange. The appropriate interpretation depends on the ITOM emissions accounting and the biosphere flow characterized by the selected LCIA method.
 
+### Inventory version and LCIA version
+
+The inventory release and the characterization-factor release are separate model
+choices. `EI_VERSION = "3.12"` in `config.py` controls the source inventory setup;
+it does not automatically override Pathways' LCIA default. In the inspected
+Pathways build that default is 3.11. The current notebook 2 source still has the
+3.12 argument commented out, so check the printed `p.ei_version` before using a
+result in a comparison.
+
+For a calculation using standard 3.12 factors, make the choice explicit:
+
+```python
+p = Pathways(
+    datapackage=name_zip_file,
+    ecoinvent_version="3.12",
+    debug=True,
+)
+```
+
+This is a standard-method example, not a drop-in replacement for an unchanged
+RELICS method list. The inspected 3.12 factor set does not include the bundled
+RELICS definitions available in the 3.11 set. A 3.12 calculation with RELICS
+therefore needs a separately validated method extension and flow-coverage
+check; that complete extension is not currently implemented by this repository.
+Do not silently drop the missing indicators or switch factor versions merely to
+make the method names available. Record the version and factor source, and
+recalculate after changing either.
+
+A method label alone is not a coverage test. For example, characterizing the
+`Lithium` resource flow but not `Spodumene` does not measure all elemental lithium
+extraction represented by the inventory. Cross-check important resource results
+against their contributing elementary flows and a physical material balance.
+
 ### Climate-change methods
 
 Different climate-change methods can treat biogenic CO2 uptake, release, and storage differently. Results from the IPCC 2021 method including biogenic CO2 can therefore diverge materially from EF v3.1 GWP100. Retaining both can be informative if the report clearly states:
@@ -1345,9 +1617,11 @@ Do not compare the two methods as though they were duplicate implementations of 
 
 ### Demand region versus burden location
 
-In `2_calc_impacts.ipynb`, `regions=["NL"]` identifies the region of the modelled demand. It does **not** restrict upstream activities to the Netherlands. Global and European supply-chain activities remain part of the life cycle.
+In `2_calc_impacts.ipynb`, `regions=["NL"]` selects the region of the modelled demand. It does **not** restrict upstream activities to the Netherlands, and it does not select all industrial production physically located there. The chosen demand variables define which products belong to the study; their global and European supply chains remain part of the life cycle.
 
-Use `3_regionalization_impacts.ipynb` to inspect activity locations, while retaining the caveats about aggregate geographies and the distinction between activity location and emission location.
+For example, a PoR polymer made in an NL foreground activity may use an imported intermediate, electricity equipment manufactured abroad and a material supplied by a global market. Those upstream contributions still belong to its footprint. They should not all be labelled Dutch simply because the final demand is Dutch, nor should all NL-labelled upstream production be described as occurring inside the port.
+
+Use `3_regionalization_impacts.ipynb` to inspect activity locations and notebook 4 for the supported regionalized characterization methods. Retain the distinction between demand location, supplier/activity location and emission or receptor location. Where the data provide only `RER`, `GLO` or another aggregate, report the remaining geographical uncertainty rather than claiming a complete domestic-versus-imported impact split.
 
 ### Missing classifications
 
@@ -1523,7 +1797,39 @@ Use the complete label rather than a substring when preparing final figures. Thi
 
 ## Validation and reproducibility
 
-Run the following checks before treating a result as final.
+The first successful calculation is a useful milestone, but it is not the end
+of validation. A package can be technically valid while representing the wrong
+feedstock, an unintended market share or an incomplete impact indicator. Work
+through the checks below in the same order as the model: source quantities,
+mapping, inventories, exported package and calculated results.
+
+### Start with a small, traceable run
+
+For a first use of the framework, choose a case that you can inspect by hand.
+Keep the full required CL/OCE input structure, but build fewer package years
+before attempting the complete time series. For example:
+
+1. Convert the source workbooks and inspect the scenario totals and units before
+   starting premise. Check one polymer and one important intermediate against
+   the original industrial-model output.
+2. In notebook 1, export a single analysis year for the intended scenarios. Start
+   with the native non-ferrous `baseline`, rather than changing supplier shares
+   at the same time as testing a new inventory.
+3. In notebook 2, calculate one active polymer with a climate method and a
+   compatible material-resource indicator. Select the characterization-factor version
+   explicitly and check which elementary flows the material indicator covers.
+4. Follow an important supply chain through the exported inventory. Confirm the
+   process identity, geography, input quantity and intended route to its market.
+   A plausible total alone cannot establish that the linking is correct.
+5. Compare the total with the sum of its contributions and, where possible, an
+   independent process estimate or literature range. Then add the other
+   polymers, years and sensitivity cases.
+
+This approach is usually more informative than inspecting a large collection of
+figures after a full build. It also makes it easier to tell whether a change
+originates in the industrial scenario, the background or the analysis settings.
+Do not remove required zero pathways or the companion scenario merely to make
+the source files smaller; follow the converter and descriptor contracts above.
 
 ### Scenario data
 
@@ -1545,6 +1851,20 @@ Run the following checks before treating a result as final.
 - Raw intermediates are not used as purified products without an explicit upgrading step.
 - Terminal imports, intra-system transfers, and exports have distinct interpretations.
 - No CCS, recycling, or by-product credit is counted twice.
+- Material, energy and carbon balances are checked for the important custom
+  processes, including their coproduct boundaries and allocation factors.
+- A change in a future market reaches the exchanges that actually supply the
+  process. A direct link to a named primary producer can bypass a market update.
+
+For primary/secondary sensitivities, inspect the applied-share audit rather
+than stopping at the percentages in the scenario YAML. A configured target is
+not evidence that a market was found or changed. Read the native, target and
+applied fractions together, check the primary and secondary supplier identities,
+and investigate any `market_not_present` result relevant to the analysis. An
+absent unused market is different from an absent market that the selected
+polymer supply chains depend on. Product grades matter here: ordinary lithium
+carbonate, battery-grade carbonate and hydroxide are not interchangeable market
+names.
 
 ### Prospective package
 
@@ -1552,6 +1872,22 @@ Run the following checks before treating a result as final.
 - `results/datapackages/remind-transience_por.zip` was regenerated after any scenario, mapping, or inventory change.
 - The package contains the intended years and both combined scenario names.
 - `unlinked.log` and notebook output contain no unresolved exchange that affects the analysis.
+- Supplier-linking, classification and material-share reports refer to this
+  package build, not an earlier archive with a similar name.
+- Protected import and fixed-renewable recipes retain their intended supplies;
+  domestic regionalization has not overwritten their origin assumptions.
+
+Premise **2.5.5 is the recommended modelling baseline for the current recycling
+analyses**. Its eligibility check excludes secondary routes from the primary
+resource post-allocation correction. In the earlier inspected 2.5.2 exports,
+that correction could add a primary resource exchange to a recycling activity,
+distorting extraction indicators as its supply share increased. This is a
+modelling-software correction, not evidence that recycling physically increases
+virgin extraction. Upgrading does not repair previously exported databases,
+packages or results: rebuild them. The native baseline remains version-specific,
+so record the release used and do not assume that two premise versions produce
+the same background inventories. The installation section explains the
+recommended version and the status of the checked-in dependency profiles.
 
 ### Results
 
@@ -1561,22 +1897,52 @@ Run the following checks before treating a result as final.
 - Negative contributions have a documented physical or accounting explanation.
 - The selected climate method is consistent with the stated biogenic-carbon convention.
 - The exact `results/impacts/results_*.gzip` or `results/edges/results_edges_por_*.gzip` file used for figures is recorded.
+- Standard LCIA and any additional RELICS or regionalized definitions have
+  documented version and flow coverage. An indicator named after a metal is
+  not automatically a complete elemental balance for every ore and compound.
+- Annual totals and per-unit impacts are reported separately where changing
+  production volumes affect interpretation. Do not average product intensities
+  without the corresponding production weights.
+- Scenario differences are larger than unexplained numerical, filtering or
+  classification differences. Small changes deserve more careful tracing,
+  not a stronger claim based on additional decimal places.
+
+For example, the current RELICS lithium definition does not characterize
+`Spodumene`. The generic GLO carbonate sensitivity can therefore work as intended
+without producing a comparable decline in the reported lithium indicator.
+Separately, the battery-grade GLO market is outside that generic-market rule.
+Check both inventory coverage and characterization coverage before concluding
+that a recycling measure has little benefit.
 
 ### Recommended run record
 
-For a reproducible study, record:
+Another researcher should be able to identify the exact inputs and methods
+behind a figure without reconstructing the order in which notebook cells were
+executed. Keep a run record beside the result files. At minimum, record:
 
 - Git commit hash;
-- Conda environment export;
+- whether uncommitted code or configuration changes were used;
+- resolved Conda environment export and/or pip package snapshot, including the
+  Pathways source commit where applicable;
 - ecoinvent version and system model;
 - REMIND pathway and package years;
 - external scenario combination;
 - hashes or version dates of source workbooks;
 - the PoR inventory staging manifest and `results/input_snapshots/<sha256>/` snapshot, when used;
-- settings changed in each notebook;
-- generated Pathways ZIP name and result filename;
-- LCIA methods;
+- active notebook settings, including selected polymers, obsolete-capacity
+  filtering and material-sensitivity case;
+- generated Pathways ZIP name **and content hash**, plus the exact result filename;
+- LCIA methods, selected inventory/CF version and any supplementary method definitions;
+- relevant linking, classification and material-share report locations;
 - unresolved warnings and modelling assumptions.
+
+The framework already retains input snapshots and package-level audit
+information, but do not assume that a standard timestamped Parquet result file
+contains this complete run record. A separate text or JSON sidecar is a practical
+way to keep the association with the package and methods. This is a recommended
+recording practice, not a claim that all standard impact exports currently write
+such a manifest automatically. A dependency installation file is also not a
+complete record of the transitive packages resolved on a particular machine.
 
 ## Assumptions, provenance, and review
 
@@ -1592,7 +1958,18 @@ In a coupled scenario-LCA workflow, a numerical result can change because of:
 - a revised LCIA method;
 - a changed selection or aggregation in the analysis notebook.
 
-These changes can produce the same outward symptom—a different bar height—while having completely different scientific meanings. Provenance must therefore cover the whole chain, not only the final inventory workbook.
+These changes can produce the same outward symptom—a different bar height—while
+having completely different scientific meanings. A lower impact could reflect
+less production, a different technology, a cleaner supplier or a contribution
+that was accidentally omitted. Provenance must therefore cover the whole chain,
+not only the final inventory workbook.
+
+When joining the project, start by finding the scenario source, mapping rule,
+inventory activity and exported result for one product. That small trace is a
+useful introduction to the model and provides a reference when something later
+changes. Keep corrections to the model separate from scientific sensitivities:
+fixing a wrong unit or an invalid resource flow should establish a corrected
+baseline, not become a transition scenario in its own right.
 
 ### Source hierarchy
 
@@ -1606,7 +1983,18 @@ Use the strongest available basis for each modelling decision:
 6. explicit expert assumption;
 7. sensitivity range when no single value is defensible.
 
-Never present an analyst assumption as if it were an ITOM result. In comments and reports, distinguish “ITOM specifies” from “the LCA implementation assumes.”
+This is a guide to finding evidence, not permission to ignore contradictions.
+Developer feedback may clarify what a variable means while a workbook still
+uses an older name or boundary. Record both, state the interpretation used in
+the LCA and identify the balance or scenario quantity affected by it. A process
+study may also provide a better inventory than the industrial model, while the
+model remains the appropriate source for deployment quantities.
+
+Never present an analyst assumption as if it were an ITOM result. In comments
+and reports, distinguish “ITOM specifies” from “the LCA implementation assumes.”
+For example, terminal trade outside EU27+3 describes the modelled trade boundary;
+it does not identify a particular exporting country or prove that its production
+uses a specific renewable electricity mix.
 
 ### Assumption-record template
 
@@ -1616,14 +2004,14 @@ For each material assumption, record:
 |---|---|
 | ID | `POR-STEAM-001` |
 | Topic | Steam supply for methanol distillation |
-| Decision | Prospective industrial heat sensitivity used in place of static natural-gas steam |
-| Rationale | Original exchange is inconsistent with the low-carbon scenario narrative |
+| Decision | Compare the existing steam recipe with an explicitly defined alternative heat supply |
+| Rationale | The source does not establish the future heat technology; test its influence rather than assuming one |
 | Source | Model-developer clarification, publication, or ecoinvent dataset |
 | Status | Confirmed / provisional / sensitivity only |
 | Applies to | CL, OCE, or both |
 | Years | 2025–2050 or selected years |
 | Affected files | YAML, inventory workbook, notebook setting |
-| Expected direction | Lower climate impact; possible trade-offs in other categories |
+| Expected direction | Hypothesized climate reduction; check other categories and report the calculated direction |
 | Reviewer | Name or organization |
 | Decision date | ISO date, `YYYY-MM-DD` |
 | Resolution needed | Missing technology shares or process specification |
@@ -1644,7 +2032,12 @@ Source
 Affected scenarios and years
 ```
 
-This is especially important when a dataset is copied from ecoinvent and then modified. The final workbook alone shows the new state, not what was changed or why.
+This is especially important when a dataset is copied from ecoinvent and then
+modified. The final workbook alone shows the new state, not what was changed or
+why. Include the original provider's location, product grade and system model
+when these affect the interpretation. Keep unit conversions and allocation
+calculations with the source data so that the next researcher can reproduce
+them, rather than relying on a comment such as “adjusted for PoR.”
 
 ### Sensitivity design
 
@@ -1660,9 +2053,32 @@ Use sensitivities for uncertain assumptions that could alter conclusions, includ
 - CCS credit convention and permanence;
 - polymer retrofit efficiency;
 - inclusion of obsolete capacity;
-- allocation of multifunctional processes.
+- allocation of multifunctional processes;
+- primary/secondary input floors and the retained secondary technology mix;
+- the product-grade interfaces enabled for recovered materials;
+- foreground efficiency and yield changes versus background decarbonization.
 
-Change one conceptual assumption at a time where possible. Label sensitivities separately from the core CL and OCE scenario identities so that a sensitivity is not mistaken for an industrial-model output.
+Change one conceptual assumption at a time where possible. Label sensitivities
+separately from the core CL and OCE scenario identities so that a sensitivity is
+not mistaken for an industrial-model output. Use a small factorial comparison
+when the interaction is itself the question—for example, compare both
+industrial scenarios under the native and high-recycling background, with the
+same methods and functional demand definitions.
+
+Begin with assumptions that can affect a conclusion, not every parameter that
+can be changed. A useful sensitivity explains a mechanism: which input changed,
+which supply chain responded and which burden moved. Report annual totals and
+per-unit effects together when scenarios have different output volumes. For
+regional results, distinguish a physical relocation of production from a change
+in the geographic specificity of the data.
+
+Do not describe every proxy as conservative. A fossil feedstock placeholder can
+overstate future burdens, while an ideal renewable supply without explicit
+balancing or utilization assumptions can understate them. Where the direction
+is unresolved, show a range or report the limitation rather than assigning a
+single reassuring label. Recycling sensitivities likewise do not solve future
+scrap availability, collection, grade suitability or market equilibrium; they
+test the consequence of specified input shares within the retained inventories.
 
 ## Troubleshooting
 
@@ -1937,21 +2353,26 @@ version compatibility with every other active module. The descriptor lives in
 
 ### Develop a new regional case study
 
-At minimum, revise:
+The study area does not have to be an IAM region or an entire country. A chemical cluster, port, group of plants or another smaller industrial system can be represented by its own foreground activities, production quantities and supply boundaries, while its background comes from the country and IAM-region inventories that are available. You do not need to create a new IAM for the cluster to use this approach.
 
-- IAMC region codes;
-- foreground dataset locations;
-- market replacement geographies;
-- regionalization rules;
-- electricity, heat, hydrogen, and transport assumptions;
-- interpretation of imports, exports, and internal transfers;
-- the activity-location grouping used for geographic contribution analysis.
+The essential task is to describe the smaller system explicitly. A country code supplies geographical context; it is not a substitute for a cluster boundary. For example, a cluster in the Netherlands may retain `NL` as its foreground location but use distinct activity identities, scenario variables and replacement rules to identify only the processes included in the study. A new subnational code is optional and requires matching topology, supplier and characterization support; arbitrary location labels are not regionalized automatically.
 
-The current `NL` and PoR-specific assumptions should not be reused implicitly for another industrial cluster.
+A practical sequence is:
+
+1. **Define the system and functional demand.** List included plants/products, annual production or services, study years and the treatment of imports, exports and shared utilities. Decide whether the study represents gross production, local consumption or another boundary before building markets.
+2. **Prepare a separate external module.** Add the scenario CSV, mapping YAML, inventory workbook where needed and datapackage descriptor using the contracts above. Give custom activities and variables controlled identities so that they do not unintentionally overlap with the PoR module or another cluster.
+3. **Set the geographies deliberately.** Review IAMC region codes, foreground dataset locations, available background regions and the relevant topologies. Check that country/IAM geography is recognised by the supplier resolver. An aggregate IAM electricity mix may be the best available background, but it should be reported as such.
+4. **Scope market replacements to the intended consumers.** Review `replaces` and `replaces in`, domestic production assumptions and import protection. An NL-wide replacement is broader than one cluster. If the cluster and unrelated consumers share `NL`, use additional supported consumer selectors rather than assuming that location alone isolates the cluster. Check the linked inventories to confirm the intended boundary.
+5. **Review the physical interfaces.** Electricity, heat, hydrogen, water, transport, raw/purified materials and internal transfers need assumptions appropriate to the new location and technology. Do not carry over Moroccan DAC methanol, PoR steam or European trade assumptions merely because those inventories already link successfully.
+6. **Adapt and validate the reporting.** Update the activity-location grouping and scenario labels in the geographic analysis, and check the applicability of EDGES factors. Reconcile physical quantities, supplier identities and totals for a small test case before adding more years or technologies.
+
+This is the main route for using the repo at a smaller spatial scale than a standard background database. It adds an explicit industrial foreground and rules for connecting it to the prospective background; it does not turn country-level inventories into plant measurements or make a country code resolve the physical location of every upstream activity. The current `NL` and PoR-specific assumptions should therefore never be reused implicitly for another cluster.
 
 ## Data requirements and limitations
 
-The complete workflow requires:
+The repository provides the modelling workflow, not all of the data needed to
+run every case study. Before starting a build, check which inputs you have and
+which you still need. The complete workflow requires:
 
 - an ecoinvent database under its applicable license;
 - `premise` and IAM scenario data supported by the selected setup;
@@ -1959,24 +2380,67 @@ The complete workflow requires:
 - custom inventory workbooks for processes not represented adequately in the background database;
 - documented assumptions for data gaps, allocation, transport distances, energy supply, carbon origin, and storage accounting.
 
-Some source data are project-specific, licensed, or too large for general redistribution. The repository structure and mappings can therefore be available even when a user does not have access to every input. Users are responsible for complying with the licenses of ecoinvent and all external data sources.
+Some source data are project-specific, licensed, or too large for general
+redistribution. The repository structure and mappings can therefore be available
+even when a user does not have access to every input. A public configuration is
+not evidence that the licensed background or original industrial outputs are
+included. Users are responsible for complying with the licenses of ecoinvent and
+all external data sources. Credentials and local cloud paths should remain
+outside version control.
 
-The framework does not remove the need for expert review. Results remain sensitive to model boundary choices, foreground inventory quality, scenario consistency, supplier geography, and LCIA method conventions.
+Keep the following boundaries in mind when interpreting a result:
+
+- **Prospective background is not prospective process design.** Updating
+  electricity and material suppliers does not automatically change a foreground
+  plant's yield, energy efficiency, emission control or operating mode. Those
+  changes need scenario information and explicit inventory or mapping choices.
+- **A cluster demand is not a territorial inventory.** The annual PoR system can
+  cause burdens abroad; an `NL` activity can also represent production outside
+  the physical port. Activity-location analysis and regionalized LCIA answer
+  related but different questions.
+- **Configured scope is not complete market coverage.** A rule only affects the
+  products, grades and geographies it matches. Direct producer links and
+  unsupported grades can remain outside an otherwise valid sensitivity.
+- **Recycled input is not end-of-life recycling.** The non-ferrous module changes
+  selected background supply mixes while retaining recycling process burdens.
+  It does not forecast the scrap stocks, collection systems or additional
+  refining capacity required to achieve those shares.
+- **Attributional results are not a prediction of policy consequences.** A
+  lower modelled footprint under different input shares does not establish
+  marginal substitution, price effects, rebound or economy-wide feasibility.
+- **Indicator coverage must be checked.** Neither a metal-named resource metric
+  nor a regionalized result is automatically complete for all relevant flows,
+  activities and geographies. Retain unresolved classifications and broad
+  geographic proxies in the interpretation rather than hiding them.
+
+The framework does not remove the need for expert review. Its value is that
+these choices can be made explicit, changed and traced through the coupled
+system. Conclusions still depend on model boundaries, foreground inventory
+quality, scenario consistency, supplier geography and LCIA conventions. Use the
+assumptions register and validation checks above to decide which comparisons
+are sufficiently supported for the question being asked.
 
 ## Applications
 
-The framework can support:
+The most useful applications combine a defined industrial question with a
+traceable set of scenarios. Examples include:
 
-- industrial decarbonization analysis;
-- regional transition pathways;
-- chemical and petrochemical systems;
-- steel-industry transitions;
-- circular-economy strategies;
-- prospective LCA;
-- industrial cluster analysis;
-- future technology assessment;
-- scenario comparison;
-- policy support.
+| Question | What the framework can compare | What needs additional evidence |
+|---|---|---|
+| How does a chemical cluster's footprint change during decarbonization? | Industrial deployment and output from ITOM with prospective upstream electricity, fuels, materials and transport | Process-specific future yields, emission controls and unmodelled activities |
+| Are lower impacts caused by cleaner production or lower output? | Annual scenario burdens alongside per-unit polymer results and contribution analysis | Comparable product functions and a clear treatment of coproducts |
+| Where do the burdens of a local transition occur? | Demand for a cluster linked to activity-location contributions and, separately, supported EDGES methods | Finer plant locations, unresolved geographic aggregates and local characterization coverage |
+| Does a circularer metal background change the assessment? | Native versus specified primary/secondary mixes in approved non-ferrous markets, with steel left endogenous | Scrap feasibility, recovered-product quality and future recycling technology evolution |
+| How important are imports and alternative feedstocks? | Explicit domestic, European-trade and terminal supply routes with their retained inventories | Exporter identity, transport distances and complete emerging feedstock chains |
+| Can the same approach be used for a smaller cluster or another sector? | A new foreground boundary, scenario mapping and inventory set within the existing background workflow | Local data, a suitable functional demand and review of PoR-specific assumptions |
+
+These comparisons can support research on industrial decarbonization, chemical
+and petrochemical transitions, steel-industry scenarios, circular-economy
+sensitivities and future technology assessment. They can also inform policy
+discussions, provided the distinction between a conditional scenario result and
+a prediction of real-world implementation is kept clear. The current PoR case
+is a worked application of the framework, not a restriction on the scale or
+sector of a future study.
 
 ## Related repositories
 

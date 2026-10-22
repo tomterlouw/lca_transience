@@ -1,6 +1,7 @@
 # Evidence review for extending non-ferrous recycling scenarios
 
-Review date: **20 October 2026**. This is a scoped, decision-oriented review of
+Review date: **20 October 2026**; generic-carbonate coupling checked **22 October
+2026** against the exported inventories. This is a scoped, decision-oriented review of
 additional metals relevant to the repo's supply-mix policy, not an exhaustive
 systematic review of metal circularity. Research was screened for a usable
 primary/secondary supply denominator, future year, geography, product grade and
@@ -8,10 +9,12 @@ an inventory route that can carry the recycling burdens.
 
 ## Decision and scope
 
-The active scope is now **ten product rules**: the original aluminium cast alloy,
-copper cathode, nickel class 1, cobalt and lead; World lithium carbonate, battery
-grade; and gold, silver, platinum and palladium. The first six numeric targets
-remain unchanged. Lithium retains its assumed linear 2020–2050 path. The four
+The active scope is now **eleven market rules for ten metal families**: the
+original aluminium cast alloy, copper cathode, nickel class 1, cobalt and lead;
+generic lithium carbonate in GLO and battery-grade carbonate in World; and gold,
+silver, platinum and palladium. The original six numeric targets remain
+unchanged; generic carbonate uses the existing lithium-family endpoints.
+Lithium retains its assumed linear 2020–2050 path. The four
 precious metals use documented 2025 supply anchors and separately labelled future
 sensitivities, not purported 2050 forecasts. Their curves retain the existing
 2020 catalogue point and interpolate piecewise linearly through 2025 to 2050.
@@ -66,7 +69,7 @@ and [secondary suppliers](https://github.com/polca/premise/blob/d5362d8ce1df66c2
 
 | Candidate | Evidence and its scope | Decision for this extension |
 | --- | --- | --- |
-| Lithium | IEA 2026 provides global 2050 secondary volumes and total elemental-Li demand under identifiable demand pathways. An existing lithium-carbonate recycling input can be traced in the native market and upstream mapping. | Add a qualified 2050 minimum-share sensitivity for the battery-grade market; retain the inherited generic-carbonate grade proxy explicitly. |
+| Lithium | IEA 2026 provides global 2050 secondary volumes and total elemental-Li demand under identifiable demand pathways. Existing generic-carbonate recovery is present in the GLO generic market and in the supported World battery-grade interface. | Apply qualified representative-compound sensitivities to generic carbonate in GLO and battery-grade carbonate in World. Preserve the latter's inherited grade proxy; do not override battery-grade GLO or create a separate hydroxide recycling route. |
 | Gold and silver | Global 2025 mine/recycled supply statistics are available from the World Gold Council and Silver Institute. Existing same-product recovery LCIs are identified. | Activate observed-anchor sensitivities with explicit future increments. Gold's recovery mix remains a technology proxy; silver's Parkes-process input is excluded from the claimed secondary fraction. |
 | Platinum and palladium | Johnson Matthey 2026 reports 2025 open-loop secondary and primary supply. Gross closed-loop ratios and technology-specific 2050 studies use different denominators. | Activate open-loop observed-anchor sensitivities using existing recovery routes; do not add closed-loop circulation again. |
 | Zinc | Refined-metal studies and the newer Rostek et al. global zinc-cycle model provide prospective evidence, but refined metal, direct scrap reuse and recycled concentrate are different boundaries. | Defer activation until a complete appropriate refined-zinc recovery/refining chain and matching scenario denominator are connected. |
@@ -74,7 +77,7 @@ and [secondary suppliers](https://github.com/polca/premise/blob/d5362d8ce1df66c2
 | Manganese | A supported whole-metal future recycled-input trajectory and matching refined-product recovery boundary were not established here. Battery-material evidence alone is insufficient. | Retain native modelling. |
 | Magnesium | Global modelling distinguishes functional recovery of magnesium metal from magnesium retained in aluminium alloys. | Defer until those supply products and burdens are separated; nonfunctional alloy circulation does not supply generic magnesium metal. |
 | Graphite and magnet rare earths | Future secondary-supply and recycling LCI studies exist, but product-grade and process interfaces must match the modelled market. | Retain native modelling until the interfaces are established; do not assign magnet recycling to every rare-earth oxide. |
-| Rhodium | A 2025 integrated-refinery inventory includes rhodium alongside Au/Ag/Pt/Pd. | Candidate for an additional LCI/coupling; not part of the current ten-rule extension. |
+| Rhodium | A 2025 integrated-refinery inventory includes rhodium alongside Au/Ag/Pt/Pd. | Candidate for an additional LCI/coupling; not part of the current eleven-rule scope. |
 | Ores, concentrates and explicitly primary products | These are different stages or explicitly defined product types, not generic refined-metal supply markets. | No blanket recycled-content override. A separate documented process chain would be needed. |
 
 ## Lithium: evidence, arithmetic and limitations
@@ -112,15 +115,20 @@ newer forecasts.
 
 ### How this is applied in the model
 
-- The affected market is `market for lithium carbonate, battery grade`, product
-  `lithium carbonate, battery grade`, location `World`. The policy does not
-  invent separate regional battery-grade supply fractions.
-- The native market already includes `treatment of used Li-ion battery,
-  hydrometallurgical treatment`, with output `lithium carbonate`, location `GLO`.
-  Reusing this inherited generic-carbonate input is a declared grade-interface
-  proxy, not proof of battery-grade purity or a newly modelled purification step.
-  Its existing recycling burdens are retained; the recovered material is not
-  assigned zero environmental burden.
+- Two exact markets are supported: `market for lithium carbonate`, product
+  `lithium carbonate`, GLO; and `market for lithium carbonate, battery grade`,
+  product `lithium carbonate, battery grade`, World. Both use kilogram units.
+  The battery-grade GLO market remains native: no positive secondary recipe was
+  verified there. The policy does not invent regional battery-grade fractions.
+- The generic GLO recipe already includes `treatment of used Li-ion battery,
+  hydrometallurgical treatment`, output `lithium carbonate`, GLO. Its reference
+  share is approximately 0.08404146%. Reweighting this existing same-product
+  recipe retains all recovery burdens and the market's distribution exchanges.
+  No LCI reconstruction, zero-burden material or negative credit is introduced.
+- The supported World battery-grade interface uses that generic recovered
+  product as an inherited, declared grade proxy. It does not establish
+  battery-grade purity or add a purification step. Its existing recovery burdens
+  likewise remain; the generic GLO rule does not widen this grade interface.
 - At the user's request, minimum-share cases use the same linear interpolation
   as the other metals: `floor(y) = s2020 + (s2050 - s2020) * (y - 2020) / 30`,
   clamped to the endpoint fractions outside 2020-2050. The 2020 model reference
@@ -141,6 +149,32 @@ scrap-stock model, a demonstrated future supply of battery-grade carbonate, or a
 prediction that the existing hydrometallurgical technology will provide every
 future tonne of recovered lithium. These limitations should be included when
 interpreting the resulting impacts.
+
+### Coverage checked in the current exports
+
+The 22 October inventory audit of premise 2.5.5/ecoinvent 3.12 exports found GLO
+generic-carbonate and hydroxide markets in actual use, while the existing
+World battery-grade rule had been reported as `market_not_present`. Adding the
+generic-carbonate rule closes this specific supply-mix gap using a positive
+native recycling recipe; it does not assert that all lithium chemistry is now
+covered. The underlying IEA ratios remain elemental-Li global sensitivities,
+not measured generic- or battery-grade carbonate market forecasts.
+
+The inspected ordinary `lithium hydroxide production`, GLO, uses approximately
+**1.622797 kg generic carbonate/kg hydroxide** through its carbonate-market
+input. It inherits the upstream supply change without a separate hydroxide
+override or double credit. The coefficient is an observed inventory input, not
+a policy-imposed conversion. Battery-grade hydroxide instead has direct
+primary-carbonate producer links in these exports and is not rerouted by this
+change. Its own market and the battery-grade GLO carbonate market remain native.
+
+The selected RELICS lithium definition in the inspected Pathways setup assigns
+a factor to `Lithium`, natural resource/in ground, but none to `Spodumene`.
+Consequently its reported extraction result is not a complete elemental-Li
+balance across both brine and ore routes. A validated ore-content conversion
+and LCIA coverage review are separate work; no factor or correction is invented
+here. A small change in that indicator after the new coupling would not by
+itself demonstrate that lithium recycling has little environmental benefit.
 
 ## Precious metals: implemented anchors and scenario assumptions
 
@@ -316,7 +350,8 @@ policy hash and actual applied-share audit with each exported scenario package.
 The catalogue's extent is not the policy's extent. Compare actual audited shares,
 not only the named YAML targets, because native shares may already exceed a floor.
 
-The existing metals workbook retains its 103-row `Shares` source and includes
+The local metals workbook retains the original 103 `Shares` records and adds
+one generic-carbonate record (104 in total), and includes
 `Scenario assumptions` and `Evidence` documentation of active scope, source
 components, derived anchors, analyst increments and deferred candidates. Those
 documentation sheets are an explanatory snapshot, not another runtime parameter

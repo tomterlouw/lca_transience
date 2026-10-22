@@ -41,6 +41,11 @@ def diagnostics():
     return {
         "material decisions": [{"activity": activity(), "status": "changed"}],
         "material update metrics": {"compiled pairs": 1, "executed pairs": 1},
+        "applied market shares": {"copper": {"primary share": 0.55, "secondary share": 0.45}},
+        "market diagnostics": [{"reason": "source market retained", "metal": "copper"}],
+        "resource diagnostics": [{"name": "scrap refining", "product": "copper, cathode",
+                                  "location": "RER", "reason": "secondary route preserved"}],
+        "methodology": {"system model": "cutoff", "market decisions": {"source market retained": 1}},
     }
 
 

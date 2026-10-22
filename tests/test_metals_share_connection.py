@@ -394,9 +394,9 @@ class RealRepositoryLithiumExtensionTests(unittest.TestCase):
     def policy(self, case="baseline"):
         return MetalSteelPolicy.from_file(self.policy_path, nonferrous_case=case)
 
-    def test_real_baseline_remains_ten_rule_audit_only_with_no_upstream_dependency(self):
+    def test_real_baseline_remains_eleven_rule_audit_only_with_no_upstream_dependency(self):
         selected = self.policy()
-        self.assertEqual(len(selected.rules), 10)
+        self.assertEqual(len(selected.rules), 11)
         self.assertEqual(set(selected.source_hashes), {str(self.policy_path.resolve())})
         ds = self.lithium_market()
         db = inventory(ds)
@@ -533,6 +533,196 @@ class RealRepositoryLithiumExtensionTests(unittest.TestCase):
         self.assertEqual(classify_supply(unreviewed, rule), "unknown")
         foreign = dict(known, location="RER")
         self.assertEqual(classify_supply(foreign, rule), "unknown")
+
+
+class GenericLithiumCarbonateConnectionTests(unittest.TestCase):
+    """Generic GLO carbonate is distinct from the World battery-grade proxy.
+
+    Synthetic inventories exercise the live policy files without overwriting
+    exports or claiming a complete elemental-lithium characterization method.
+    """
+
+    policy_path = Path(__file__).resolve().parents[1] / "configuration_file/metals_scenario_policy.yaml"
+    product = "lithium carbonate"
+    recovery = "treatment of used Li-ion battery, hydrometallurgical treatment"
+    reference = 0.000840414604538239
+    endpoints = {"conservative": 250 / 1122, "moderate_recycling": 250 / 1122,
+                 "high_recycling": 560 / 1501}
+
+    def policy(self, case="baseline"):
+        return MetalSteelPolicy.from_file(self.policy_path, nonferrous_case=case)
+
+    def carbonate(self, *, secondary_share=None, location="GLO", gross=1.0):
+        share = self.reference if secondary_share is None else secondary_share
+        name = "market for " + self.product
+        return {"name": name, "reference product": self.product, "unit": "kilogram", "location": location,
+                "exchanges": [
+                    {"name": name, "product": self.product, "unit": "kilogram", "location": location,
+                     "amount": 1, "type": "production"},
+                    exchange("lithium carbonate production, from concentrated brine", gross * (1 - share) * 0.34,
+                             product=self.product, location="GLO"),
+                    exchange("lithium carbonate production, from spodumene", gross * (1 - share) * 0.525,
+                             product=self.product, location="CN"),
+                    exchange("lithium carbonate production, from spodumene", gross * (1 - share) * 0.135,
+                             product=self.product, location="RoW"),
+                    exchange(self.recovery, gross * share, product=self.product, location="GLO",
+                             **{"comment": "Existing hydro-recovery recipe, not burden-free scrap"}),
+                    exchange("transport, freight, lorry", 0.027, product="transport, freight, lorry",
+                             unit="ton kilometer", location="GLO"),
+                    {"name": "Carbon dioxide, fossil", "amount": 0.007, "type": "biosphere"},
+                ]}
+
+    def database(self, market=None):
+        db = inventory(self.carbonate() if market is None else market)
+        # The policy changes demand for this supplier, not its allocated recipe.
+        provider = next(ds for ds in db if ds["name"] == self.recovery)
+        provider["exchanges"] = [
+            {"name": self.recovery, "product": self.product, "unit": "kilogram", "location": "GLO",
+             "type": "production", "amount": 1},
+            exchange("market for electricity, medium voltage", 0.4,
+                     product="electricity, medium voltage", unit="kilowatt hour", location="GLO"),
+            exchange("treatment of used Li-ion battery", -2.2,
+                     product="used Li-ion battery", unit="kilogram", location="GLO"),
+            {"name": "Carbon dioxide, fossil", "amount": 0.25, "type": "biosphere"},
+        ]
+        return db
+
+    def audit(self, plan):
+        return next(row for row in plan.audit if row["reference product"] == self.product)
+
+    def test_same_product_glo_rule_and_source_identity_are_explicit(self):
+        selected = self.policy("high_recycling")
+        rule = next(rule for rule in selected.rules if rule["id"] == "lithium_carbonate_generic")
+        self.assertEqual(rule["name"], "market for lithium carbonate")
+        self.assertEqual(rule["reference product"], self.product)
+        self.assertEqual(rule["source_product"], self.product)
+        self.assertEqual(rule["supply_products"], [self.product])
+        self.assertEqual(rule["locations"], ["GLO"])
+        self.assertTrue(rule["strict_secondary_matching"])
+        self.assertNotIn("secondary_source_product", rule)
+        self.assertNotIn("_secondary_supply_selectors", rule)
+        self.assertEqual(rule["secondary"]["names"], [self.recovery])
+        self.assertTrue(rule["target_note"])
+
+    def test_native_baseline_is_exact_noop_and_uses_no_optional_share_files(self):
+        selected = self.policy()
+        db = self.database()
+        before = deepcopy(db)
+        plan = plan_database(db, selected, scenario={"year": 2050})
+        self.assertEqual(plan.changes, ())
+        self.assertEqual(apply_database(db, plan, policy=selected), before)
+        self.assertEqual(set(selected.source_hashes), {str(self.policy_path.resolve())})
+        self.assertTrue(plan.stats["native_baseline"])
+
+    def test_live_floors_interpolate_clamp_and_preserve_gross_supply_and_recipes(self):
+        for case, endpoint in self.endpoints.items():
+            selected = self.policy(case)
+            for year in (2015, 2020, 2025, 2030, 2035, 2040, 2045, 2050, 2060):
+                with self.subTest(case=case, year=year):
+                    expected = self.reference + (endpoint - self.reference) * min(30, max(0, year - 2020)) / 30
+                    db = self.database(self.carbonate(gross=1.01))
+                    before = deepcopy(db)
+                    plan = plan_database(db, selected, scenario={"year": year})
+                    audit = self.audit(plan)
+                    self.assertAlmostEqual(audit["target_secondary_share"], expected)
+                    self.assertAlmostEqual(audit["applied_secondary_share"], expected)
+                    result = apply_database(db, plan, policy=selected)
+                    inputs = result[0]["exchanges"][1:5]
+                    self.assertAlmostEqual(sum(exc["amount"] for exc in inputs), 1.01)
+                    self.assertAlmostEqual(inputs[-1]["amount"], 1.01 * expected)
+                    for revised, weight in zip(inputs[:3], (0.34, 0.525, 0.135)):
+                        self.assertAlmostEqual(revised["amount"], 1.01 * (1 - expected) * weight)
+                    self.assertEqual(result[0]["exchanges"][5:], before[0]["exchanges"][5:])
+                    self.assertEqual(result[1:], before[1:])  # Full provider LCIs retained.
+                    self.assertEqual(db, before)  # The input itself remains unchanged.
+
+    def test_higher_native_recycled_share_is_not_reduced_by_a_floor(self):
+        for case in self.endpoints:
+            with self.subTest(case=case):
+                selected = self.policy(case)
+                db = self.database(self.carbonate(secondary_share=0.8))
+                before = deepcopy(db)
+                plan = plan_database(db, selected, scenario={"year": 2050})
+                self.assertEqual(plan.changes, ())
+                self.assertAlmostEqual(self.audit(plan)["applied_secondary_share"], 0.8)
+                self.assertEqual(apply_database(db, plan, policy=selected), before)
+
+    def test_reference_and_primary_only_adjust_demand_not_recycling_burdens(self):
+        for case, expected in (("reference", self.reference), ("primary_only", 0.0)):
+            with self.subTest(case=case):
+                selected = self.policy(case)
+                db = self.database(self.carbonate(secondary_share=0.1))
+                before = deepcopy(db)
+                plan = plan_database(db, selected, scenario={"year": 2050})
+                result = apply_database(db, plan, policy=selected)
+                self.assertAlmostEqual(self.audit(plan)["applied_secondary_share"], expected)
+                self.assertAlmostEqual(result[0]["exchanges"][4]["amount"], expected)
+                self.assertEqual(result[1:], before[1:])
+
+    def test_ordinary_hydroxide_benefits_via_unchanged_carbonate_input_only(self):
+        selected = self.policy("high_recycling")
+        db = self.database()
+        hydroxide = {"name": "lithium hydroxide production", "reference product": "lithium hydroxide",
+                     "unit": "kilogram", "location": "GLO", "exchanges": [
+                         {"name": "lithium hydroxide production", "product": "lithium hydroxide",
+                          "unit": "kilogram", "location": "GLO", "type": "production", "amount": 1},
+                         exchange("market for lithium carbonate", 1.6227970123291016,
+                                  product=self.product, location="GLO"),
+                         {"name": "Carbon dioxide, fossil", "amount": 0.05, "type": "biosphere"},
+                     ]}
+        db.append(hydroxide)
+        before = deepcopy(db)
+        plan = plan_database(db, selected, scenario={"year": 2050})
+        result = apply_database(db, plan, policy=selected)
+        self.assertEqual(plan.changed_indices, (0,))
+        self.assertEqual(result[-1], hydroxide)
+        self.assertFalse(any("hydroxide" in rule["reference product"] for rule in selected.rules))
+        carbonate_required = result[-1]["exchanges"][1]["amount"]
+        recycled_per_kg_hydroxide = carbonate_required * result[0]["exchanges"][4]["amount"]
+        self.assertAlmostEqual(recycled_per_kg_hydroxide, carbonate_required * 560 / 1501)
+        self.assertGreater(recycled_per_kg_hydroxide,
+                           before[-1]["exchanges"][1]["amount"] * before[0]["exchanges"][4]["amount"])
+        self.assertEqual(result[1:], before[1:])  # No extra conversion or credit added.
+
+    def test_glo_battery_grade_and_unapproved_regions_are_not_silently_overridden(self):
+        selected = self.policy("high_recycling")
+        battery = RealRepositoryLithiumExtensionTests.lithium_market(location="GLO")
+        world_generic = self.carbonate(location="World")
+        db = self.database() + [battery, world_generic]
+        before = deepcopy(db)
+        plan = plan_database(db, selected, scenario={"year": 2050})
+        result = apply_database(db, plan, policy=selected)
+        self.assertEqual(plan.changed_indices, (0,))
+        self.assertEqual(result[-2:], before[-2:])
+        self.assertEqual(plan.stats["matched_markets"], 1)
+
+    def test_unreviewed_recycling_route_or_wrong_product_cannot_become_secondary(self):
+        selected = self.policy("high_recycling")
+        rule = next(rule for rule in selected.rules if rule["id"] == "lithium_carbonate_generic")
+        known = self.carbonate()["exchanges"][4]
+        self.assertEqual(classify_supply(known, rule), "secondary")
+        wrong_grade = dict(known, product="lithium carbonate, battery grade")
+        self.assertIsNone(classify_supply(wrong_grade, rule))
+        unknown = dict(known, name="treatment of unreviewed lithium-bearing waste")
+        self.assertEqual(classify_supply(unknown, rule), "unknown")
+        ds = self.carbonate()
+        ds["exchanges"][4] = unknown
+        with self.assertRaisesRegex(MetalPolicyError, "Unrecognised"):
+            plan_database(inventory(ds), selected, scenario={"year": 2050})
+
+    def test_audit_reports_generic_market_target_source_and_supplier_recipe(self):
+        selected = self.policy("high_recycling")
+        plan = plan_database(self.database(), selected, scenario={"year": 2050})
+        row = self.audit(plan)
+        self.assertEqual(row["share_data_source_product"], self.product)
+        self.assertEqual(set(row["share_data_targets"]), {2020, 2050})
+        self.assertAlmostEqual(row["share_data_targets"][2020], self.reference)
+        self.assertAlmostEqual(row["share_data_targets"][2050], 560 / 1501)
+        self.assertTrue(row["evidence_details"])
+        self.assertTrue(row["target_note"])
+        self.assertTrue(row["applied_secondary_suppliers"])
+        self.assertEqual(len(row["share_data_sha256"]), 64)
+        selected.verify_sources()
 
 
 if __name__ == "__main__":

@@ -8,7 +8,9 @@ original scaling logic. Installed package files and inventory quantities are
 not changed. The Pathways adapter also separates new metals diagnostic records
 from activity mappings without discarding genuine dataset entries. Certified
 inventory-store access and scoped checkpoint optimizations live here too, so
-both export policies share one version-compatibility layer.
+both export policies share one version-compatibility layer. The reviewed lithium
+source exception changes only validation reporting, never its input quantities
+or uncertainty distributions.
 """
 from __future__ import annotations
 
@@ -16,11 +18,15 @@ import ast
 from collections.abc import Mapping
 from contextlib import contextmanager
 from contextvars import ContextVar
+from dataclasses import replace
 from functools import update_wrapper, wraps
 import hashlib
 import inspect
 import json
+import math
+from numbers import Real
 from pathlib import Path
+import struct
 import textwrap
 from typing import Callable
 
@@ -135,12 +141,23 @@ def disable_legacy_por_regionalization(external_class=None, *, verbose: bool = T
     return True
 
 
-PATHWAYS_MAPPING_GUARD_VERSION = 2
+PATHWAYS_MAPPING_GUARD_VERSION = 3
+
+# premise stores reporting metadata beside the metals provider lists. Keep this
+# allowlist sector-scoped: a same-named external scenario variable is still a
+# genuine activity mapping, and unfamiliar malformed entries must fail loudly.
+PATHWAYS_METALS_DIAGNOSTIC_KEYS = frozenset({
+    "material decisions",
+    "material update metrics",
+    "applied market shares",
+    "market diagnostics",
+    "resource diagnostics",
+    "methodology",
+})
 
 
 def pathways_activity_mapping_views(scenarios):
     """Validate/snapshot tiny provider identities before matrix export mutates data."""
-    diagnostic_keys = frozenset({"material decisions", "material update metrics"})
     views, omitted = [], 0
     for ordinal, scenario in enumerate(scenarios, 1):
         context = f"scenario {ordinal} ({scenario.get('model', '?')}/{scenario.get('pathway', '?')}/{scenario.get('year', '?')})"
@@ -153,7 +170,7 @@ def pathways_activity_mapping_views(scenarios):
                 raise ValueError(f"Invalid Pathways sector mapping in {context}: {sector!r}.")
             projected[sector] = {}
             for variable, providers in variables.items():
-                if sector == "metals" and variable in diagnostic_keys:
+                if sector == "metals" and variable in PATHWAYS_METALS_DIAGNOSTIC_KEYS:
                     omitted += 1
                     continue
                 location = f"{context}, {sector!r}/{variable!r}"
@@ -199,8 +216,9 @@ def write_pathways_activity_mapping(package, original, *args, snapshot=None, ver
 def install_premise_pathways_mapping_fix(pathways_class=None, *, verbose: bool = True) -> bool:
     """Separate new metals diagnostics from the activity-only Pathways mapping.
 
-    premise 2.5.2 stores decisions/metrics alongside activity mappings, while its
-    Pathways writer expects name/product/unit on every entry. Use a temporary
+    premise 2.5.2 stores decisions/metrics alongside activity mappings; 2.5.5
+    also stores applied shares, market/resource diagnostics and methodology.
+    The Pathways writer expects name/product/unit on every entry. Use a temporary
     export view; retain original diagnostics and never drop malformed real LCIs.
     Older activity-only mappings follow the original method unchanged.
     """
@@ -224,6 +242,166 @@ def install_premise_pathways_mapping_fix(pathways_class=None, *, verbose: bool =
     if verbose:
         print("Installed repo Pathways mapping compatibility guard for metals diagnostics.", flush=True)
     return True
+
+
+# ---------------------------------------------------------------------------
+# Reviewed source-inventory validation compatibility
+# ---------------------------------------------------------------------------
+
+_LITHIUM_ACTIVITY = (
+    "lithium carbonate production, from Salar del Hombre Muerto",
+    "lithium carbonate, battery grade", "AR",
+)
+_LITHIUM_ELECTRICITY = (
+    "market for electricity, high voltage", "electricity, high voltage", "AR",
+)
+_LITHIUM_SOURCE_SHA256 = "415eced99a20665d7790d404db62dccbec1206c8c1ff95d0e8d7e47637c02355"
+_SOURCE_DUPLICATE_GUARD_VERSION = 1
+_LITHIUM_SOURCE_PROFILES = (
+    # amount, lognormal loc, scale: original workbook rows 92, 95 and 97.
+    (0.014999999999999996, -6.907755278982132, 0.8950564214316266),
+    (0.015, -6.907755278982135, 0.895056421431627),
+    (0.3, -1.2039728043259361, 0.9066475442341566),
+)
+_LITHIUM_SOURCE_EXPLANATION = (
+    "Repo-reviewed premise lci-lithium.xlsx source components (Salar del Hombre "
+    "Muerto, rows 92 and 95). Inventory/cache float32 trimming makes the two "
+    "original lognormal 0.015 kWh AR high-voltage electricity rows identical. "
+    "Both rows and their uncertainty are retained, together with the separate "
+    "0.30 kWh row (0.33 kWh total). This acknowledges a source-inventory finding; "
+    "it does not establish that the source recipe is free of double counting. "
+    "Source SHA256=" + _LITHIUM_SOURCE_SHA256
+)
+
+
+def _float32(value):
+    return struct.unpack("f", struct.pack("f", value))[0]
+
+
+def _lithium_profile_kind(exchange):
+    """Recognize only the reviewed original/float32 amount-and-uncertainty tuples."""
+    if (exchange.get("type") != "technosphere"
+            or exchange.get("unit") != "kilowatt hour"
+            or exchange.get("uncertainty type") != 2
+            or bool(exchange.get("negative", False))
+            or any(exchange.get(field) is not None for field in ("minimum", "maximum", "shape"))):
+        return None
+    values = tuple(exchange.get(field) for field in ("amount", "loc", "scale"))
+    if any(isinstance(value, bool) or not isinstance(value, Real)
+           or not math.isfinite(value) for value in values):
+        return None
+    values = tuple(float(value) for value in values)
+    for position, expected in enumerate(_LITHIUM_SOURCE_PROFILES):
+        if values in (expected, tuple(_float32(value) for value in expected)):
+            return "small" if position < 2 else "large"
+    return None
+
+
+def _is_reviewed_lithium_duplicate(validator, issue, issues, source_path):
+    """Accept one known source pair, never a rule-wide or activity-wide waiver."""
+    if (issue.rule_id != "GRAPH.DUPLICATE_SUPPLIER"
+            or tuple(issue.activity_key or ()) != _LITHIUM_ACTIVITY
+            or str(validator.version) != "3.12"
+            or validator.system_model != "cutoff"
+            or not isinstance(issue.actual, Mapping)):
+        return False
+    # A third copy or any other duplicate in this activity revokes the exception.
+    if sum(other.activity_id == issue.activity_id for other in issues) != 1:
+        return False
+    if tuple(issue.actual.get("supplier", ())) != _LITHIUM_ELECTRICITY:
+        return False
+    try:
+        if hashlib.sha256(source_path.read_bytes()).hexdigest() != _LITHIUM_SOURCE_SHA256:
+            return False
+        activity = validator.store.activity(issue.activity_id)
+        if (tuple(activity.get(field) for field in ("name", "reference product", "location"))
+                != _LITHIUM_ACTIVITY or activity.get("unit") != "kilogram"):
+            return False
+        first_id = issue.actual.get("first_exchange_id")
+        pair_ids = {first_id, issue.exchange_id}
+        if len(pair_ids) != 2 or not pair_ids.issubset(set(activity.exchange_ids)):
+            return False
+        first, second = (validator.store.exchange(exchange_id) for exchange_id in (first_id, issue.exchange_id))
+        if dict(first) != dict(second) or first.get("amount") != issue.actual.get("amount"):
+            return False
+        electricity = []
+        for exchange_id in activity.exchange_ids:
+            exchange = validator.store.exchange(exchange_id)
+            identity = (exchange.get("name"), exchange.get("product", exchange.get("reference product")),
+                        exchange.get("location"))
+            if exchange.get("type") == "technosphere" and identity == _LITHIUM_ELECTRICITY:
+                electricity.append((exchange_id, _lithium_profile_kind(exchange)))
+        return (len(electricity) == 3
+                and [kind for _, kind in electricity].count("large") == 1
+                and {exchange_id for exchange_id, kind in electricity if kind == "small"} == pair_ids)
+    except (OSError, KeyError, AttributeError, TypeError, ValueError):
+        # Unavailable/changed source evidence keeps the original native error.
+        return False
+
+
+def install_premise_source_duplicate_guard(validation_api=None, *, source_path=None, verbose=True):
+    """Opt in to one fingerprinted source exception, without changing LCI data.
+
+    Installed package files are never edited. Old premise without this native
+    validation API remains unchanged; missing transitive dependencies still fail.
+    Every accepted finding remains visible as an explicitly suppressed issue.
+    """
+    if validation_api is None:
+        from importlib import import_module
+        try:
+            validation_api = import_module("premise.validation_framework")
+        except ModuleNotFoundError as error:
+            if error.name != "premise.validation_framework":
+                raise
+            return False
+    validator_class = getattr(validation_api, "InventoryGraphValidator", None)
+    original = getattr(validator_class, "_apply_suppressions", None)
+    if not callable(original):
+        return False
+    if getattr(original, "__repo_source_duplicate_guard_version__", None) == _SOURCE_DUPLICATE_GUARD_VERSION:
+        return False
+    if source_path is None:
+        source_path = Path(validation_api.__file__).parent / "data" / "additional_inventories" / "lci-lithium.xlsx"
+    source_path = Path(source_path)
+
+    @wraps(original)
+    def apply_reviewed_source_exception(self, result):
+        native = original(self, result)
+        if native.rule_id != "GRAPH.DUPLICATE_SUPPLIER" or not native.issues:
+            return native
+        issues = tuple(
+            replace(issue, suppressed=True, suppression_explanation=_LITHIUM_SOURCE_EXPLANATION)
+            if not issue.suppressed and _is_reviewed_lithium_duplicate(self, issue, native.issues, source_path)
+            else issue for issue in native.issues
+        )
+        return replace(native, issues=issues)
+
+    apply_reviewed_source_exception.__repo_source_duplicate_guard_version__ = _SOURCE_DUPLICATE_GUARD_VERSION
+    validator_class._apply_suppressions = apply_reviewed_source_exception
+    if verbose:
+        print("Enabled guarded lithium source-inventory duplicate review; quantities and uncertainty are unchanged.")
+    return True
+
+
+def preflight_reference_database_export(builder, *, verbose=True):
+    """Certify a fresh reference builder before deleting its existing BW target.
+
+    This deliberately performs no scenario update. Native validation remains
+    enabled, with the reviewed source exception installed by the repo setup.
+    Older premise without semantic certification uses its normal export checks.
+    """
+    install_premise_source_duplicate_guard(verbose=verbose)
+    attach_native_inventory_export_guard(builder)
+    certify = getattr(builder, "_ensure_semantic_certification", None)
+    if not callable(certify):
+        return []
+    reports = []
+    for scenario in builder.scenarios:
+        report = certify(scenario)
+        if report is not None:
+            report.raise_for_errors()
+            reports.append(report)
+    return reports
 
 
 # ---------------------------------------------------------------------------
