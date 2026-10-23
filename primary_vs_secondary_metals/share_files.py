@@ -18,7 +18,7 @@ SCENARIO_FILES = {case: f"primary_secondary_split_{case}.yaml" for case in SCENA
 ALIAS_FILE = "primary_secondary_split.yaml"
 COMBINED_FILE = "metal_shares_2050_scenarios.yaml"
 MANIFEST_FILE = "share_generation_manifest.json"
-GENERATOR_VERSION = 2
+GENERATOR_VERSION = 3
 TOLERANCE = 1e-6
 
 
@@ -192,6 +192,14 @@ def _inputs(baseline, evidence_csv, mapping_csv):
             raise ShareDataError(f"{mapping_csv}: empty/duplicate product mapping {product!r}")
         if family not in evidence:
             raise ShareDataError(f"{mapping_csv}: product {product!r} uses missing evidence family {family!r}")
+        # Old two-column mappings apply their family evidence as before. Once
+        # the optional column is supplied, every row needs an explicit choice:
+        # an empty cell must not silently expand the evidence's product scope.
+        scope = (row.get("evidence_scope") or "").strip() if "evidence_scope" in row else "apply"
+        if scope not in {"apply", "reference_only"}:
+            raise ShareDataError(f"{mapping_csv}: product {product!r} has invalid evidence_scope {scope!r}; expected apply or reference_only")
+        if scope == "reference_only":
+            evidence[family].setdefault("excluded_products", []).append(product)
         mapping[product] = family
     if set(mapping) != set(baseline):
         raise ShareDataError(f"{mapping_csv}: coverage differs; missing={sorted(set(baseline)-set(mapping))[:8]}, extra={sorted(set(mapping)-set(baseline))[:8]}")
@@ -204,6 +212,11 @@ def _generated_cases(baseline, evidence, mapping):
         scenario = deepcopy(baseline)
         for product, entry in scenario.items():
             record = evidence[mapping[product]]
+            if product in record.get("excluded_products", ()):
+                # Family-level evidence can cover only selected compounds or
+                # applications. Preserve all reference years for other products
+                # rather than extrapolating beyond the documented scope.
+                continue
             secondary = record[case]
             if "anchor_year" in record:
                 year, share = record["anchor_year"], record["anchor_secondary_share"]
@@ -360,7 +373,8 @@ def ensure_share_outputs(*, baseline_yaml=DATA_DIR / "metal_primary_secondary_sh
         manual = []
     combined = {"metadata": {"description": "Conservative, baseline and optimistic primary/secondary scenarios; named files are authoritative.",
                              "generator_version": GENERATOR_VERSION, "source": source, "source_sha256": portable_hashes,
-                             "scenario_files": SCENARIO_FILES, "manual_outputs": manual},
+                             "scenario_files": SCENARIO_FILES, "manual_outputs": manual,
+                             "product_evidence": mapping},
                 "evidence": evidence, "products": selected}
     derived = {output_dir / ALIAS_FILE: _yaml_bytes(selected["baseline"]),
                output_dir / COMBINED_FILE: _yaml_bytes(combined)}

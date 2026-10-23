@@ -18,12 +18,14 @@ metadata:
   sources:
     iea_recycling_2024:
       url: https://www.iea.org/reports/recycling-of-critical-minerals/executive-summary
-      accessed: 2026-10-13
+      accessed: 2026-10-23
       note: >-
-        Supports higher secondary supply and the need to distinguish recycled
-        input from collection and recovery rates. Battery-metal and whole-metal
-        markets are not interchangeable; configured nickel/cobalt targets are
-        screening assumptions, not direct reproductions of an IEA scenario.
+        Figure 2.16 reports 2050 battery-derived secondary supply divided by
+        global total demand, including manufacturing scrap and retired EV/storage
+        batteries. Rounded nickel proxies are 15/22/30% and cobalt 20/30/40%.
+        This excludes non-battery secondary sources and is not a class-1 nickel
+        or product-grade cobalt forecast. Applying those ratios to the retained
+        recovery recipes is a qualified sensitivity, not full scenario replication.
     ica_copper_2023:
       url: https://internationalcopper.org/wp-content/uploads/2023/03/Copper_The-Pathway-to-Net-Zero_Focus-on-Europe_final.pdf
       accessed: 2026-10-13
@@ -32,10 +34,12 @@ metadata:
         approximately 26-29%. It does not establish a global cathode target.
     jrc_aluminium_2024:
       url: https://publications.jrc.ec.europa.eu/repository/handle/JRC136525
-      accessed: 2026-10-13
+      accessed: 2026-10-23
       note: >-
-        Supports secondary production as a decarbonisation route; not a source
-        for an exact global cast-alloy 70% recycled-content forecast.
+        The resource-efficiency section gives 60 Mt BAU and over 70 Mt maximised
+        collection of post-consumer aluminium recycling in 2050: volumes, not
+        percentages. The revised 45/55/65% global cast-alloy floors are analyst
+        sensitivities, not exact JRC product-grade forecasts.
     van_der_voet_2019:
       url: https://doi.org/10.1111/jiec.12722
       accessed: 2026-10-13
@@ -46,12 +50,15 @@ metadata:
     iea_critical_minerals_2026:
       url: https://www.iea.org/reports/global-critical-minerals-outlook-2026
       pdf: https://iea.blob.core.windows.net/assets/19c60aa0-ee07-4a20-a138-33c967ac5008/GlobalCriticalMineralsOutlook2026.pdf
-      accessed: 2026-10-20
+      accessed: 2026-10-23
       note: >-
         Pages 145 and 350 give approximate 2050 recycled lithium supply of
         250 kt in the STEPS-context base case and 560 kt in HDS, against total
         global demand of 1122 and 1501 kt Li respectively. Derived fractions
         are about 22.3% and 37.3%, not measured battery-grade carbonate shares.
+        The source quantities were independently rechecked on 23 October 2026;
+        their rounded numerators do not support forecast precision. Conservative
+        15% is a separate analyst lower-collection sensitivity, not an IEA estimate.
         No complete 2026 intermediate-year recycling series was verified.
 
     wgc_gold_2025:
@@ -162,7 +169,7 @@ markets:
     evidence: [jrc_aluminium_2024]
     target_note: >-
       Curves come from the selected scenario file. Minimum mode retains a
-      higher native share instead of imposing the 45%/60% source endpoints.
+      higher native share instead of imposing the 45/55/65% source endpoints.
       Future fractions are sensitivities, not validated cast-alloy forecasts.
 
   - id: copper_cathode
@@ -197,10 +204,11 @@ markets:
     source_product: nickel, class 1
     evidence: [iea_recycling_2024]
     target_note: >-
-      Existing same-grade recycling providers only. These scenarios scale the
-      existing electronics-scrap recovery recipe; they do not invent a future
-      battery-grade nickel process, or assign whole-sector recycled nickel
-      percentages directly to nickel class 1 without qualification.
+      The 15/22/30% floors use rounded IEA battery-derived secondary nickel
+      divided by global total nickel demand. They exclude stainless-steel
+      recycling and are not class-1 share forecasts. Existing same-grade
+      electronics-scrap suppliers and full processing burdens are retained as
+      an explicit technology proxy; no battery-grade recovery process is invented.
 
   - id: cobalt
     sector: nonferrous
@@ -214,8 +222,9 @@ markets:
     evidence: [iea_recycling_2024]
     target_note: >-
       Scales the existing hydrometallurgical/pyrometallurgical recovery recipe.
-      The 40% case is deliberately exploratory and is not directly inferred
-      from the IEA percentage reduction in new mine development.
+      The 20/30/40% floors use approximate IEA battery-derived secondary cobalt
+      divided by global total cobalt demand. This is not a product-grade share
+      forecast or the separate percentage reduction in new mine development.
 
   - id: lead
     sector: nonferrous
@@ -253,6 +262,8 @@ markets:
     target_note: >-
       Apply the existing lithium evidence-family endpoints as global elemental-Li
       representative-compound sensitivities, not verified carbonate forecasts.
+      Conservative is an analyst-selected 15%; moderate/high use the independently
+      rechecked approximate 250/1122 and 560/1501 supply/demand ratios.
       The 2020 reference fraction 0.000840414604538239 is the inherited generic
       carbonate share, confirmed in the exported ecoinvent 3.12 GLO market.
       Minimum floors interpolate linearly from 2020 to 2050 and retain higher
@@ -286,8 +297,10 @@ markets:
       Interpolate the minimum linearly between the documented 2020 reference
       fraction and the 2050 endpoint, with endpoint clamping, as requested by
       the user. This interpolation is a modelling assumption, not an IEA
-      intermediate-year recycling forecast. Conservative and moderate use the
-      same STEPS-context endpoint; high uses HDS. A higher native share is
+      intermediate-year recycling forecast. Conservative uses an analyst 15%
+      lower-collection sensitivity; moderate uses 250/1122 in the STEPS context
+      and high uses 560/1501 in HDS. These source quantities were independently
+      rechecked, but the grade transfer remains a sensitivity. A higher native share is
       retained. The global elemental-Li fraction is applied to this
       carbonate market as a representative-compound sensitivity, not a verified
       battery-grade forecast. Reference and primary-only remain explicit

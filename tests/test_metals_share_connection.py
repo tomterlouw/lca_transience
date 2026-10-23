@@ -43,6 +43,25 @@ class ShareConnectionTests(unittest.TestCase):
     def selected(self, **kwargs):
         return MetalSteelPolicy.from_file(self.policy_path, **kwargs)
 
+    def evidence_bundle(self, *, document=None, version=3):
+        """Publish a small hash-checked fixture, not the real evidence files."""
+        record = {"conservative": 0.15, "baseline": 0.20, "optimistic": 0.25,
+                  "basis_type": "inferred/scenario-sensitivity", "confidence": "low",
+                  "source_short": "Fixture literature", "source_url": "https://example.org/recycling",
+                  "notes": "Regional evidence used as a qualified global sensitivity; not a forecast."}
+        if document is None:
+            document = {"metadata": {"product_evidence": {"copper, cathode": "copper"}},
+                        "evidence": {"copper": record}}
+        path = self.directory / "combined.yaml"
+        self.write(path, document)
+        manifest = {"schema_version": 1, "generator_version": version, "combined_file": path.name,
+                    "input_sha256": {self.input_path.name: sha256(self.input_path.read_bytes()).hexdigest()},
+                    "output_sha256": {self.selected_path.name: sha256(self.selected_path.read_bytes()).hexdigest(),
+                                      path.name: sha256(path.read_bytes()).hexdigest()}}
+        manifest_path = self.directory / "share_generation_manifest.json"
+        manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+        return path, manifest_path, manifest, document
+
     def test_selected_file_replaces_inline_numbers_and_drives_plan(self):
         selected = self.selected(nonferrous_case="high_recycling")
         plan = plan_database(inventory(market()), selected, scenario={"year": 2050})
@@ -161,6 +180,108 @@ class ShareConnectionTests(unittest.TestCase):
         revised["copper, cathode"]["shares"]["primary"][2050] = 0.7499995
         self.write(self.selected_path, revised)
         self.assertAlmostEqual(self.selected(nonferrous_case="high_recycling").rules[0]["targets"]["high_recycling"][2050], 0.25)
+
+    def test_evidence_basis_confidence_and_notes_reach_description_and_market_audit(self):
+        path, _, _, document = self.evidence_bundle()
+        selected = self.selected(nonferrous_case="high_recycling")
+        record = document["evidence"]["copper"]
+        receipt = selected.describe()["share_data_sources"][0]
+        self.assertEqual(receipt["evidence_family"], "copper")
+        self.assertEqual(receipt["evidence"], record)
+        self.assertEqual(receipt["evidence_path"], str(path.resolve()))
+        self.assertEqual(receipt["evidence_sha256"], sha256(path.read_bytes()).hexdigest())
+        self.assertIn(str(path.resolve()), selected.source_hashes)
+        plan = plan_database(inventory(market()), selected, scenario={"year": 2050})
+        row = plan.audit[0]
+        self.assertEqual(row["share_data_evidence_family"], "copper")
+        self.assertEqual(row["share_data_evidence"], record)
+        self.assertEqual(row["share_data_evidence_sha256"], receipt["evidence_sha256"])
+        # Exported metadata is a snapshot rather than a mutable alias.
+        receipt["evidence"]["notes"] = "A caller's temporary edit"
+        self.assertEqual(selected.describe()["share_data_sources"][0]["evidence"]["notes"], record["notes"])
+
+    def test_stale_combined_evidence_is_rejected_on_load_and_after_policy_creation(self):
+        path, _, _, _ = self.evidence_bundle()
+        selected = self.selected(nonferrous_case="high_recycling")
+        path.write_text(path.read_text(encoding="utf-8") + "\n# changed evidence\n", encoding="utf-8")
+        with self.assertRaises(StaleMetalPolicyError):
+            selected.verify_sources()
+        with self.assertRaisesRegex(StaleMetalPolicyError, "Share evidence output changed"):
+            self.selected(nonferrous_case="high_recycling")
+
+    def test_version_three_evidence_requires_each_selected_product_mapping_and_family_record(self):
+        documents = (
+            {"metadata": {}, "evidence": {"copper": {}}},
+            {"metadata": {"product_evidence": {}}, "evidence": {"copper": {}}},
+            {"metadata": {"product_evidence": {"copper, cathode": "missing"}}, "evidence": {}},
+        )
+        for document in documents:
+            with self.subTest(document=document):
+                self.evidence_bundle(document=document)
+                with self.assertRaisesRegex(MetalPolicyError, "missing evidence (family|record)"):
+                    self.selected(nonferrous_case="high_recycling")
+
+    def test_version_three_manifest_requires_combined_evidence_and_its_hash(self):
+        for missing in ("combined_file", "evidence_hash"):
+            with self.subTest(missing=missing):
+                path, manifest_path, manifest, _ = self.evidence_bundle()
+                if missing == "combined_file":
+                    manifest.pop("combined_file")
+                else:
+                    manifest["output_sha256"].pop(path.name)
+                manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+                with self.assertRaisesRegex(MetalPolicyError, "version 3 requires"):
+                    self.selected(nonferrous_case="high_recycling")
+
+    def test_evidence_structure_errors_raise_policy_errors_not_python_type_errors(self):
+        documents = (
+            {"metadata": None, "evidence": {}},
+            {"metadata": {"product_evidence": []}, "evidence": {}},
+            {"metadata": {"product_evidence": {"copper, cathode": "copper"}}, "evidence": []},
+            {"metadata": {"product_evidence": {"copper, cathode": []}}, "evidence": {}},
+            {"metadata": {"product_evidence": {"copper, cathode": " "}}, "evidence": {}},
+            {"metadata": {"product_evidence": {"copper, cathode": "copper"}},
+             "evidence": {"copper": {"excluded_products": "copper, cathode"}}},
+            {"metadata": {"product_evidence": {"copper, cathode": "copper"}},
+             "evidence": {"copper": {"excluded_products": [None]}}},
+        )
+        for document in documents:
+            with self.subTest(document=document):
+                self.evidence_bundle(document=document)
+                with self.assertRaises(MetalPolicyError):
+                    self.selected(nonferrous_case="high_recycling")
+
+    def test_generation_version_must_be_an_integer_not_boolean_or_text(self):
+        for version in (True, False, "3", 3.0, None):
+            with self.subTest(version=version):
+                self.evidence_bundle(version=version)
+                with self.assertRaisesRegex(MetalPolicyError, "generator_version must be an integer"):
+                    self.selected(nonferrous_case="high_recycling")
+
+    def test_reference_only_evidence_rejects_minimum_override_but_allows_reference(self):
+        _, _, _, document = self.evidence_bundle()
+        document["evidence"]["copper"]["excluded_products"] = ["copper, cathode"]
+        self.evidence_bundle(document=document)
+        with self.assertRaisesRegex(MetalPolicyError, "outside the .* evidence scope"):
+            self.selected(nonferrous_case="high_recycling")
+        selected = self.selected(nonferrous_case="reference")
+        self.assertAlmostEqual(selected.rules[0]["reference_shares"], 0.2)
+        receipt = selected.describe()["share_data_sources"][0]
+        self.assertEqual(receipt["evidence"]["excluded_products"], ["copper, cathode"])
+
+    def test_legacy_combined_files_without_product_evidence_remain_supported(self):
+        self.evidence_bundle(document={"metadata": {}, "evidence": {}}, version=2)
+        selected = self.selected(nonferrous_case="high_recycling")
+        self.assertNotIn("evidence", selected.describe()["share_data_sources"][0])
+        self.assertAlmostEqual(selected.rules[0]["targets"]["high_recycling"][2050], 0.25)
+
+    def test_native_baseline_does_not_open_or_depend_on_combined_evidence(self):
+        path, manifest_path, _, _ = self.evidence_bundle()
+        path.write_text("not a valid evidence mapping", encoding="utf-8")
+        manifest_path.write_text("not a valid manifest", encoding="utf-8")
+        selected = self.selected()
+        self.assertEqual(set(selected.source_hashes), {str(self.policy_path.resolve())})
+        self.assertEqual(selected.describe()["share_data_sources"], [])
 
 
 class PinnedSecondarySupplyTests(unittest.TestCase):
@@ -406,7 +527,7 @@ class RealRepositoryLithiumExtensionTests(unittest.TestCase):
         self.assertEqual(apply_database(db, plan, policy=selected), before)
 
     def test_real_2050_literature_endpoints_drive_both_supply_groups(self):
-        for case, expected in (("conservative", 250 / 1122), ("moderate_recycling", 250 / 1122),
+        for case, expected in (("conservative", 0.15), ("moderate_recycling", 250 / 1122),
                                ("high_recycling", 560 / 1501)):
             with self.subTest(case=case):
                 selected = self.policy(case)
@@ -423,7 +544,7 @@ class RealRepositoryLithiumExtensionTests(unittest.TestCase):
 
     def test_real_minimum_cases_interpolate_linearly_in_intermediate_years(self):
         reference = 0.000840414604538239
-        for case, endpoint in (("conservative", 250 / 1122), ("moderate_recycling", 250 / 1122),
+        for case, endpoint in (("conservative", 0.15), ("moderate_recycling", 250 / 1122),
                                ("high_recycling", 560 / 1501)):
             selected = self.policy(case)
             rule = next(rule for rule in selected.rules if rule["id"] == "lithium_carbonate_battery_grade")
@@ -453,7 +574,7 @@ class RealRepositoryLithiumExtensionTests(unittest.TestCase):
 
     def test_real_minimum_curves_clamp_to_2020_and_2050_endpoints(self):
         reference = 0.000840414604538239
-        for case, endpoint in (("conservative", 250 / 1122), ("moderate_recycling", 250 / 1122),
+        for case, endpoint in (("conservative", 0.15), ("moderate_recycling", 250 / 1122),
                                ("high_recycling", 560 / 1501)):
             selected = self.policy(case)
             for year, expected in ((2015, reference), (2020, reference), (2050, endpoint), (2055, endpoint)):
@@ -497,9 +618,9 @@ class RealRepositoryLithiumExtensionTests(unittest.TestCase):
         self.assertEqual(plan.audit[0]["status"], "already_satisfied")
         self.assertEqual(apply_database(db, plan, policy=selected), before)
 
-    def test_original_five_high_targets_remain_unchanged(self):
+    def test_original_five_high_targets_follow_revised_evidence(self):
         selected = self.policy("high_recycling")
-        expected = {"aluminium, cast alloy": 0.70, "copper, cathode": 0.45, "nickel, class 1": 0.30,
+        expected = {"aluminium, cast alloy": 0.65, "copper, cathode": 0.45, "nickel, class 1": 0.30,
                     "cobalt": 0.40, "lead": 0.85}
         observed = {rule["reference product"]: rule["targets"]["high_recycling"][2050]
                     for rule in selected.rules if rule["reference product"] in expected}
@@ -546,7 +667,7 @@ class GenericLithiumCarbonateConnectionTests(unittest.TestCase):
     product = "lithium carbonate"
     recovery = "treatment of used Li-ion battery, hydrometallurgical treatment"
     reference = 0.000840414604538239
-    endpoints = {"conservative": 250 / 1122, "moderate_recycling": 250 / 1122,
+    endpoints = {"conservative": 0.15, "moderate_recycling": 250 / 1122,
                  "high_recycling": 560 / 1501}
 
     def policy(self, case="baseline"):

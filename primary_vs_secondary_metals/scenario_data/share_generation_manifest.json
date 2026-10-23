@@ -1,23 +1,23 @@
 {
   "schema_version": 1,
-  "generator_version": 2,
+  "generator_version": 3,
   "source": "yaml",
   "input_sha256": {
     "metal_primary_secondary_shares.yaml": "f41a3918de338536106feb5e8a204456cb1276b89ce74fdb5153d122c0e27c42",
-    "metal_2050_literature_evidence.csv": "255082306f3c7b37e131cb7be5b90963f1d0db5d53c64203efe341d51b333a1c",
-    "metal_product_family_mapping.csv": "d874e38e0f6abf827d6b287b39e0957213cdd6b1be41173458091a2b01d24c35"
+    "metal_2050_literature_evidence.csv": "0e4b58b6ae773a84184e9d67c0b2d5a88d33b7842d9668d49cef5b299b14d25f",
+    "metal_product_family_mapping.csv": "53fbbe441b6ef381d401ebba779d98e8fa13566f329b05ddc5d76900fd779ee2"
   },
   "output_sha256": {
-    "primary_secondary_split_conservative.yaml": "f3f681daa1b806eba8593882d0b5a222cc29042a086ca007ce0ea3d123b22cbd",
-    "primary_secondary_split_baseline.yaml": "8c30fb14609814a129a95207d32f10584f4307790f4f96063f22ebdff67aa46d",
-    "primary_secondary_split_optimistic.yaml": "03f5df4d18ccdf6294b5d723b5d503b41a7b8cd4586506a765e8b8fc8d42baea",
-    "primary_secondary_split.yaml": "8c30fb14609814a129a95207d32f10584f4307790f4f96063f22ebdff67aa46d",
-    "metal_shares_2050_scenarios.yaml": "76f1c90e8b489cd411416e08458ccb6123f3fac1bd1abde466913e292b1a08e1"
+    "primary_secondary_split_conservative.yaml": "632f62c3f2b6375078f1ea30eb6980ac185aea0d4f685bf5d3ecfa47834ea97f",
+    "primary_secondary_split_baseline.yaml": "5b39edefa7edffe198fd6e334a31303d7a6c8c683551716bae704e555b52bc99",
+    "primary_secondary_split_optimistic.yaml": "f74aecf555cd143246e4cc2d1799ef6e7317b00877dabcef4a44766d5f1cb1fb",
+    "primary_secondary_split.yaml": "5b39edefa7edffe198fd6e334a31303d7a6c8c683551716bae704e555b52bc99",
+    "metal_shares_2050_scenarios.yaml": "7762b79995763c25dfc87aaca4d7c045f7076d983eee49638d87b6ea3eb571b8"
   },
   "generated_output_sha256": {
-    "primary_secondary_split_conservative.yaml": "f3f681daa1b806eba8593882d0b5a222cc29042a086ca007ce0ea3d123b22cbd",
-    "primary_secondary_split_baseline.yaml": "8c30fb14609814a129a95207d32f10584f4307790f4f96063f22ebdff67aa46d",
-    "primary_secondary_split_optimistic.yaml": "03f5df4d18ccdf6294b5d723b5d503b41a7b8cd4586506a765e8b8fc8d42baea"
+    "primary_secondary_split_conservative.yaml": "632f62c3f2b6375078f1ea30eb6980ac185aea0d4f685bf5d3ecfa47834ea97f",
+    "primary_secondary_split_baseline.yaml": "5b39edefa7edffe198fd6e334a31303d7a6c8c683551716bae704e555b52bc99",
+    "primary_secondary_split_optimistic.yaml": "f74aecf555cd143246e4cc2d1799ef6e7317b00877dabcef4a44766d5f1cb1fb"
   },
   "manual_outputs": [],
   "scenario_files": {
@@ -29,5 +29,5 @@
   "combined_file": "metal_shares_2050_scenarios.yaml",
   "product_count": 104,
   "family_count": 17,
-  "generated_at_utc": "2026-10-22T07:16:08.954342+00:00"
+  "generated_at_utc": "2026-10-23T13:32:13.601057+00:00"
 }

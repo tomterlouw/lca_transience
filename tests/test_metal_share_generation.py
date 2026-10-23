@@ -96,6 +96,33 @@ class ShareGenerationTest(unittest.TestCase):
         self.assertEqual(summary["status"], "rebuilt")
         self.assertEqual(load_yaml(summary["output_files"]["baseline"])["copper"]["shares"]["secondary"][2050], .6)
 
+    def test_scoped_evidence_preserves_excluded_product_curves_and_records_exclusion(self):
+        self.mapping.write_text("product,family,evidence_scope\ncopper,copper,reference_only\nore,structural,apply\n", encoding="utf-8")
+        original = self.baseline.read_bytes()
+        summary = self.ensure()
+        for case in ("conservative", "baseline", "optimistic"):
+            observed = load_yaml(summary["output_files"][case])
+            self.assertEqual(observed["copper"], baseline_data()["copper"])
+        combined = load_yaml(summary["combined_file"])
+        self.assertEqual(combined["evidence"]["copper"]["excluded_products"], ["copper"])
+        self.assertEqual(combined["metadata"]["product_evidence"], {"copper": "copper", "ore": "structural"})
+        self.assertEqual(self.baseline.read_bytes(), original)
+
+    def test_explicit_scope_column_rejects_empty_or_unknown_choices_without_publication(self):
+        for scope in ("", "native", "false", "APPLY"):
+            with self.subTest(scope=scope):
+                self.mapping.write_text(f"product,family,evidence_scope\ncopper,copper,{scope}\nore,structural,apply\n", encoding="utf-8")
+                with self.assertRaisesRegex(ShareDataError, "evidence_scope"):
+                    self.ensure()
+                self.assertFalse((self.directory / SCENARIO_FILES["baseline"]).exists())
+
+    def test_changing_scope_regenerates_unedited_outputs_without_force(self):
+        self.ensure()
+        self.mapping.write_text("product,family,evidence_scope\ncopper,copper,reference_only\nore,structural,apply\n", encoding="utf-8")
+        summary = self.ensure()
+        self.assertEqual(summary["status"], "rebuilt")
+        self.assertEqual(load_yaml(summary["output_files"]["baseline"])["copper"], baseline_data()["copper"])
+
     def test_valid_manual_output_preserved_and_conflicts_after_upstream_change(self):
         first = self.ensure()
         case_file = Path(first["output_files"]["baseline"])

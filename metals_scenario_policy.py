@@ -422,6 +422,54 @@ def _load_share_data(config, policy_path, nonferrous_case, source_hashes):
             receipt["manifest_sha256"] = source_hashes[str(manifest_path)]
             declared = manifest.get("output_sha256", {}).get(Path(receipt["path"]).name)
             receipt["matches_generated_manifest"] = declared == receipt["sha256"] if declared else None
+        # Carry the selected CSV evidence into package provenance and per-market
+        # audits, rather than retaining only a hash and detached source notes.
+        # Older manifests without the combined evidence interface still work.
+        combined_name = manifest.get("combined_file")
+        generator_version = manifest.get("generator_version", 0)
+        if not isinstance(generator_version, int) or isinstance(generator_version, bool):
+            raise MetalPolicyError(f"{manifest_path}: generator_version must be an integer")
+        if generator_version >= 3 and not combined_name:
+            raise MetalPolicyError(f"{manifest_path}: version 3 requires a combined evidence file")
+        if combined_name:
+            combined_path, combined = read(combined_name)
+            expected = manifest.get("output_sha256", {}).get(Path(combined_path).name)
+            if generator_version >= 3 and not expected:
+                raise MetalPolicyError(f"{manifest_path}: version 3 requires a hash for the combined evidence file")
+            if expected and source_hashes[str(combined_path)] != expected:
+                raise StaleMetalPolicyError(f"Share evidence output changed: {combined_path}. Run ensure_share_outputs() before loading the policy")
+            metadata = combined.get("metadata", {})
+            if not isinstance(metadata, dict):
+                raise MetalPolicyError(f"{combined_path}: metadata must be a mapping")
+            product_families = metadata.get("product_evidence", {})
+            evidence = combined.get("evidence", {})
+            if not isinstance(product_families, dict) or not isinstance(evidence, dict):
+                raise MetalPolicyError(f"{combined_path}: evidence and product_evidence must be mappings")
+            for rule in config.get("markets", []):
+                receipt = rule.get("share_data_source")
+                if not receipt:
+                    continue
+                product = receipt["source_product"]
+                family = product_families.get(product)
+                if family is None:
+                    if generator_version >= 3:
+                        raise MetalPolicyError(f"{combined_path}: missing evidence family for {product!r}")
+                    continue
+                if not isinstance(family, str) or not family.strip():
+                    raise MetalPolicyError(f"{combined_path}: evidence family for {product!r} must be a nonempty string")
+                record = evidence.get(family)
+                if not isinstance(record, dict):
+                    raise MetalPolicyError(f"{combined_path}: missing evidence record for {family!r}")
+                excluded_products = record.get("excluded_products", [])
+                if not isinstance(excluded_products, list) or not all(isinstance(item, str) for item in excluded_products):
+                    raise MetalPolicyError(f"{combined_path}: excluded_products for {family!r} must be a list of product names")
+                if (config["nonferrous_cases"][nonferrous_case]["mode"] == "minimum"
+                        and product in excluded_products):
+                    raise MetalPolicyError(f"{product!r} is outside the {family!r} evidence scope; retain native modelling until separately qualified")
+                receipt["evidence_family"] = family
+                receipt["evidence"] = deepcopy(record)
+                receipt["evidence_path"] = str(combined_path)
+                receipt["evidence_sha256"] = source_hashes[str(combined_path)]
     elif specification.get("manifest_required"):
         raise MetalPolicyError(f"Share-generation manifest is missing: {manifest_path}. Run ensure_share_outputs() first")
     config["_share_data_provenance"] = provenance
@@ -739,6 +787,9 @@ def _share_data_audit(rule, sources=None):
             "share_data_sha256": receipt.get("sha256"), "share_data_source_product": receipt.get("source_product"),
             "share_data_targets": deepcopy(receipt.get("effective_targets")),
             "share_data_manifest_sha256": receipt.get("manifest_sha256"),
+            "share_data_evidence_family": receipt.get("evidence_family"),
+            "share_data_evidence": deepcopy(receipt.get("evidence")),
+            "share_data_evidence_sha256": receipt.get("evidence_sha256"),
             "secondary_supply_source_path": provider_source.get("path"),
             "secondary_supply_source_sha256": provider_source.get("sha256"),
             "secondary_supply_source_commit": provider_source.get("commit"),

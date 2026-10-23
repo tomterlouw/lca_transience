@@ -1,174 +1,355 @@
 metadata:
   description: Conservative, baseline and optimistic primary/secondary scenarios;
     named files are authoritative.
-  generator_version: 2
+  generator_version: 3
   source: yaml
   source_sha256:
     metal_primary_secondary_shares.yaml: f41a3918de338536106feb5e8a204456cb1276b89ce74fdb5153d122c0e27c42
-    metal_2050_literature_evidence.csv: 255082306f3c7b37e131cb7be5b90963f1d0db5d53c64203efe341d51b333a1c
-    metal_product_family_mapping.csv: d874e38e0f6abf827d6b287b39e0957213cdd6b1be41173458091a2b01d24c35
+    metal_2050_literature_evidence.csv: 0e4b58b6ae773a84184e9d67c0b2d5a88d33b7842d9668d49cef5b299b14d25f
+    metal_product_family_mapping.csv: 53fbbe441b6ef381d401ebba779d98e8fa13566f329b05ddc5d76900fd779ee2
   scenario_files:
     conservative: primary_secondary_split_conservative.yaml
     baseline: primary_secondary_split_baseline.yaml
     optimistic: primary_secondary_split_optimistic.yaml
   manual_outputs: []
+  product_evidence:
+    stibnite concentrate: nonmetal_low
+    antimony: base_low
+    bauxite: nonmetal_low
+    aluminium hydroxide: nonmetal_low
+    aluminium oxide, metallurgical: nonmetal_low
+    aluminium, primary, liquid: nonmetal_low
+    aluminium, primary, ingot: nonmetal_low
+    aluminium, cast alloy: aluminium
+    bentonite: nonmetal_low
+    beryllium hydroxide: nonmetal_low
+    beryllium: base_low
+    calcium borates: nonmetal_low
+    sodium borates: nonmetal_low
+    boric acid, anhydrous, powder: base_low
+    boron trifluoride: base_low
+    boric oxide: base_low
+    boron carbide: base_low
+    cadmium: base_low
+    chromite ore concentrate: nonmetal_low
+    chromium: base_low
+    copper-cobalt ore: nonmetal_low
+    cobalt hydroxide: cobalt
+    cobalt sulfate: cobalt
+    cobalt: cobalt
+    copper concentrate, sulfide ore: nonmetal_low
+    copper, anode: copper
+    copper, cathode: copper
+    gallium, semiconductor-grade: base_low
+    germanium, concentrate: nonmetal_low
+    gold: gold
+    graphite: graphite
+    graphite ore, mined: nonmetal_low
+    hafnium tetrachloride: base_low
+    hafnium sponge: base_low
+    indium rich leaching residues, from zinc production: base_low
+    indium: base_low
+    iridium: pgm
+    iron ore concentrate: nonmetal_low
+    lead concentrate: nonmetal_low
+    lead: lead
+    spodumene: nonmetal_low
+    lithium carbonate: lithium
+    lithium carbonate, battery grade: lithium
+    lithium hydroxide, battery grade: lithium
+    dolomite: nonmetal_low
+    magnesium: base_low
+    manganese concentrate: nonmetal_low
+    manganese: base_low
+    molybdenite: base_low
+    molybdenum: base_low
+    nickel concentrate, 16% Ni: nonmetal_low
+    nickel, class 1: nickel
+    phosphate rock, beneficiated: nonmetal_low
+    phosphoric acid, fertiliser grade, without water, in 70% solution state: nonmetal_low
+    phosphorus, white, liquid: nonmetal_low
+    palladium: palladium
+    platinum: platinum
+    platinum group metal concentrate: nonmetal_low
+    potash salt: nonmetal_low
+    rare earth carbonate concentrate: nonmetal_low
+    dysprosium oxide: rare_earths
+    erbium oxide: rare_earths
+    europium oxide: rare_earths
+    gadolinium oxide: rare_earths
+    ytterbium oxide: rare_earths
+    terbium oxide: rare_earths
+    thulium oxide: rare_earths
+    yttrium oxide: rare_earths
+    samarium oxide: rare_earths
+    scandium oxide: rare_earths
+    lanthanum oxide: rare_earths
+    praseodymium oxide: rare_earths
+    neodymium oxide: rare_earths
+    lutetium oxide: rare_earths
+    holmium oxide: rare_earths
+    cerium oxide: rare_earths
+    lanthanum-cerium oxide: rare_earths
+    rhenium: base_low
+    ruthenium: pgm
+    selenium: base_low
+    sand: nonmetal_low
+    silica sand: nonmetal_low
+    silicon, metallurgical grade: base_low
+    silver: silver
+    strontium sulfate, 90% SrSO4: base_low
+    sulfur: nonmetal_low
+    pyrochlore concentrate: nonmetal_low
+    ferroniobium, 66% Nb: base_low
+    tantalum concentrate, 30% Ta2O5: nonmetal_low
+    tellurium, semiconductor-grade: base_low
+    tin concentrate: nonmetal_low
+    tin: base_low
+    ilmenite, 54% titanium dioxide: base_low
+    rutile, 95% titanium dioxide: base_low
+    titanium tetrachloride: base_low
+    titanium sponge: base_low
+    titanium: base_low
+    tungsten concentrate: nonmetal_low
+    uranium ore, as U: nonmetal_low
+    vanadium bearing magnetite: base_low
+    vanadium pentoxide: base_low
+    zinc concentrate: nonmetal_low
+    zinc: zinc
+    zircon: base_low
 evidence:
   aluminium:
     conservative: 0.45
-    baseline: 0.6
-    optimistic: 0.7
-    basis_type: direct/inferred
-    confidence: medium
-    source_short: JRC aluminium decarbonisation + China stock-flow
-    source_url: https://publications.jrc.ec.europa.eu/repository/bitstream/JRC136525/JRC136525_01.pdf
+    baseline: 0.55
+    optimistic: 0.65
+    basis_type: inferred/scenario-sensitivity
+    confidence: low
+    source_short: IEA Global Critical Minerals Outlook 2024 + JRC aluminium + China
+      stock-flow
+    source_url: https://iea.blob.core.windows.net/assets/ee01701d-1d5c-4ba8-9df6-abeeac9de99a/GlobalCriticalMineralsOutlook2024.pdf
+      | https://publications.jrc.ec.europa.eu/repository/bitstream/JRC136525/JRC136525_01.pdf
       | https://www.researchgate.net/publication/384001661_Modeling_Aluminum_Stocks_and_Flows_in_China_until_2050_Using_a_Bottom-Up_Approach_Business-As-Usual_Scenario_Analysis
-    notes: JRC reports BAU post-consumer scrap recycling rising to 60 Mt by 2050 and
-      >70 Mt with maximised collection; Chinese stock-flow study says secondary aluminium
-      could meet ~70% of demand by 2050 under high recycling.
+    notes: 2050 global secondary-metal shares are analyst scenarios, not published
+      global forecasts. IEA 2024 NZE shows approximately 47% secondary aluminium in
+      total demand by 2040; JRC describes 60 Mt (BAU) and >70 Mt (maximal collection)
+      of post-consumer scrap recycling by 2050, which are volumes, NOT percentages.
+      The cited ~70% 2050 Chinese result is geographically specific. Secondary refined
+      aluminium must have matching alloy/grade; do not treat scrap collection as market
+      supply.
   copper:
     conservative: 0.25
     baseline: 0.35
     optimistic: 0.45
-    basis_type: direct/inferred
-    confidence: medium
+    basis_type: inferred/scenario-sensitivity
+    confidence: low
     source_short: ICA Europe + IEA recycling outlook
     source_url: https://internationalcopper.org/wp-content/uploads/2023/03/Copper_The-Pathway-to-Net-Zero_Focus-on-Europe_final.pdf
       | https://www.iea.org/reports/global-critical-minerals-outlook-2025/overview-of-outlook-for-key-minerals
-    notes: EU refined copper in 2050 expected to include 0.9-1.0 Mt EoL scrap out
-      of 3.4 Mt total (~26-29%); IEA says recycling can reduce new mine development
-      by ~35-40% for copper by 2050.
+    notes: Global 2050 secondary refined-copper supply scenarios inferred from regional
+      and IEA evidence; not direct forecasts. ICA Europe suggests ~0.9-1.0 Mt EoL
+      scrap in ~3.4 Mt EU refined production (~26-29%); this is regional and excludes
+      other potential recycling channels. IEA estimates of ~40% less need for new
+      mines are NOT recycled-content shares. Copper scrap used directly in fabrication
+      must not be conflated with secondary refined copper. Match the ecoinvent market
+      boundary and exclude pre-consumer loops already embedded in LCIs.
   cobalt:
     conservative: 0.2
     baseline: 0.3
     optimistic: 0.4
-    basis_type: direct/inferred
+    basis_type: IEA-battery-supply-proxy
     confidence: medium
-    source_short: IEA recycling of critical minerals
+    source_short: IEA Recycling of Critical Minerals (2024), chapter 2
     source_url: https://www.iea.org/reports/recycling-of-critical-minerals/executive-summary
-      | https://www.iea.org/reports/global-critical-minerals-outlook-2025/overview-of-outlook-for-key-minerals
-    notes: IEA says battery recycling could meet 20-30% of lithium/nickel/cobalt demand
-      by 2050; copper and cobalt mining needs can be reduced ~35-40% by 2050 with
-      increased recycling.
+      | https://iea.blob.core.windows.net/assets/d041f616-2f49-4694-861c-97d489ed1856/RecyclingofCriticalMinerals.pdf
+    notes: IEA battery-recycling secondary cobalt as a fraction of GLOBAL TOTAL cobalt
+      demand in 2050 is ~20% STEPS, almost 30% APS and ~40% NZE (report Fig. 2.16,
+      approx.). This includes battery manufacturing scrap and retired EV/storage batteries;
+      other secondary sources are excluded. Accordingly these are defensible battery-derived
+      scenario proxies but are not necessarily the recycled input share of a specific
+      cobalt chemical/metal grade in ecoinvent. Preserve recovery/refining burdens;
+      avoid counting embedded closed-loop scrap twice.
   nickel:
-    conservative: 0.2
-    baseline: 0.25
+    conservative: 0.15
+    baseline: 0.22
     optimistic: 0.3
-    basis_type: direct
-    confidence: medium
-    source_short: IEA recycling of critical minerals
+    basis_type: IEA-battery-supply-proxy
+    confidence: low
+    source_short: IEA Recycling of Critical Minerals (2024), chapter 2
     source_url: https://www.iea.org/reports/recycling-of-critical-minerals/executive-summary
-      | https://www.iea.org/reports/global-critical-minerals-outlook-2025/overview-of-outlook-for-key-minerals
-    notes: IEA says battery recycling could meet 20-30% of lithium/nickel/cobalt demand
-      by 2050; recycling reduces new mine development needs by ~15-25% for nickel
-      by 2050.
+      | https://iea.blob.core.windows.net/assets/d041f616-2f49-4694-861c-97d489ed1856/RecyclingofCriticalMinerals.pdf
+    notes: 'Battery-derived secondary nickel / GLOBAL TOTAL nickel demand, 2050: roughly
+      15% STEPS, just over 20% APS and ~30% NZE (IEA Fig. 2.16, rounded). These percentages
+      exclude recycling of nickel in stainless steel and other applications and therefore
+      are NOT universal total secondary-nickel market shares. Do not apply unchanged
+      to stainless steel, ferro-nickel, nickel sulphate or class-1 nickel unless equivalent
+      recycled supply and processing exist. Figures are rounded scenario proxies.'
   lithium:
-    conservative: 0.22281639928698752
+    conservative: 0.15
     baseline: 0.22281639928698752
     optimistic: 0.3730846102598268
     basis_type: derived-global-demand/compound-proxy
-    confidence: medium
-    source_short: IEA Global Critical Minerals Outlook 2026 pp145 and350
+    confidence: low
+    source_short: IEA Global Critical Minerals Outlook 2026 (source quantities rechecked
+      2026-10-23) + IEA Recycling of Critical Minerals 2024
     source_url: https://www.iea.org/reports/global-critical-minerals-outlook-2026
       | https://iea.blob.core.windows.net/assets/19c60aa0-ee07-4a20-a138-33c967ac5008/GlobalCriticalMineralsOutlook2026.pdf
-    notes: '2050 endpoints: approximate secondary250kt / total1122kt Li in STEPS-context
-      base case; 560kt /1501kt in HDS. Conservative and moderate deliberately share
-      the same base endpoint. Numerators are rounded; do not interpret stored precision
-      as forecast accuracy. Global elemental-Li fractions are representative-compound
-      sensitivities for ordinary GLO carbonate and the existing World battery-grade
-      carbonate interface, not compound-grade forecasts. Preserve existing recovery
-      LCIs and burdens; no new purification or credit. Ordinary hydroxide benefits
-      only through its existing carbonate input; battery-grade GLO markets remain
-      native. The generic reference 0.000840414604538239 is the inherited carbonate
-      share confirmed in exported ecoinvent 3.12 GLO supply. At the user''s request
-      floors scale linearly from 2020 to 2050 with clamping and higher-native-share
-      preservation; not a verified IEA intermediate-year trajectory. Existing RELICS
-      Lithium-only factors omit Spodumene and do not measure complete elemental-Li
-      extraction.'
+      | https://www.iea.org/reports/recycling-of-critical-minerals/executive-summary
+    notes: 'Conservative 15% is an analyst lower-collection sensitivity, NOT an IEA
+      2050 point estimate. Base = ~250 kt secondary / 1122 kt total demand (22.28%)
+      and high = ~560 kt / 1501 kt (37.31%). Independently rechecked on 2026-10-23
+      against the official IEA 2026 PDF: p145 gives the approximate STEPS-context
+      and HDS secondary quantities; p350 gives total demand. Rounded source numerators
+      do not justify forecast precision; the compound-grade transfer remains a low-confidence
+      sensitivity. IEA 2024 independent benchmark: 2050 battery recycled Li supplies
+      about 20% APS and 30% NZE global demand. NUMERATOR covers elemental lithium
+      from secondary routes, not guaranteed battery-grade lithium carbonate or hydroxide.
+      Apply only as sensitivity to genuinely substitutable market routes; keep purification/recovery
+      burdens and native ecoinvent system-model rules. Existing carbonate-market share
+      0.000840414604538239 was read from an ecoinvent 3.12 GLO configuration and is
+      not the global elemental recycling share. Original linear 2020-2050 ramp, clamping
+      and higher-native-share protection are analyst implementation rules, not IEA
+      trajectories. The existing RELICS lithium-only factors omit spodumene and cannot
+      measure total lithium extraction.'
   graphite:
-    conservative: 0.1
-    baseline: 0.15
+    conservative: 0.03
+    baseline: 0.1
     optimistic: 0.2
-    basis_type: inferred
+    basis_type: inferred/scenario-sensitivity
     confidence: low
-    source_short: IEA graphite secondary supply charts
-    source_url: https://www.iea.org/data-and-statistics/charts/secondary-supply-volumes-and-share-of-total-demand-for-graphite-in-the-announced-pledges-scenario-and-net-zero-emissions-by-2050-scenario-2023-2050
-    notes: IEA publishes explicit graphite secondary-supply-to-demand charts to 2050;
-      scenario values here are conservative placeholders pending chart extraction.
+    source_short: IEA Graphite outlook 2024/2025 + Recycling of Critical Minerals
+      2024
+    source_url: https://www.iea.org/reports/graphite-2 | https://www.iea.org/reports/graphite
+      | https://www.iea.org/data-and-statistics/charts/secondary-supply-volumes-and-share-of-total-demand-for-graphite-in-the-announced-pledges-scenario-and-net-zero-emissions-by-2050-scenario-2023-2050
+    notes: Illustrative 2050 low/base/high assumptions, NOT directly reported 2050
+      values. IEA 2025 STEPS reports graphite secondary supply AND reuse 227 kt /
+      11,010 kt demand (~2.1%) for 2040. IEA 2024 APS reports 2,489 / 16,023 kt (~15.5%)
+      in 2040 using a different scenario; neither is a 2050 forecast. Do not conflate
+      reuse with actual graphite recycling or assume reused/recycled graphite is battery-grade
+      anode material; purification and yield losses matter. If no compatible ecoinvent
+      recycled-graphite route exists, keep the scenario unimplemented rather than
+      replacing primary graphite directly.
   lead:
     conservative: 0.65
     baseline: 0.77
     optimistic: 0.85
-    basis_type: direct/inferred
+    basis_type: direct-baseline/scenario-sensitivity
     confidence: medium
-    source_short: Van der Voet et al. 2019
-    source_url: https://bdsv.de/de/resources/Voet_et_al-2018-Journal_of_Industrial_Ecology.pdf
-    notes: Paper reports 2050 secondary production shares spanning 13% for zinc to
-      77% for lead across the seven major metals assessed.
+    source_short: van der Voet et al. (2019), Journal of Industrial Ecology
+    source_url: https://doi.org/10.1111/jiec.12722 | https://bdsv.de/de/resources/Voet_et_al-2018-Journal_of_Industrial_Ecology.pdf
+    notes: 'Literature baseline: 77% of lead production from secondary sources in
+      2050 in the cited modelling assumptions. Conservative 65% and optimistic 85%
+      are analyst sensitivity bounds, NOT published scenario endpoints. Match refined
+      lead market to actual secondary lead processing including battery recycling,
+      emissions control and collection losses; do not treat EoL collection rate as
+      supply share.'
   zinc:
     conservative: 0.1
     baseline: 0.13
     optimistic: 0.2
-    basis_type: direct/inferred
+    basis_type: direct-baseline/scenario-sensitivity
     confidence: medium
-    source_short: Van der Voet et al. 2019
-    source_url: https://bdsv.de/de/resources/Voet_et_al-2018-Journal_of_Industrial_Ecology.pdf
-    notes: Paper reports 2050 secondary production shares spanning 13% for zinc to
-      77% for lead across the seven major metals assessed.
+    source_short: van der Voet et al. (2019), Journal of Industrial Ecology
+    source_url: https://doi.org/10.1111/jiec.12722 | https://bdsv.de/de/resources/Voet_et_al-2018-Journal_of_Industrial_Ecology.pdf
+    notes: 'Literature baseline: 13% secondary zinc in 2050 in the cited scenario.
+      Conservative 10% and optimistic 20% are analyst sensitivities, not literature-specific
+      forecasts. Zinc-bearing residues, galvanised-steel recovery and refined zinc
+      have different market boundaries; ensure the secondary route actually yields
+      the ecoinvent reference product.'
   rare_earths:
-    conservative: 0.02
-    baseline: 0.05
-    optimistic: 0.1
-    basis_type: inferred
+    conservative: 0.2
+    baseline: 0.3
+    optimistic: 0.39
+    basis_type: magnet-REE-proxy/inferred
     confidence: low
-    source_short: EIT rare earth report + IEA rare earth charts
-    source_url: https://www.eit.europa.eu/sites/default/files/2021_09-24_ree_cluster_report2.pdf
-      | https://www.iea.org/reports/recycling-of-critical-minerals/executive-summary
-    notes: EU report says less than 1% of rare earths are recycled today; 2050 values
-      here assume progress but still structurally low recycling.
+    source_short: IEA Global Critical Minerals Outlook 2025, magnet REEs only
+    source_url: https://www.iea.org/reports/global-critical-minerals-outlook-2025/overview-of-outlook-for-key-minerals
+      | https://iea.blob.core.windows.net/assets/a33abe2e-f799-4787-b09b-2484a6f5a8e4/GlobalCriticalMineralsOutlook2025.pdf
+    notes: 'IMPORTANT SCOPE LIMIT: 20/30/39% are MAGNET rare-earth supply proxies
+      only (Nd, Pr, Dy, Tb), NOT all REEs. IEA 2025 estimates magnet-REE recycling/reuse
+      could exceed 30% of demand in STEPS by 2050, 35% APS and 39% NZE. Conservative
+      20% and baseline 30% are deliberately lower rounded sensitivities; optimistic
+      39% follows NZE. The immutable family key "rare_earths" may match other rare-earth
+      markets (Ce, La, Y, etc.); DO NOT blindly apply to those. Those need specific
+      overrides or retention of native ecoinvent shares. Also check that an equivalent
+      recycled REE oxide/metal market with its own processing burdens exists before
+      substitution; high global recycling potential does not prove existence of such
+      a route in ecoinvent.'
+    excluded_products:
+    - erbium oxide
+    - europium oxide
+    - gadolinium oxide
+    - ytterbium oxide
+    - thulium oxide
+    - yttrium oxide
+    - samarium oxide
+    - scandium oxide
+    - lanthanum oxide
+    - lutetium oxide
+    - holmium oxide
+    - cerium oxide
+    - lanthanum-cerium oxide
   precious_metals:
     conservative: 0.1
     baseline: 0.2
     optimistic: 0.3
-    basis_type: inferred
+    basis_type: heuristic/fallback
     confidence: low
     source_short: IEA end-of-life recycling chart
     source_url: https://www.iea.org/data-and-statistics/charts/end-of-life-recycling-rates-for-selected-metals
-    notes: IEA chart shows high EoL recycling rates for gold, silver, platinum and
-      palladium; supply-share values here are set below EoL rates to reflect collection,
-      fabrication and market constraints.
+    notes: Generic analyst fallback ONLY for precious metals not mapped to dedicated
+      gold, silver, platinum or palladium rows. 10/20/30% are NOT direct IEA 2050
+      predictions; the IEA chart reports end-of-life recycling rates, which are different
+      from secondary shares of total production/market supply. Different precious
+      metals have different uses, stocks and recycling practices. Require a real,
+      functionally equivalent ecoinvent recovery route, not a generic e-waste substitution.
+      Prefer individual metal rows.
   pgm:
     conservative: 0.15
     baseline: 0.25
     optimistic: 0.35
-    basis_type: inferred
+    basis_type: heuristic/fallback
     confidence: low
     source_short: IEA end-of-life recycling chart + EU PGM recycling paper
     source_url: https://www.iea.org/data-and-statistics/charts/end-of-life-recycling-rates-for-selected-metals
       | https://open-research-europe.ec.europa.eu/articles/2-92/v1/pdf?article_uuid=775641aa-cc2f-4c7b-910f-efded28fa17d
-    notes: PGMs have relatively high end-of-life recyclability and growing recovery
-      opportunities from fuel cells/electrolysers; values remain below EoL rates.
+    notes: Generic PGM fallback for unmapped PGM metals (e.g. Ir, Rh, Ru) ONLY; use
+      dedicated platinum and palladium rows where available. 15/25/35% are analyst
+      sensitivities and not 2050 forecasts or end-of-life recycling rates. PGM recycling
+      is often closed-loop in catalysts and other industries, which may already be
+      embedded in process LCIs; do not add closed-loop metal as a separate open-market
+      secondary supply. Recovery from electrolysers/fuel cells needs application-specific
+      scrap availability and recovery LCI. Do not map unrelated metal grades or PGM
+      compounds automatically.
   base_low:
     conservative: 0.05
     baseline: 0.1
     optimistic: 0.15
-    basis_type: heuristic
+    basis_type: heuristic/fallback
     confidence: low
     source_short: OECD + IEA generic recycling trend
     source_url: https://www.oecd.org/content/dam/oecd/en/publications/support-materials/2019/02/global-material-resources-outlook-to-2060_g1g98d7d/highlights-global-material-resources-outlook-to-2060.pdf
       | https://www.iea.org/reports/the-role-of-critical-minerals-in-clean-energy-transitions/the-state-of-play
-    notes: Fallback for refined metals lacking a metal-specific 2050 study in the
-      current evidence pack. OECD expects recycling to become more competitive, but
-      both primary and secondary use still rise.
+    notes: Fallback only for refined metals without a reliable material-specific 2050
+      recycled-market scenario. 5/10/15% are analyst sensitivities, NOT predictions
+      by the OECD or IEA. OECD/IEA sources support increasing circularity generally,
+      but not these percentages. Do not override a higher verified native ecoinvent
+      recycled share; apply only with a real equivalent secondary production route
+      and coherent market definition.
   nonmetal_low:
     conservative: 0.0
     baseline: 0.0
     optimistic: 0.0
-    basis_type: structural
-    confidence: high
-    source_short: No meaningful secondary market defined
+    basis_type: structural/primary-only
+    confidence: high-conditional
+    source_short: Primary-only market definition (structural zero; no external forecast)
     source_url: ''
-    notes: Used for ores, concentrates, explicit primary products, and non-metal mineral
-      feedstocks where a secondary share is not meaningful in this market definition.
+    notes: 'A 0% secondary share is a structural modelling choice ONLY for explicit
+      primary extraction, ores, concentrates or primary-only feedstock activities
+      where recycled input is inapplicable. It does NOT mean non-metals are universally
+      nonrecyclable: glass, aggregates, graphite and some industrial minerals can
+      have secondary routes. Exclude such products from this family or model them
+      separately. No recycling credits or substitutions should be generated for explicit
+      primary-only flows.'
   gold:
     conservative: 0.27666029669615244
     baseline: 0.3766602966961524
@@ -177,9 +358,14 @@ evidence:
     confidence: scenario-assumption
     source_short: WGC2025 physical supply
     source_url: https://www.gold.org/goldhub/research/gold-demand-trends/gold-demand-trends-full-year-2025/supply
-    notes: 2025 anchor1404.3/(3671.6+1404.3). Conservative holds observed anchor to2050;
-      moderate/high add10/20 percentagepoints as analyst sensitivities NOT forecasts.
-      E-waste route is a proxy for mixed recycledgold including jewellery.
+    notes: Observed 2025 WORLD PHYSICAL SUPPLY anchor = 1404.3 t recycled / (3671.6
+      t mine production + 1404.3 t recycled) = 27.666%; excludes net producer hedging.
+      Conservative 2050 holds this observed share; baseline +10 percentage points;
+      optimistic +20 percentage points. The increments are ANALYST SENSITIVITIES,
+      NOT 2050 forecasts. The available ecoinvent e-waste recovery route is only a
+      proxy for the broader recovered-gold mix, which also includes jewellery; only
+      apply to grade-equivalent refined gold with the correct recovery burdens and
+      no avoided-production double counting.
     anchor_year: 2025
     anchor_secondary_share: 0.27666029669615244
   silver:
@@ -190,10 +376,13 @@ evidence:
     confidence: scenario-assumption
     source_short: World Silver Survey2026 physical supply
     source_url: https://silverinstitute.org/wp-content/uploads/2026/04/World-Silver-Survey-2026.pdf
-    notes: 2025 anchor197.6/(846.6+197.6) excluding hedging/stock adjustments. Conservative
-      holds anchor; moderate/high add10/20 percentagepoints as analyst sensitivities
-      NOT forecasts. Parkes-crust silver stays in non-secondary remainder; only existing
-      e-waste/x-ray recovery counts secondary.
+    notes: Observed 2025 GLOBAL PHYSICAL SUPPLY anchor = 197.6 Moz recycled / (846.6
+      Moz mine + 197.6 Moz recycled) = 18.924%; excludes hedging/stock adjustments.
+      Conservative 2050 holds this share; baseline +10 percentage points and optimistic
+      +20 percentage points are ANALYST SENSITIVITIES, NOT forecasts. The existing
+      ecoinvent e-waste/x-ray recovery routes cannot automatically represent every
+      secondary silver source. Keep secondary refining burdens; do not count Parkes-crust
+      silver as secondary if it is already assigned to the primary-metal route.
     anchor_year: 2025
     anchor_secondary_share: 0.18923577858647767
   platinum:
@@ -204,10 +393,14 @@ evidence:
     confidence: scenario-assumption
     source_short: Johnson Matthey May2026 pp27-28 2025actual
     source_url: https://matthey.com/documents/161599/509428/pgm-market-report-26.pdf/a2d115af-bf7c-f589-29e9-6beacf8a4452
-    notes: 2025 anchor1547/(5557+1547) thousandtroyounces. Open-loop secondary only;
-      do not add industrial closedloop again. Conservative holds anchor; moderate/high
-      add10/20 percentagepoints as analyst sensitivities NOT2050forecasts. Existing
-      catalyst-recovery mix retained.
+    notes: Observed 2025 Johnson Matthey PHYSICAL OPEN-LOOP market supply anchor =
+      1547/(5557+1547) thousand troy ounces = 21.776%. Conservative 2050 holds anchor;
+      baseline and optimistic add 10 and 20 percentage points respectively as ANALYST
+      SENSITIVITIES, not published forecasts. Closed-loop industrial catalyst/production
+      recycling is NOT included in these supply figures; it may already be implicitly
+      included in ecoinvent process inventories and must NOT be added again as a market
+      share. Keep verified secondary-refining/catalyst recovery LCI; do not assume
+      equivalent grade for all PGM compounds.
     anchor_year: 2025
     anchor_secondary_share: 0.21776463963963963
   palladium:
@@ -218,10 +411,14 @@ evidence:
     confidence: scenario-assumption
     source_short: Johnson Matthey May2026 pp29-30 2025actual
     source_url: https://matthey.com/documents/161599/509428/pgm-market-report-26.pdf/a2d115af-bf7c-f589-29e9-6beacf8a4452
-    notes: 2025 anchor3135/(6589+3135) thousandtroyounces. Open-loop secondary only.
-      Conservative holds anchor; moderate/high add10/20 percentagepoints as analyst
-      sensitivities NOT2050forecasts. Existing catalyst/e-waste recipe retained; no
-      scrap-stock forecast.
+    notes: Observed 2025 Johnson Matthey PHYSICAL OPEN-LOOP market supply anchor =
+      3135/(6589+3135) thousand troy ounces = 32.240%. Conservative 2050 holds anchor;
+      baseline and optimistic add 10 and 20 percentage points as ANALYST SENSITIVITIES,
+      not forecasts. Closed-loop manufacturing/catalyst recycling is excluded from
+      the supply denominator and may already be embedded in ecoinvent. Keep actual
+      catalyst/e-waste recovery recipes and grade matching. Declining or shifting
+      future autocatalyst demand makes fixed +10/+20 pp especially uncertain; no 2050
+      scrap-stock forecast is implied.
     anchor_year: 2025
     anchor_secondary_share: 0.3223981900452489
 products:
@@ -534,10 +731,10 @@ products:
       shares:
         primary:
           2020: 1.0
-          2050: 0.9
+          2050: 0.97
         secondary:
           2020: 0.0
-          2050: 0.1
+          2050: 0.03
     graphite ore, mined:
       name: market for graphite ore, mined
       reference product: graphite ore, mined
@@ -644,30 +841,30 @@ products:
       shares:
         primary:
           2020: 0.9991595853954618
-          2050: 0.7771836007130125
+          2050: 0.85
         secondary:
           2020: 0.000840414604538239
-          2050: 0.22281639928698752
+          2050: 0.15
     lithium carbonate, battery grade:
       name: market for lithium carbonate, battery grade
       reference product: lithium carbonate, battery grade
       shares:
         primary:
           2020: 0.999159585
-          2050: 0.7771836007130125
+          2050: 0.85
         secondary:
           2020: 0.000840414604538239
-          2050: 0.22281639928698752
+          2050: 0.15
     lithium hydroxide, battery grade:
       name: market for lithium hydroxide, battery grade
       reference product: lithium hydroxide, battery grade
       shares:
         primary:
           2020: 1.0
-          2050: 0.7771836007130125
+          2050: 0.85
         secondary:
           2020: 0.0
-          2050: 0.22281639928698752
+          2050: 0.15
     dolomite:
       name: market for dolomite
       reference product: dolomite
@@ -744,10 +941,10 @@ products:
       shares:
         primary:
           2020: 0.997971535
-          2050: 0.8
+          2050: 0.85
         secondary:
           2020: 0.002028465
-          2050: 0.2
+          2050: 0.15
     phosphate rock, beneficiated:
       name: market for phosphate rock, beneficiated
       reference product: phosphate rock, beneficiated
@@ -840,170 +1037,170 @@ products:
       shares:
         primary:
           2020: 1.0
-          2050: 0.98
+          2050: 0.8
         secondary:
           2020: 0.0
-          2050: 0.02
+          2050: 0.2
     erbium oxide:
       name: market for erbium oxide
       reference product: erbium oxide
       shares:
         primary:
           2020: 1.0
-          2050: 0.98
+          2050: 1.0
         secondary:
           2020: 0.0
-          2050: 0.02
+          2050: 0.0
     europium oxide:
       name: market for europium oxide
       reference product: europium oxide
       shares:
         primary:
           2020: 1.0
-          2050: 0.98
+          2050: 1.0
         secondary:
           2020: 0.0
-          2050: 0.02
+          2050: 0.0
     gadolinium oxide:
       name: market for gadolinium oxide
       reference product: gadolinium oxide
       shares:
         primary:
           2020: 1.0
-          2050: 0.98
+          2050: 1.0
         secondary:
           2020: 0.0
-          2050: 0.02
+          2050: 0.0
     ytterbium oxide:
       name: market for ytterbium oxide
       reference product: ytterbium oxide
       shares:
         primary:
           2020: 1.0
-          2050: 0.98
+          2050: 1.0
         secondary:
           2020: 0.0
-          2050: 0.02
+          2050: 0.0
     terbium oxide:
       name: market for terbium oxide
       reference product: terbium oxide
       shares:
         primary:
           2020: 1.0
-          2050: 0.98
+          2050: 0.8
         secondary:
           2020: 0.0
-          2050: 0.02
+          2050: 0.2
     thulium oxide:
       name: market for thulium oxide
       reference product: thulium oxide
       shares:
         primary:
           2020: 1.0
-          2050: 0.98
+          2050: 1.0
         secondary:
           2020: 0.0
-          2050: 0.02
+          2050: 0.0
     yttrium oxide:
       name: market for yttrium oxide
       reference product: yttrium oxide
       shares:
         primary:
           2020: 1.0
-          2050: 0.98
+          2050: 1.0
         secondary:
           2020: 0.0
-          2050: 0.02
+          2050: 0.0
     samarium oxide:
       name: market for samarium oxide
       reference product: samarium oxide
       shares:
         primary:
           2020: 1.0
-          2050: 0.98
+          2050: 1.0
         secondary:
           2020: 0.0
-          2050: 0.02
+          2050: 0.0
     scandium oxide:
       name: market for scandium oxide
       reference product: scandium oxide
       shares:
         primary:
           2020: 1.0
-          2050: 0.98
+          2050: 1.0
         secondary:
           2020: 0.0
-          2050: 0.02
+          2050: 0.0
     lanthanum oxide:
       name: market for lanthanum oxide
       reference product: lanthanum oxide
       shares:
         primary:
           2020: 1.0
-          2050: 0.98
+          2050: 1.0
         secondary:
           2020: 0.0
-          2050: 0.02
+          2050: 0.0
     praseodymium oxide:
       name: market for praseodymium oxide
       reference product: praseodymium oxide
       shares:
         primary:
           2020: 1.0
-          2050: 0.98
+          2050: 0.8
         secondary:
           2020: 0.0
-          2050: 0.02
+          2050: 0.2
     neodymium oxide:
       name: market for neodymium oxide
       reference product: neodymium oxide
       shares:
         primary:
           2020: 1.0
-          2050: 0.98
+          2050: 0.8
         secondary:
           2020: 0.0
-          2050: 0.02
+          2050: 0.2
     lutetium oxide:
       name: market for lutetium oxide
       reference product: lutetium oxide
       shares:
         primary:
           2020: 1.0
-          2050: 0.98
+          2050: 1.0
         secondary:
           2020: 0.0
-          2050: 0.02
+          2050: 0.0
     holmium oxide:
       name: market for holmium oxide
       reference product: holmium oxide
       shares:
         primary:
           2020: 1.0
-          2050: 0.98
+          2050: 1.0
         secondary:
           2020: 0.0
-          2050: 0.02
+          2050: 0.0
     cerium oxide:
       name: market for cerium oxide
       reference product: cerium oxide
       shares:
         primary:
           2020: 1.0
-          2050: 0.98
+          2050: 1.0
         secondary:
           2020: 0.0
-          2050: 0.02
+          2050: 0.0
     lanthanum-cerium oxide:
       name: market for lanthanum-cerium oxide
       reference product: lanthanum-cerium oxide
       shares:
         primary:
           2020: 1.0
-          2050: 0.98
+          2050: 1.0
         secondary:
           2020: 0.0
-          2050: 0.02
+          2050: 0.0
     rhenium:
       name: market for rhenium
       reference product: rhenium
@@ -1353,10 +1550,10 @@ products:
       shares:
         primary:
           2020: 0.311755
-          2050: 0.4
+          2050: 0.44999999999999996
         secondary:
           2020: 0.688245
-          2050: 0.6
+          2050: 0.55
     bentonite:
       name: market for bentonite
       reference product: bentonite
@@ -1585,10 +1782,10 @@ products:
       shares:
         primary:
           2020: 1.0
-          2050: 0.85
+          2050: 0.9
         secondary:
           2020: 0.0
-          2050: 0.15
+          2050: 0.1
     graphite ore, mined:
       name: market for graphite ore, mined
       reference product: graphite ore, mined
@@ -1795,10 +1992,10 @@ products:
       shares:
         primary:
           2020: 0.997971535
-          2050: 0.75
+          2050: 0.78
         secondary:
           2020: 0.002028465
-          2050: 0.25
+          2050: 0.22
     phosphate rock, beneficiated:
       name: market for phosphate rock, beneficiated
       reference product: phosphate rock, beneficiated
@@ -1891,170 +2088,170 @@ products:
       shares:
         primary:
           2020: 1.0
-          2050: 0.95
+          2050: 0.7
         secondary:
           2020: 0.0
-          2050: 0.05
+          2050: 0.3
     erbium oxide:
       name: market for erbium oxide
       reference product: erbium oxide
       shares:
         primary:
           2020: 1.0
-          2050: 0.95
+          2050: 1.0
         secondary:
           2020: 0.0
-          2050: 0.05
+          2050: 0.0
     europium oxide:
       name: market for europium oxide
       reference product: europium oxide
       shares:
         primary:
           2020: 1.0
-          2050: 0.95
+          2050: 1.0
         secondary:
           2020: 0.0
-          2050: 0.05
+          2050: 0.0
     gadolinium oxide:
       name: market for gadolinium oxide
       reference product: gadolinium oxide
       shares:
         primary:
           2020: 1.0
-          2050: 0.95
+          2050: 1.0
         secondary:
           2020: 0.0
-          2050: 0.05
+          2050: 0.0
     ytterbium oxide:
       name: market for ytterbium oxide
       reference product: ytterbium oxide
       shares:
         primary:
           2020: 1.0
-          2050: 0.95
+          2050: 1.0
         secondary:
           2020: 0.0
-          2050: 0.05
+          2050: 0.0
     terbium oxide:
       name: market for terbium oxide
       reference product: terbium oxide
       shares:
         primary:
           2020: 1.0
-          2050: 0.95
+          2050: 0.7
         secondary:
           2020: 0.0
-          2050: 0.05
+          2050: 0.3
     thulium oxide:
       name: market for thulium oxide
       reference product: thulium oxide
       shares:
         primary:
           2020: 1.0
-          2050: 0.95
+          2050: 1.0
         secondary:
           2020: 0.0
-          2050: 0.05
+          2050: 0.0
     yttrium oxide:
       name: market for yttrium oxide
       reference product: yttrium oxide
       shares:
         primary:
           2020: 1.0
-          2050: 0.95
+          2050: 1.0
         secondary:
           2020: 0.0
-          2050: 0.05
+          2050: 0.0
     samarium oxide:
       name: market for samarium oxide
       reference product: samarium oxide
       shares:
         primary:
           2020: 1.0
-          2050: 0.95
+          2050: 1.0
         secondary:
           2020: 0.0
-          2050: 0.05
+          2050: 0.0
     scandium oxide:
       name: market for scandium oxide
       reference product: scandium oxide
       shares:
         primary:
           2020: 1.0
-          2050: 0.95
+          2050: 1.0
         secondary:
           2020: 0.0
-          2050: 0.05
+          2050: 0.0
     lanthanum oxide:
       name: market for lanthanum oxide
       reference product: lanthanum oxide
       shares:
         primary:
           2020: 1.0
-          2050: 0.95
+          2050: 1.0
         secondary:
           2020: 0.0
-          2050: 0.05
+          2050: 0.0
     praseodymium oxide:
       name: market for praseodymium oxide
       reference product: praseodymium oxide
       shares:
         primary:
           2020: 1.0
-          2050: 0.95
+          2050: 0.7
         secondary:
           2020: 0.0
-          2050: 0.05
+          2050: 0.3
     neodymium oxide:
       name: market for neodymium oxide
       reference product: neodymium oxide
       shares:
         primary:
           2020: 1.0
-          2050: 0.95
+          2050: 0.7
         secondary:
           2020: 0.0
-          2050: 0.05
+          2050: 0.3
     lutetium oxide:
       name: market for lutetium oxide
       reference product: lutetium oxide
       shares:
         primary:
           2020: 1.0
-          2050: 0.95
+          2050: 1.0
         secondary:
           2020: 0.0
-          2050: 0.05
+          2050: 0.0
     holmium oxide:
       name: market for holmium oxide
       reference product: holmium oxide
       shares:
         primary:
           2020: 1.0
-          2050: 0.95
+          2050: 1.0
         secondary:
           2020: 0.0
-          2050: 0.05
+          2050: 0.0
     cerium oxide:
       name: market for cerium oxide
       reference product: cerium oxide
       shares:
         primary:
           2020: 1.0
-          2050: 0.95
+          2050: 1.0
         secondary:
           2020: 0.0
-          2050: 0.05
+          2050: 0.0
     lanthanum-cerium oxide:
       name: market for lanthanum-cerium oxide
       reference product: lanthanum-cerium oxide
       shares:
         primary:
           2020: 1.0
-          2050: 0.95
+          2050: 1.0
         secondary:
           2020: 0.0
-          2050: 0.05
+          2050: 0.0
     rhenium:
       name: market for rhenium
       reference product: rhenium
@@ -2404,10 +2601,10 @@ products:
       shares:
         primary:
           2020: 0.311755
-          2050: 0.30000000000000004
+          2050: 0.35
         secondary:
           2020: 0.688245
-          2050: 0.7
+          2050: 0.65
     bentonite:
       name: market for bentonite
       reference product: bentonite
@@ -2942,170 +3139,170 @@ products:
       shares:
         primary:
           2020: 1.0
-          2050: 0.9
+          2050: 0.61
         secondary:
           2020: 0.0
-          2050: 0.1
+          2050: 0.39
     erbium oxide:
       name: market for erbium oxide
       reference product: erbium oxide
       shares:
         primary:
           2020: 1.0
-          2050: 0.9
+          2050: 1.0
         secondary:
           2020: 0.0
-          2050: 0.1
+          2050: 0.0
     europium oxide:
       name: market for europium oxide
       reference product: europium oxide
       shares:
         primary:
           2020: 1.0
-          2050: 0.9
+          2050: 1.0
         secondary:
           2020: 0.0
-          2050: 0.1
+          2050: 0.0
     gadolinium oxide:
       name: market for gadolinium oxide
       reference product: gadolinium oxide
       shares:
         primary:
           2020: 1.0
-          2050: 0.9
+          2050: 1.0
         secondary:
           2020: 0.0
-          2050: 0.1
+          2050: 0.0
     ytterbium oxide:
       name: market for ytterbium oxide
       reference product: ytterbium oxide
       shares:
         primary:
           2020: 1.0
-          2050: 0.9
+          2050: 1.0
         secondary:
           2020: 0.0
-          2050: 0.1
+          2050: 0.0
     terbium oxide:
       name: market for terbium oxide
       reference product: terbium oxide
       shares:
         primary:
           2020: 1.0
-          2050: 0.9
+          2050: 0.61
         secondary:
           2020: 0.0
-          2050: 0.1
+          2050: 0.39
     thulium oxide:
       name: market for thulium oxide
       reference product: thulium oxide
       shares:
         primary:
           2020: 1.0
-          2050: 0.9
+          2050: 1.0
         secondary:
           2020: 0.0
-          2050: 0.1
+          2050: 0.0
     yttrium oxide:
       name: market for yttrium oxide
       reference product: yttrium oxide
       shares:
         primary:
           2020: 1.0
-          2050: 0.9
+          2050: 1.0
         secondary:
           2020: 0.0
-          2050: 0.1
+          2050: 0.0
     samarium oxide:
       name: market for samarium oxide
       reference product: samarium oxide
       shares:
         primary:
           2020: 1.0
-          2050: 0.9
+          2050: 1.0
         secondary:
           2020: 0.0
-          2050: 0.1
+          2050: 0.0
     scandium oxide:
       name: market for scandium oxide
       reference product: scandium oxide
       shares:
         primary:
           2020: 1.0
-          2050: 0.9
+          2050: 1.0
         secondary:
           2020: 0.0
-          2050: 0.1
+          2050: 0.0
     lanthanum oxide:
       name: market for lanthanum oxide
       reference product: lanthanum oxide
       shares:
         primary:
           2020: 1.0
-          2050: 0.9
+          2050: 1.0
         secondary:
           2020: 0.0
-          2050: 0.1
+          2050: 0.0
     praseodymium oxide:
       name: market for praseodymium oxide
       reference product: praseodymium oxide
       shares:
         primary:
           2020: 1.0
-          2050: 0.9
+          2050: 0.61
         secondary:
           2020: 0.0
-          2050: 0.1
+          2050: 0.39
     neodymium oxide:
       name: market for neodymium oxide
       reference product: neodymium oxide
       shares:
         primary:
           2020: 1.0
-          2050: 0.9
+          2050: 0.61
         secondary:
           2020: 0.0
-          2050: 0.1
+          2050: 0.39
     lutetium oxide:
       name: market for lutetium oxide
       reference product: lutetium oxide
       shares:
         primary:
           2020: 1.0
-          2050: 0.9
+          2050: 1.0
         secondary:
           2020: 0.0
-          2050: 0.1
+          2050: 0.0
     holmium oxide:
       name: market for holmium oxide
       reference product: holmium oxide
       shares:
         primary:
           2020: 1.0
-          2050: 0.9
+          2050: 1.0
         secondary:
           2020: 0.0
-          2050: 0.1
+          2050: 0.0
     cerium oxide:
       name: market for cerium oxide
       reference product: cerium oxide
       shares:
         primary:
           2020: 1.0
-          2050: 0.9
+          2050: 1.0
         secondary:
           2020: 0.0
-          2050: 0.1
+          2050: 0.0
     lanthanum-cerium oxide:
       name: market for lanthanum-cerium oxide
       reference product: lanthanum-cerium oxide
       shares:
         primary:
           2020: 1.0
-          2050: 0.9
+          2050: 1.0
         secondary:
           2020: 0.0
-          2050: 0.1
+          2050: 0.0
     rhenium:
       name: market for rhenium
       reference product: rhenium

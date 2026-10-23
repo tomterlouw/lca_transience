@@ -1,7 +1,8 @@
 # Evidence review for extending non-ferrous recycling scenarios
 
-Review date: **20 October 2026**; generic-carbonate coupling checked **22 October
-2026** against the exported inventories. This is a scoped, decision-oriented review of
+Initial review: **20 October 2026**; generic-carbonate coupling checked **22 October
+2026** against the exported inventories; evidence inputs refreshed **23 October 2026**.
+This is a scoped, decision-oriented review of
 additional metals relevant to the repo's supply-mix policy, not an exhaustive
 systematic review of metal circularity. Research was screened for a usable
 primary/secondary supply denominator, future year, geography, product grade and
@@ -12,8 +13,9 @@ an inventory route that can carry the recycling burdens.
 The active scope is now **eleven market rules for ten metal families**: the
 original aluminium cast alloy, copper cathode, nickel class 1, cobalt and lead;
 generic lithium carbonate in GLO and battery-grade carbonate in World; and gold,
-silver, platinum and palladium. The original six numeric targets remain
-unchanged; generic carbonate uses the existing lithium-family endpoints.
+silver, platinum and palladium. The 23 October evidence refresh revises the
+aluminium, nickel and conservative lithium endpoints; generic carbonate uses the
+same lithium-family endpoints as the supported World battery-grade interface.
 Lithium retains its assumed linear 2020–2050 path. The four
 precious metals use documented 2025 supply anchors and separately labelled future
 sensitivities, not purported 2050 forecasts. Their curves retain the existing
@@ -38,6 +40,54 @@ Three distinct objects must not be confused:
 
 An entry in a catalogue, or a nonzero generated target, does not by itself
 establish either a credible forecast or a usable recycling inventory.
+
+## Evidence refresh, 23 October 2026
+
+The updated [evidence CSV](../primary_vs_secondary_metals/scenario_data/metal_2050_literature_evidence.csv)
+is the numeric source used by automatic scenario generation. Its historical
+`secondary_share_2050_baseline` column supplies **`moderate_recycling`**, not the
+native `baseline` selector. The reference shares, precious-metal anchors, active
+eleven-rule scope and native baseline are unchanged by this evidence refresh.
+
+The changed 2050 floors are aluminium **45/55/65%**, nickel **15/22/30%** and
+lithium **15/22.28/37.31%**, ordered as conservative/moderate/high. Copper remains
+25/35/45%, cobalt 20/30/40% and lead 65/77/85%. These are conditional supply-mix
+sensitivities, not six harmonised forecasts for identical market boundaries.
+
+| Evidence family | What is supported | How to interpret its use here |
+| --- | --- | --- |
+| Aluminium | The cited IEA result is approximately 47% secondary aluminium in 2040 NZE. JRC's 60 Mt and more than 70 Mt in 2050 are scrap-recycling **volumes**, not percentages; the Chinese stock-flow result is geographically specific. | All three global cast-alloy 2050 endpoints are analyst sensitivities, with low confidence. Alloy equivalence and a positive existing recovery recipe are still required. |
+| Copper | ICA Europe describes approximately 26–29% end-of-life scrap in EU refined production. Avoided new-mine requirements use another denominator. | Global cathode 25/35/45% is an inferred sensitivity, with low confidence; direct scrap use in fabrication is not automatically secondary refined copper. |
+| Nickel and cobalt | The updated CSV interprets IEA 2024 Figure 2.16 as battery-derived secondary supply divided by **global total demand**: approximately 15/22/30% nickel and 20/30/40% cobalt across STEPS/APS/NZE. Battery manufacturing scrap and retired EV/storage batteries are included, other recycling channels are not. | Rounded proxies, not universal recycled content for every metal or compound. Nickel is low-confidence and cobalt medium-confidence in the input evidence. Applying them to class-1 nickel and cobalt remains a declared product-boundary sensitivity using existing recovery suppliers; stainless steel, ferronickel and nickel sulphate are not newly overridden. |
+| Lithium | Conservative 15% is an analyst lower-collection sensitivity. The approximate 250/1122 and 560/1501 elemental-Li ratios were checked against the official 2026 report on 23 October. | Source-quantity verification does not establish carbonate grade, future scrap availability or an intermediate-year trajectory. Confidence in the compound-market proxy remains low. See the source-context check below. |
+| Lead | The cited stock-flow study reports 77% secondary production in 2050. | The 65% and 85% brackets are analyst sensitivities, not published endpoints or confidence bounds. |
+| Gold, silver, platinum and palladium | Observed 2025 physical/open-loop supply anchors. | Conservative holds the anchor; moderate/high add 10/20 percentage points as analyst sensitivities. Closed-loop circulation already represented in process LCIs is not added again. |
+
+The revised CSV also contains graphite 3/10/20% and magnet-REE 20/30/39%
+assumptions. **Neither activates a new market rule.** Graphite's cited 2040
+secondary-supply-and-reuse figures use different scenarios and are not 2050
+battery-grade recycling forecasts. The magnet-REE evidence concerns **Nd, Pr,
+Dy and Tb**, not Ce, La, Y or every rare-earth oxide; an equivalent recovered
+product and its processing inventory must be established before any override.
+The family name `rare_earths` does not broaden that scientific scope.
+The product mapping therefore uses the optional `evidence_scope` field:
+`apply` permits a family endpoint to enter the generated candidate curve;
+`reference_only` retains the source curve instead. The thirteen non-magnet
+rare-earth oxide entries are `reference_only`; only the four Nd/Pr/Dy/Tb
+entries receive the magnet-REE candidate endpoints. Neither setting activates
+a runtime rule, and all seventeen rare-earth products remain native in actual
+exports under the present policy. The combined generated file records excluded
+products so that this scope restriction remains visible outside the CSV.
+
+Zinc's 13% central literature value and 10/20% analyst brackets remain inactive
+until the route/market boundary is qualified. Generic `precious_metals`, `pgm`
+and `base_low` percentages are low-confidence fallback sensitivities, not source
+forecasts or permission to create recovery suppliers. The `nonmetal_low` zero
+is structural only for explicitly primary products, ores and concentrates; it
+does not imply that graphite, glass, aggregates or industrial minerals cannot
+be recycled. These family rows must not bypass the active policy's product and
+supplier checks. All existing recovery/refining burdens and any embedded scrap
+loops remain in the inventories.
 
 ## Latest premise mapping reviewed
 
@@ -69,7 +119,7 @@ and [secondary suppliers](https://github.com/polca/premise/blob/d5362d8ce1df66c2
 
 | Candidate | Evidence and its scope | Decision for this extension |
 | --- | --- | --- |
-| Lithium | IEA 2026 provides global 2050 secondary volumes and total elemental-Li demand under identifiable demand pathways. Existing generic-carbonate recovery is present in the GLO generic market and in the supported World battery-grade interface. | Apply qualified representative-compound sensitivities to generic carbonate in GLO and battery-grade carbonate in World. Preserve the latter's inherited grade proxy; do not override battery-grade GLO or create a separate hydroxide recycling route. |
+| Lithium | Approximate IEA 2026 secondary-volume/total-demand ratios have been source-checked; their compound-market application remains low-confidence. Existing generic-carbonate recovery is present in the GLO generic market and in the supported World battery-grade interface. | Apply qualified representative-compound sensitivities, including an analyst 15% conservative floor, to generic carbonate in GLO and battery-grade carbonate in World. Preserve the latter's inherited grade proxy; do not override battery-grade GLO or create a separate hydroxide recycling route. |
 | Gold and silver | Global 2025 mine/recycled supply statistics are available from the World Gold Council and Silver Institute. Existing same-product recovery LCIs are identified. | Activate observed-anchor sensitivities with explicit future increments. Gold's recovery mix remains a technology proxy; silver's Parkes-process input is excluded from the claimed secondary fraction. |
 | Platinum and palladium | Johnson Matthey 2026 reports 2025 open-loop secondary and primary supply. Gross closed-loop ratios and technology-specific 2050 studies use different denominators. | Activate open-loop observed-anchor sensitivities using existing recovery routes; do not add closed-loop circulation again. |
 | Zinc | Refined-metal studies and the newer Rostek et al. global zinc-cycle model provide prospective evidence, but refined metal, direct scrap reuse and recycled concentrate are different boundaries. | Defer activation until a complete appropriate refined-zinc recovery/refining chain and matching scenario denominator are connected. |
@@ -90,13 +140,18 @@ context and **560 kt Li** in HDS on page 145. Annex page 350 gives total global
 2050 Li demand of **1,122 kt** in STEPS and **1,501 kt** in HDS. Both page numbers
 are one-based PDF/printed page numbers. The 250 kt figure is associated with
 STEPS from the surrounding narrative rather than an explicitly labelled table
-cell, so the resulting ratio is an approximate source-context derivation.
+cell, so the resulting ratio is an approximate source-context derivation. These
+pages were checked locally on 22 October and independently rechecked on
+23 October. The refreshed CSV records that source-quantity verification, rather
+than retaining its submitted "unverified endpoints" wording. Confidence in the
+compound-market application remains **low**: checking the reported quantities
+does not validate the scenario mapping or their use as carbonate-market shares.
 
 | Repo minimum case | Source interpretation | 2050 secondary input floor |
 | --- | --- | ---: |
-| `conservative` | STEPS-derived ratio | `250 / 1122`, approximately **22.3%** |
-| `moderate_recycling` | Same supported STEPS ratio; no invented intermediate case | `250 / 1122`, approximately **22.3%** |
-| `high_recycling` | HDS-derived ratio | `560 / 1501`, approximately **37.3%** |
+| `conservative` | Analyst lower-collection sensitivity, not an IEA point estimate | **15%** |
+| `moderate_recycling` | Approximate, source-checked STEPS-context ratio | `250 / 1122`, approximately **22.28%** |
+| `high_recycling` | Approximate, source-checked HDS-context ratio | `560 / 1501`, approximately **37.31%** |
 
 The source denominator is **global total lithium demand across uses**, measured
 as elemental Li. It is not the quantity of scrap available, a collection rate,
@@ -109,9 +164,10 @@ supports substantial future battery-metal recycling, reporting 20-30% of demand
 in its APS discussion and highlighting collection-rate sensitivity. It also
 distinguishes Europe from global results. Those broad ranges are not a licence
 to transfer the same percentage between metals, regions, years or chemical
-grades. The 2026 element-specific volume/demand calculation is used for the new
-lithium endpoint instead of treating the older 20/25/30% placeholders as exact
-newer forecasts.
+grades. The updated evidence records approximately 20% APS and 30% NZE for
+2050 battery-derived recycled lithium as an older, independent benchmark, not
+confirmation of a carbonate-grade forecast. The source-checked approximate
+2026 ratios and the analyst conservative endpoint are therefore kept distinct.
 
 ### How this is applied in the model
 
@@ -211,8 +267,9 @@ increments. They are not source forecasts, confidence bounds or stock-flow
 estimates. All cases use the same observed 2025 anchor, retaining the existing
 2020 catalogue point, with piecewise-linear interpolation and endpoint clamping.
 The applied fraction is `max(native_share, floor(year))`; a named case may thus
-make no change if native supply already exceeds the floor. The original six
-products and their curves are not recalibrated by this extension.
+make no change if native supply already exceeds the floor. The precious-metal
+anchor extension does not itself recalibrate non-precious curves; their later
+23 October evidence revisions are documented separately above.
 
 The global anchors are applied as representative supply assumptions to the
 configured World/GLO markets. The 2020 model reference is not replaced by a

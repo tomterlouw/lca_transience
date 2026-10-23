@@ -99,6 +99,17 @@ lithium-carbonate products, and gold, silver, platinum and palladium. The local
 104-product reference table includes the added generic carbonate; it is not a
 catalogue of 104 constructed recycling inventories or approved market overrides.
 
+The product-to-family CSV also accepts an optional `evidence_scope` column.
+`apply` generates that family's candidate curve (and remains the default for
+older two-column files). Once the column exists, every row must state `apply`
+or `reference_only`; blank or misspelled values stop generation.
+`reference_only` retains the original source curve and records the exclusion in
+the combined output. This prevents the magnet-REE assumptions from being
+assigned to the thirteen non-magnet rare-earth oxides. The four Nd/Pr/Dy/Tb
+entries may carry candidate endpoints, but **no rare-earth runtime rule is
+enabled**. Scope of evidence and scope of implemented LCI overrides are separate
+checks; a new family percentage never constructs a recovery inventory.
+
 Valid edits to the named conservative/baseline/optimistic YAML files are retained
 when upstream inputs are unchanged. They are recorded as manual outputs, and
 their actual values feed the selected policy. Edit both primary and secondary
@@ -157,19 +168,20 @@ files remain under `export/metals_policy/`, not in the results directory.
 | `high_recycling` | Higher minimum trajectory, subject to the same supplier/grade checks. This is a sensitivity, not a validated scrap forecast. |
 | `primary_only` | Exact 0% secondary supply counterfactual where a validated primary recipe exists. Not a recommended central forecast. |
 
-The initial live files contain these reference values and 2050 floor inputs.
+The live files, refreshed from the evidence CSV on 23 October 2026, contain these
+reference values and 2050 floor inputs.
 Later validated file edits are used directly; this table is documentation, not a
 second parameter store:
 
 | Refined product | Fixed reference | Conservative file, 2050 | Moderate file, 2050 | High file, 2050 |
 |---|---:|---:|---:|---:|
-| Aluminium, cast alloy | 68.8245% | 45% | 60% | 70% |
+| Aluminium, cast alloy | 68.8245% | 45% | 55% | 65% |
 | Copper, cathode | 20% | 25% | 35% | 45% |
-| Nickel, class 1 | 0.2028465% | 20% | 25% | 30% |
+| Nickel, class 1 | 0.2028465% | 15% | 22% | 30% |
 | Cobalt | 0.5716258% | 20% | 30% | 40% |
 | Lead | 54.9162034% | 65% | 77% | 85% |
-| Lithium carbonate, generic (GLO only) | 0.08404146% | approximately 22.3% | approximately 22.3% | approximately 37.3% |
-| Lithium carbonate, battery grade (World only) | 0.08404146% | approximately 22.3% | approximately 22.3% | approximately 37.3% |
+| Lithium carbonate, generic (GLO only) | 0.08404146% | 15% | approximately 22.28% | approximately 37.31% |
+| Lithium carbonate, battery grade (World only) | 0.08404146% | 15% | approximately 22.28% | approximately 37.31% |
 | Gold | 0.4426657% | 27.6660% | 37.6660% | 47.6660% |
 | Silver | 8.4636523% | 18.9236% | 28.9236% | 38.9236% |
 | Platinum | 4.4600386% | 21.7765% | 31.7765% | 41.7765% |
@@ -181,9 +193,23 @@ percentage points**, respectively, as analyst-selected sensitivities. Those
 increments are not forecasts reported by the source organisations. The generated
 curves retain the catalogue's 2020 value, pass through a common observed 2025
 anchor, then interpolate linearly to the chosen 2050 endpoint. Reference still
-selects the fixed 2020 value; native baseline is unchanged. The original six
-products retain their previous values and 2020–2050 interpolation; the added
-generic carbonate uses the same lithium-family endpoints and interval.
+selects the fixed 2020 value; native baseline is unchanged. Non-precious products
+retain the 2020–2050 linear interpolation, with the updated evidence endpoints
+above; both carbonate rules use the same lithium-family endpoints and interval.
+
+The updated evidence distinguishes endpoint provenance, rather than treating
+every row as an equally established forecast. Aluminium and copper are
+low-confidence analyst sensitivities. Nickel 15/22/30% and cobalt 20/30/40%
+use rounded IEA 2024 battery-derived secondary supply divided by global total
+metal demand, not measured recycled content for each ecoinvent grade. Their
+application to supported class-1 nickel/cobalt markets remains a qualified
+product-boundary proxy, using existing recovery burdens. Lithium's 15% is an
+analyst lower-collection case; its other two endpoints use source-checked,
+approximate elemental-Li ratios but retain low confidence as carbonate-market
+proxies. Lead's 77% is a published central
+assumption, while 65/85% are analyst brackets. See the
+[evidence refresh](metals_literature_review.md#evidence-refresh-23-october-2026)
+for denominators, confidence and limits.
 
 ### Literature-reviewed extension, 20 October 2026
 
@@ -194,17 +220,22 @@ from `treatment of used Li-ion battery, hydrometallurgical treatment`, GLO.
 The explicit `supply_products` interface retains that inherited grade proxy;
 it does not establish battery-grade purity or introduce an unmodelled upgrade.
 The **battery-grade GLO** market is not overridden because a positive compatible
-secondary recipe was not verified there. The previous five product rules are
-unchanged.
+secondary recipe was not verified there. The previous five product matching
+rules are unchanged; the 23 October evidence refresh updates aluminium/nickel
+floor values without broadening their product scope.
 
 The [IEA Global Critical Minerals Outlook 2026](https://www.iea.org/reports/global-critical-minerals-outlook-2026),
 pages 145 and 350, supports approximate 2050 ratios of `250 / 1122` in the
 STEPS-context base case and `560 / 1501` in HDS. Numerators and denominators are
 kt of elemental Li; these are global secondary-supply/total-demand ratios,
 not end-of-life collection rates. Applying them to carbonate is an explicit
-representative-compound sensitivity. Conservative and moderate share the same
-base endpoint rather than inventing a third published projection. HDS is not
-an automatic mapping to CL/OCE or to an IAM pathway.
+representative-compound sensitivity. An independent check of the official PDF
+on 23 October confirms the approximate source quantities; it does not validate
+their compound-grade or scenario interpretation, which remains low-confidence.
+Moderate uses the approximate base ratio and high the HDS ratio.
+Conservative now uses a separately labelled **15% analyst lower-collection
+sensitivity**, not another claimed IEA projection. HDS is not an automatic
+mapping to CL/OCE or to an IAM pathway.
 
 No complete 2026 intermediate-year recycling series was verified. At the user's
 request, lithium nevertheless uses the same linear minimum-share interpolation
@@ -319,7 +350,7 @@ anchor and use piecewise-linear interpolation. Both clamp to endpoint values
 outside their covered interval. The effective share is
 `max(native_share, f(year))`. Thus selecting a conservative case cannot turn
 cast-alloy aluminium from about 68.8% recycled input into the conservative file's
-45% endpoint (or the moderate file's 60%), nor reduce an older premise native
+45% endpoint (or the moderate file's 55%), nor reduce an older premise native
 copper target that is already above
 the conservative floor. The case is a minimum, not a promise of cross-version
 identical shares.
@@ -334,14 +365,17 @@ the cited literature. Several literature indicators have different denominators:
 
 The [IEA recycling report](https://www.iea.org/reports/recycling-of-critical-minerals/executive-summary)
 distinguishes these indicators and supports higher secondary supply. Its battery
-results provide context for nickel/cobalt sensitivities, not an exact class-1
-nickel or cobalt market prescription. The high cobalt case is particularly
-exploratory. The [ICA Europe report](https://internationalcopper.org/wp-content/uploads/2023/03/Copper_The-Pathway-to-Net-Zero_Focus-on-Europe_final.pdf)
+results exclude other recycling channels, including nickel in stainless steel;
+they are not an exact class-1 nickel or cobalt market prescription. No
+stainless-steel, ferronickel or nickel-sulphate override is added. The
+[ICA Europe report](https://internationalcopper.org/wp-content/uploads/2023/03/Copper_The-Pathway-to-Net-Zero_Focus-on-Europe_final.pdf)
 describes 0.9–1.0 Mt of end-of-life scrap in 3.4 Mt of EU refined copper in 2050;
 the global cathode sensitivity here is not that EU forecast. The
 [JRC aluminium report](https://publications.jrc.ec.europa.eu/repository/handle/JRC136525)
-supports secondary production as a decarbonisation route but does not establish
-our 70% global cast-alloy endpoint. The [van der Voet et al. study](https://doi.org/10.1111/jiec.12722)
+supports secondary production as a decarbonisation route, but its 60 Mt and more
+than 70 Mt recycled-scrap results are volumes, not percentages. It does not
+establish our revised 45/55/65% global cast-alloy endpoints. The
+[van der Voet et al. study](https://doi.org/10.1111/jiec.12722)
 contains a 77% secondary-lead scenario; 65% and 85% here are sensitivities around
 that figure, not confidence limits.
 
@@ -434,6 +468,13 @@ than assuming the selector changed every market in a sector.
 The scientific metadata and supplier records identify the evidence, target
 assumptions, approved secondary routes and any primary-remainder exception, so
 an applied percentage can be traced to its source and classification boundary.
+For file-based reference/minimum cases, `share_data_evidence_family` and
+`share_data_evidence` also carry the selected CSV family's basis, confidence,
+source URLs, full qualification notes and scoped exclusions into each market
+audit. The combined evidence file is fingerprinted and included in package
+provenance. Requested/applied curves still come from the selected named file,
+including any validated manual edits. Native baseline remains audit-only and
+does not acquire a dependency on the evidence files.
 
 The configuration is `configuration_file/metals_scenario_policy.yaml`; numeric
 case inputs live in the share-data folder. To extend it:

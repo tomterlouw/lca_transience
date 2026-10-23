@@ -74,10 +74,10 @@ aluminium, cast alloy:
   shares:
     primary:
       2020: 0.311755
-      2050: 0.4
+      2050: 0.44999999999999996
     secondary:
       2020: 0.688245
-      2050: 0.6
+      2050: 0.55
 bentonite:
   name: market for bentonite
   reference product: bentonite
@@ -306,10 +306,10 @@ graphite:
   shares:
     primary:
       2020: 1.0
-      2050: 0.85
+      2050: 0.9
     secondary:
       2020: 0.0
-      2050: 0.15
+      2050: 0.1
 graphite ore, mined:
   name: market for graphite ore, mined
   reference product: graphite ore, mined
@@ -516,10 +516,10 @@ nickel, class 1:
   shares:
     primary:
       2020: 0.997971535
-      2050: 0.75
+      2050: 0.78
     secondary:
       2020: 0.002028465
-      2050: 0.25
+      2050: 0.22
 phosphate rock, beneficiated:
   name: market for phosphate rock, beneficiated
   reference product: phosphate rock, beneficiated
@@ -612,170 +612,170 @@ dysprosium oxide:
   shares:
     primary:
       2020: 1.0
-      2050: 0.95
+      2050: 0.7
     secondary:
       2020: 0.0
-      2050: 0.05
+      2050: 0.3
 erbium oxide:
   name: market for erbium oxide
   reference product: erbium oxide
   shares:
     primary:
       2020: 1.0
-      2050: 0.95
+      2050: 1.0
     secondary:
       2020: 0.0
-      2050: 0.05
+      2050: 0.0
 europium oxide:
   name: market for europium oxide
   reference product: europium oxide
   shares:
     primary:
       2020: 1.0
-      2050: 0.95
+      2050: 1.0
     secondary:
       2020: 0.0
-      2050: 0.05
+      2050: 0.0
 gadolinium oxide:
   name: market for gadolinium oxide
   reference product: gadolinium oxide
   shares:
     primary:
       2020: 1.0
-      2050: 0.95
+      2050: 1.0
     secondary:
       2020: 0.0
-      2050: 0.05
+      2050: 0.0
 ytterbium oxide:
   name: market for ytterbium oxide
   reference product: ytterbium oxide
   shares:
     primary:
       2020: 1.0
-      2050: 0.95
+      2050: 1.0
     secondary:
       2020: 0.0
-      2050: 0.05
+      2050: 0.0
 terbium oxide:
   name: market for terbium oxide
   reference product: terbium oxide
   shares:
     primary:
       2020: 1.0
-      2050: 0.95
+      2050: 0.7
     secondary:
       2020: 0.0
-      2050: 0.05
+      2050: 0.3
 thulium oxide:
   name: market for thulium oxide
   reference product: thulium oxide
   shares:
     primary:
       2020: 1.0
-      2050: 0.95
+      2050: 1.0
     secondary:
       2020: 0.0
-      2050: 0.05
+      2050: 0.0
 yttrium oxide:
   name: market for yttrium oxide
   reference product: yttrium oxide
   shares:
     primary:
       2020: 1.0
-      2050: 0.95
+      2050: 1.0
     secondary:
       2020: 0.0
-      2050: 0.05
+      2050: 0.0
 samarium oxide:
   name: market for samarium oxide
   reference product: samarium oxide
   shares:
     primary:
       2020: 1.0
-      2050: 0.95
+      2050: 1.0
     secondary:
       2020: 0.0
-      2050: 0.05
+      2050: 0.0
 scandium oxide:
   name: market for scandium oxide
   reference product: scandium oxide
   shares:
     primary:
       2020: 1.0
-      2050: 0.95
+      2050: 1.0
     secondary:
       2020: 0.0
-      2050: 0.05
+      2050: 0.0
 lanthanum oxide:
   name: market for lanthanum oxide
   reference product: lanthanum oxide
   shares:
     primary:
       2020: 1.0
-      2050: 0.95
+      2050: 1.0
     secondary:
       2020: 0.0
-      2050: 0.05
+      2050: 0.0
 praseodymium oxide:
   name: market for praseodymium oxide
   reference product: praseodymium oxide
   shares:
     primary:
       2020: 1.0
-      2050: 0.95
+      2050: 0.7
     secondary:
       2020: 0.0
-      2050: 0.05
+      2050: 0.3
 neodymium oxide:
   name: market for neodymium oxide
   reference product: neodymium oxide
   shares:
     primary:
       2020: 1.0
-      2050: 0.95
+      2050: 0.7
     secondary:
       2020: 0.0
-      2050: 0.05
+      2050: 0.3
 lutetium oxide:
   name: market for lutetium oxide
   reference product: lutetium oxide
   shares:
     primary:
       2020: 1.0
-      2050: 0.95
+      2050: 1.0
     secondary:
       2020: 0.0
-      2050: 0.05
+      2050: 0.0
 holmium oxide:
   name: market for holmium oxide
   reference product: holmium oxide
   shares:
     primary:
       2020: 1.0
-      2050: 0.95
+      2050: 1.0
     secondary:
       2020: 0.0
-      2050: 0.05
+      2050: 0.0
 cerium oxide:
   name: market for cerium oxide
   reference product: cerium oxide
   shares:
     primary:
       2020: 1.0
-      2050: 0.95
+      2050: 1.0
     secondary:
       2020: 0.0
-      2050: 0.05
+      2050: 0.0
 lanthanum-cerium oxide:
   name: market for lanthanum-cerium oxide
   reference product: lanthanum-cerium oxide
   shares:
     primary:
       2020: 1.0
-      2050: 0.95
+      2050: 1.0
     secondary:
       2020: 0.0
-      2050: 0.05
+      2050: 0.0
 rhenium:
   name: market for rhenium
   reference product: rhenium

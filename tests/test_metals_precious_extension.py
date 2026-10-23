@@ -181,14 +181,14 @@ class PreciousRepositoryPolicyTests(unittest.TestCase):
                     expected = CATALOGUE_2020[product] if case == "reference" else 0.0
                     self.assertAlmostEqual(self.row_for(plan, product)["applied_secondary_share"], expected)
 
-    def test_original_six_2050_endpoints_are_unchanged(self):
+    def test_original_six_2050_endpoints_follow_revised_evidence(self):
         expected = {
-            "aluminium, cast alloy": (0.45, 0.60, 0.70),
+            "aluminium, cast alloy": (0.45, 0.55, 0.65),
             "copper, cathode": (0.25, 0.35, 0.45),
-            "nickel, class 1": (0.20, 0.25, 0.30),
+            "nickel, class 1": (0.15, 0.22, 0.30),
             "cobalt": (0.20, 0.30, 0.40),
             "lead": (0.65, 0.77, 0.85),
-            "lithium carbonate, battery grade": (250 / 1122, 250 / 1122, 560 / 1501),
+            "lithium carbonate, battery grade": (0.15, 250 / 1122, 560 / 1501),
         }
         for index, case in enumerate(CASE_INCREMENT):
             selected = self.policy(case)
@@ -197,6 +197,25 @@ class PreciousRepositoryPolicyTests(unittest.TestCase):
                 if product in expected:
                     with self.subTest(case=case, product=product):
                         self.assertAlmostEqual(rule["targets"][case][2050], expected[product][index])
+
+    def test_new_candidate_evidence_does_not_activate_unsupported_runtime_markets(self):
+        selected = self.policy("high_recycling")
+        products = ("dysprosium oxide", "terbium oxide", "praseodymium oxide", "neodymium oxide",
+                    "cerium oxide", "lanthanum oxide", "yttrium oxide", "graphite", "zinc",
+                    "lithium hydroxide, battery grade", "steel, low-alloyed")
+        configured = {rule["reference product"] for rule in selected.rules}
+        self.assertFalse(configured.intersection(products))
+        db = []
+        for product in products:
+            name = "market for " + product
+            db.append({"name": name, "reference product": product, "unit": "kilogram", "location": "GLO",
+                       "exchanges": [{"name": name, "product": product, "unit": "kilogram",
+                                      "location": "GLO", "amount": 1, "type": "production"}]})
+        before = deepcopy(db)
+        plan = plan_database(db, selected, scenario={"year": 2050})
+        self.assertEqual(plan.changes, ())
+        self.assertEqual(plan.stats["matched_markets"], 0)
+        self.assertEqual(apply_database(db, plan, policy=selected), before)
 
     def test_silver_parkes_is_explicit_primary_remainder_not_secondary(self):
         selected = self.policy("high_recycling")
@@ -366,6 +385,41 @@ class EvidenceAnchorValidationTests(unittest.TestCase):
                 self.assertEqual(shares["secondary"][2020], 0.01)
                 self.assertEqual(shares["primary"][2020], 0.99)
 
+    def test_reference_only_scope_skips_both_anchor_and_endpoint(self):
+        baseline = self.baseline()
+        before = deepcopy(baseline)
+        with patch("primary_vs_secondary_metals.share_files._read_csv", side_effect=[
+                [self.record(anchor_year="2025", anchor_secondary_share="0.25")],
+                [{"product": "gold", "family": "gold", "evidence_scope": "reference_only"}]]):
+            evidence, mapping = _inputs(baseline, "fixture_evidence.csv", "fixture_mapping.csv")
+        generated = _generated_cases(baseline, evidence, mapping)
+        for case in ("conservative", "baseline", "optimistic"):
+            self.assertEqual(generated[case], before)
+        self.assertEqual(baseline, before)
+        self.assertEqual(evidence["gold"]["excluded_products"], ["gold"])
+
+    def test_real_rare_earth_scope_holds_thirteen_oxides_and_only_generates_four_magnet_candidates(self):
+        directory = ROOT / "primary_vs_secondary_metals/scenario_data"
+        baseline = load_yaml(directory / "metal_primary_secondary_shares.yaml")
+        before = deepcopy(baseline)
+        evidence, mapping = _inputs(baseline, directory / "metal_2050_literature_evidence.csv",
+                                    directory / "metal_product_family_mapping.csv")
+        all_rare_earths = {product for product, family in mapping.items() if family == "rare_earths"}
+        allowed = {"dysprosium oxide", "terbium oxide", "praseodymium oxide", "neodymium oxide"}
+        self.assertEqual(len(all_rare_earths), 17)
+        self.assertEqual(set(evidence["rare_earths"]["excluded_products"]), all_rare_earths - allowed)
+        generated = _generated_cases(baseline, evidence, mapping)
+        for case, endpoint in (("conservative", 0.20), ("baseline", 0.30), ("optimistic", 0.39)):
+            for product in all_rare_earths:
+                with self.subTest(case=case, product=product):
+                    if product in allowed:
+                        self.assertAlmostEqual(generated[case][product]["shares"]["secondary"][2050], endpoint)
+                        self.assertEqual(generated[case][product]["shares"]["secondary"][2020],
+                                         before[product]["shares"]["secondary"][2020])
+                    else:
+                        self.assertEqual(generated[case][product], before[product])
+        self.assertEqual(baseline, before)
+
     def test_conflicting_existing_anchor_raises_without_overwriting_reference_curves(self):
         baseline = self.baseline()
         baseline["gold"]["shares"]["secondary"][2025] = 0.2
@@ -384,10 +438,10 @@ class EvidenceAnchorValidationTests(unittest.TestCase):
         self.assertEqual(generated["optimistic"]["gold"]["shares"]["secondary"][2025], 0.2)
         self.assertEqual(generated["optimistic"]["gold"]["shares"]["secondary"][2050], 0.5)
 
-    def test_real_generation_receipt_has_version_two_and_no_manual_outputs(self):
+    def test_real_generation_receipt_has_scoped_version_three_and_no_manual_outputs(self):
         manifest = json.loads((ROOT / "primary_vs_secondary_metals/scenario_data/"
                                "share_generation_manifest.json").read_text(encoding="utf-8"))
-        self.assertEqual(GENERATOR_VERSION, 2)
+        self.assertEqual(GENERATOR_VERSION, 3)
         self.assertEqual(manifest["generator_version"], GENERATOR_VERSION)
         self.assertEqual(manifest["manual_outputs"], [])
         self.assertEqual(manifest["product_count"], 104)
