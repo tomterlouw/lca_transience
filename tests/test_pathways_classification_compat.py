@@ -22,6 +22,35 @@ import xarray as xr
 import por_classifications as compat
 
 
+def _solve_with_windows_runtime(_):
+    from config import configure_windows_solver_runtime
+    directory = configure_windows_solver_runtime()
+    from pypardiso import spsolve
+    matrix = sps.csr_matrix([[4., 1.], [1., 3.]])
+    demand = np.array([[1., 0.], [2., 1.]])
+    result = spsolve(matrix, demand)
+    return os.getpid(), directory, float(np.max(np.abs(matrix @ result - demand)))
+
+
+class WindowsSolverRuntimeTest(unittest.TestCase):
+    @unittest.skipUnless(os.name == "nt" and find_spec("pypardiso"), "Windows PyPardiso required")
+    def test_real_multi_demand_solve_in_parent_and_spawned_worker(self):
+        import sys
+        if not any((Path(sys.prefix) / "Library/bin").glob("mkl_rt*.dll")):
+            self.skipTest("Active environment has no Conda MKL runtime")
+        from config import configure_windows_solver_runtime
+        directory = configure_windows_solver_runtime()
+        configure_windows_solver_runtime()
+        self.assertEqual(os.environ["PATH"].split(os.pathsep).count(directory), 1)
+        parent = _solve_with_windows_runtime(None)
+        with multiprocessing.get_context("spawn").Pool(1) as pool:
+            child = pool.apply(_solve_with_windows_runtime, (None,))
+        self.assertNotEqual(parent[0], child[0])
+        self.assertEqual(parent[1], child[1])
+        self.assertLess(parent[2], 1e-12)
+        self.assertLess(child[2], 1e-12)
+
+
 def native_modules():
     spec = find_spec("pathways")
     if spec is None:

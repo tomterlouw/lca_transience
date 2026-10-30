@@ -1,0 +1,140 @@
+{
+    "profile": "data-package",
+    "name": "itom",
+    "title": "European ITOM steel scenarios",
+    "description": "National and production-weighted RER steel route mixes, with domestic DRI allocation and material-source HBI imports. Includes all modelled European countries without extrapolating missing production.",
+    "version": "0.6.0",
+    "itom_steel_country_market_mix": {
+        "version": 1,
+        "region": "RER",
+        "variable_prefix": "Production|Steel|Supply from|",
+        "total_variable": "Production|Steel",
+        "markets": [
+            {
+                "name": "market for steel, low-alloyed (ITOM)",
+                "reference product": "steel, low-alloyed",
+                "unit": "kilogram"
+            },
+            {
+                "name": "market for steel, unalloyed (ITOM)",
+                "reference product": "steel, unalloyed",
+                "unit": "kilogram"
+            }
+        ]
+    },
+    "contributors": [
+        {
+            "title": "Tom Terlouw",
+            "email": "tom.terlouw@psi.ch"
+        }
+    ],
+    "dependencies": {
+        "premise": ">=2.2.1"
+    },
+    "ecoinvent": {
+        "version": "3.12",
+        "system model": "cut-off"
+    },
+    "scenarios": [
+        "ITOM_Steel_Test-scenario"
+    ],
+    "licenses": [
+        {
+            "id": "CC0-1.0",
+            "title": "CC0 1.0",
+            "url": "https://creativecommons.org/publicdomain/zero/1.0/"
+        }
+    ],
+    "resources": [
+        {
+            "path": "scenario_data/scenario_data_itom.csv",
+            "profile": "tabular-data-resource",
+            "name": "scenario_data",
+            "format": "csv",
+            "mediatype": "text/csv",
+            "encoding": "utf-8-sig",
+            "schema": {
+                "fields": [
+                    {
+                        "name": "model",
+                        "type": "string",
+                        "format": "default"
+                    },
+                    {
+                        "name": "scenario",
+                        "type": "string",
+                        "format": "default"
+                    },
+                    {
+                        "name": "region",
+                        "type": "string",
+                        "format": "default"
+                    },
+                    {
+                        "name": "variables",
+                        "type": "string",
+                        "format": "default"
+                    },
+                    {
+                        "name": "unit",
+                        "type": "string",
+                        "format": "default"
+                    },
+                    {
+                        "name": "2020",
+                        "type": "number",
+                        "format": "default"
+                    },
+                    {
+                        "name": "2025",
+                        "type": "number",
+                        "format": "default"
+                    },
+                    {
+                        "name": "2030",
+                        "type": "number",
+                        "format": "default"
+                    },
+                    {
+                        "name": "2035",
+                        "type": "number",
+                        "format": "default"
+                    },
+                    {
+                        "name": "2040",
+                        "type": "number",
+                        "format": "default"
+                    },
+                    {
+                        "name": "2045",
+                        "type": "number",
+                        "format": "default"
+                    },
+                    {
+                        "name": "2050",
+                        "type": "number",
+                        "format": "default"
+                    }
+                ],
+                "missingValues": [
+                    ""
+                ]
+            }
+        },
+        {
+            "path": "configuration_file/config_itom.yaml",
+            "profile": "data-resource",
+            "name": "config",
+            "format": "yaml",
+            "mediatype": "text/yaml",
+            "encoding": "utf-8"
+        },
+        {
+            "path": "inventories/lci-itom.xlsx",
+            "profile": "data-resource",
+            "name": "inventories",
+            "format": "xlsx",
+            "mediatype": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        }
+    ]
+}

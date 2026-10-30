@@ -19,8 +19,13 @@ remind-transience_por - init.zip
 results_*
 data/audit*
 figs/polymer_trends
+figs/scope_overview
+/figs/poster_figures/
 figs/edges_por
+docs
 tests
+carbon_workflows
+scripts
 *.gzip
 /results/
 *.log
@@ -56,13 +61,27 @@ tests/*
 !tests/test_shared_inventory.py
 !tests/test_por_px_terminal_purity.py
 !tests/test_por_scenario_inputs.py
+!tests/test_notebook_scope_controls.py
 !tests/test_helper_consolidation.py
 !tests/test_dependency_manifests.py
 !tests/test_por_supplier_linking.py
+!tests/test_por_poster_figures.py
+!tests/test_carbon_accounting.py
+!tests/test_itom_steel_conversion.py
+!tests/test_figure_export.py
+!tests/test_polymer_trends.py
 !tests/test_por_inventory_store.py
 !tests/test_por_linking_performance.py
 /tmp/por_px_purity/
 /tmp/metals_expansion/
+/tmp/poster_figure_tests/
+/tmp/figure_export_tests/
+/tmp/carbon_accounting_tests/
+/tmp/itom_steel_conversion_tests/
+/tmp/itom_steel_unique/
+/tmp/itom_steel_europe/
+/tmp/biogenic_climate_qa/
+/tmp/notebook_scope_controls/
 
 # Keep the small, live share inputs/scenarios with their repo-owned workflow.
 # The documented workbook is versioned; YAML mode does not depend on its presence.

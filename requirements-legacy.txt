@@ -1,6 +1,7 @@
 # Explicit legacy comparison profile: premise 2.3.8, Python 3.11.
 # Run in a separate env: python -m pip install -r requirements-legacy.txt
-# The default requirements.txt is the current premise 2.5.2 profile.
+# The default requirements.txt is the current premise 2.5.5 / Python 3.12 profile.
+# Keep this environment separate; baseline recycling behaviour is version-dependent.
 -r requirements-common.txt
 
 premise[bw25]==2.3.8

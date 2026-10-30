@@ -85,7 +85,7 @@ production pathways:
       exists in original database: True
 
 markets:
-  - name: market for steel, low-alloyed (SPS)
+  - name: market for steel, low-alloyed (EDM-I)
     reference product: steel, low-alloyed
     unit: kilogram
     includes:
@@ -121,7 +121,7 @@ markets:
 #      - location: NEU
 #      - location: Europe without Switzerland
 
-  - name: market for steel, unalloyed (SPS)
+  - name: market for steel, unalloyed (EDM-I)
     reference product: steel, unalloyed
     unit: kilogram
     includes:
@@ -158,7 +158,7 @@ markets:
 #      - location: Europe without Switzerland
 
   # Replace primary steel acts
-  - name: steel production, converter, low-alloyed (SPS)
+  - name: steel production, converter, low-alloyed (EDM-I)
     reference product: steel, low-alloyed
     unit: kilogram
     includes:
@@ -188,7 +188,7 @@ markets:
         location: Europe without Switzerland
 
   # Replace primary steel acts
-  - name: steel production, converter, unalloyed (SPS)
+  - name: steel production, converter, unalloyed (EDM-I)
     reference product: steel, unalloyed
     unit: kilogram
     includes:

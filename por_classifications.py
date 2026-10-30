@@ -1182,6 +1182,8 @@ def _wrap_column_aggregation(original):
 
 def _guarded_calculate_year(args):
     """Picklable worker entry point: protect each spawned interpreter before LCA."""
+    from config import configure_windows_solver_runtime
+    configure_windows_solver_runtime()
     install_pathways_classification_guard(verbose=False)
     return import_module("pathways.lca")._calculate_year(args)
 
@@ -1197,6 +1199,8 @@ def install_pathways_classification_guard(
     repaired by calling the installer again. Native calculations and all public
     arguments, including multiprocessing and aggregate_by, are preserved.
     """
+    from config import configure_windows_solver_runtime
+    configure_windows_solver_runtime()
     if pathways_class is None:
         pathways_class = import_module("pathways.pathways").Pathways
     if utils_module is None:

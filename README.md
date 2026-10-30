@@ -84,6 +84,7 @@ You can already build prospective LCAs with premise and Pathways alone. Premise 
 | What changes if more metal input is secondary? | Native premise modelling supplies the baseline metal inventories and markets. | Optional, documented non-ferrous recycled-input sensitivities controlled from notebook 1, with actual-share audits and retained recycling burdens. Steel remains endogenous. |
 | Where in the supply chain are impacts attributed? | Pathways calculates location- and activity-resolved contributions. | A geographic analysis notebook distinguishing NL, foreign countries and unresolved aggregate geographies, with scenario comparisons and exportable figures. |
 | Does the same emission or resource use have different impacts in different places? | Pathways can use EDGES regionalized characterization. | A separate EDGES notebook with selected methods, location checks and result provenance, kept distinct from ordinary geographic contribution analysis. |
+| What happens to carbon retained in products? | Production LCA characterizes the inventory's emissions and uptake within its stated boundary. | Optional physical carbon balances, origin tracing, product cohorts and end-of-life sensitivities after the main calculation, with coverage and a review-only correction queue. |
 | Can another researcher follow the calculation? | The packages expose the data and calculation interfaces. | Input snapshots, configuration files, reviewed compatibility adapters, classification safeguards, focused tests and the accompanying modelling documentation. |
 
 ### Industrial clusters without a new IAM region
@@ -111,6 +112,31 @@ This is not a model of local plastic collection or polymer recycling, and it doe
 The distinction between a configured target and an applied market share is central. An absent or differently graded market may not be changed by a rule that looks relevant by name. The lithium example is documented in the [metals policy guide](docs/metals_scenario_policy.md): generic GLO carbonate is supported, but battery-grade GLO markets remain native, and the inspected RELICS lithium definition does not cover `Spodumene`. A small indicator change must not be presented as evidence that lithium recycling offers little benefit.
 
 ## Where to start
+
+**Notebook scope controls.** Set `ASSESSMENT_SCOPE` to `por_polymers` or
+`european_steel` near the top of both main notebooks. The small preset dictionary
+in `config.py` supplies package names, default years/regions and pathway aliases.
+Scenario dictionaries and all premise/Pathways calls remain in the notebooks.
+
+1. In notebook 1, check `PACKAGE_YEARS`, `BRIGHTWAY_YEARS` and optional
+   `BRIGHTWAY_SCENARIO_INDICES`. Review the explicit scenario dictionaries before
+   running the existing database/package export cells.
+2. In notebook 2, select the scope and metals case, or set `PACKAGE_FILE` to an
+   explicit archive. `ANALYSIS_REGIONS`, `ANALYSIS_YEARS`, `ANALYSIS_SCENARIOS`
+   and `PRODUCT_ALIASES` narrow the calculation. Inspect the activity table.
+3. For steel, `STEEL_VIEW = "market"` uses the existing final ITOM market,
+   including RER's national-market recipe. Its visible demand cell sums the ten
+   mutually exclusive route volumes once, separately for each region/year.
+   Select `"routes"` for individual technology diagnostics. Do not add market
+   and route demands, or national and RER totals, together.
+4. Run the visible `p.calculate()` call. The new scope-neutral overview writes
+   signed results, per-kg values and PNG/PDF/SVG figures under
+   `figs/scope_overview/<scope>/<package>/`. Existing PoR/poster designs are
+   retained and run only for the PoR scope at NL by default.
+
+PoR inventory staging is skipped for steel. OPEN-PROM input conversion is an
+explicit optional preparation step. No workflow controller or run-receipt layer
+is required; connections to the underlying packages remain directly editable.
 
 You do not need to read every implementation note before opening the project. Choose a route that matches what you are trying to do:
 
@@ -218,6 +244,7 @@ For the PoR case, the normal execution order is:
 ```text
 lca_transience/
 ├── 0_convert_ITOM_por_to_IAMC.py   # Convert CL and OCE ITOM outputs to IAMC data
+├── 0_convert_ITOM_steel_to_IAMC.py # Convert European ITOM steel, energy and material outputs
 ├── 0_export_act_to_excel.py        # Extract candidate ecoinvent activities for LCI development
 ├── 1_export_packages.ipynb         # Build prospective databases and the Pathways package
 ├── 2_calc_impacts.ipynb            # Calculate LCIA results and scenario figures
@@ -242,7 +269,7 @@ lca_transience/
 │   ├── impacts/                    # Ordinary LCIA results_*.gzip Parquet exports
 │   ├── edges/                      # EDGES results_edges_por_*.gzip and JSON sidecars
 │   └── input_snapshots/            # Hash-addressed LCI snapshots and staging manifests
-├── requirements.txt               # Default premise 2.5.2 pip profile
+├── requirements.txt               # Current premise 2.5.5 pip profile
 ├── requirements-common.txt        # Shared reviewed numerical/runtime pins
 ├── requirements-legacy.txt        # Optional premise 2.3.8 comparison profile
 ├── lca_transience.yml              # Portable Conda setup for the default profile
@@ -347,76 +374,107 @@ remain separate from the copper/cobalt correction. Native premise baselines also
 remain version-dependent; switching versions is a model change, not just a faster
 way of reproducing the same database.
 
-### Environment profiles and what the files currently install
+### Environment profiles
 
-The recommendation above is newer than the portable dependency snapshots in the
-repository. **The commands `pip install -r requirements.txt` and `conda env create
--f lca_transience.yml` still select premise 2.5.2, not 2.5.5.** Those files have
-not been silently repinned by this documentation update. Use the explicit 2.5.5
-recipe below for the recommended setup, or use the older files deliberately when
-reproducing an earlier calculation.
+The dependency files now match the working setup inspected on 30 October 2026.
+They pin direct dependencies and the actual Pathways source revision; they are
+not complete transitive or hash-locked environments.
 
-| Purpose | premise | Python | Pathways source revision | How to select it |
-| --- | --- | --- | --- | --- |
-| Recommended current modelling setup, checked locally on 22 October 2026 | 2.5.5 | Inspected working environment: 3.12.15 | `a7d510d45192b5f95c76360e78a89224abea97e4` | Explicit installation recipe below; verify the resulting environment. |
-| Retained earlier installation profile | 2.5.2 | 3.11 | `82e736438d13c7b465361914534229cf3860bf46` | `requirements.txt` or `lca_transience.yml`. |
-| Optional legacy comparison | 2.3.8 | 3.11 | `f9187faeab92be4dd7a9fe5e90256870b33bc618` | `requirements-legacy.txt` or `lca_transience_legacy.yml`, in a separate environment. |
+| Profile | premise | Python | Pathways revision | Files |
+|---|---|---|---|---|
+| Current, recommended | 2.5.5 | 3.12 | `a7d510d45192b5f95c76360e78a89224abea97e4` | `requirements.txt`, `lca_transience.yml` |
+| Legacy comparison | 2.3.8 | 3.11 | `f9187faeab92be4dd7a9fe5e90256870b33bc618` | `requirements-legacy.txt`, `lca_transience_legacy.yml` |
 
-The inspected Pathways builds report the same package version, 1.0.4, despite
-different source revisions. Record `direct_url.json` as well as the version label.
-The [environment guide](docs/environment_setup.md) explains the retained
-2.5.2/2.3.8 manifests, shared dependencies and legacy setup. It should not be read
-as a claim that those files install the recommended 2.5.5 stack.
+Both use `requirements-common.txt` for notebook, plotting, spreadsheet and
+numerical dependencies. The steel/PoR figure changes use the existing NumPy,
+pandas and Matplotlib libraries. SALib is pinned to the inspected 1.5.1 release,
+which supports NumPy 1.x. Pathways builds can share the `1.0.4` version label
+despite different source: retain the full revision and `direct_url.json`.
 
-### Clone and create the environment
+### Create the current environment
+
+Run from the repository root:
 
 ```bash
 git clone https://github.com/tomterlouw/lca_transience.git
 cd lca_transience
-conda create -n lca_transience_255 -c conda-forge python=3.12 pip git
+conda env create -f lca_transience.yml
 conda activate lca_transience_255
-python -m pip install -r requirements-common.txt "premise[bw25]==2.5.5" "pathways @ git+https://github.com/polca/pathways.git@a7d510d45192b5f95c76360e78a89224abea97e4" "bw-processing==1.5" "matrix-utils==0.8" "lxml==5.4.0"
+python -m pip check
+python -m ipykernel install --user --name lca_transience_255 --display-name "TRANSIENCE (premise 2.5.5)"
+```
+
+The default YAML reflects the working Windows x86-64 setup: Conda installs
+NumPy 1.26.4, SciPy 1.13.1, PyPardiso 0.4.7 and MKL 2026.1.0 **before** pip
+installs the remaining requirements. Identical NumPy/SciPy requirement pins
+are already satisfied by those Conda packages. Do not subsequently replace
+them with pip wheels or change the numerical stack while notebook kernels are
+running. Mixed SciPy binaries caused the earlier `_rotation._promote` error.
+For platforms without compatible MKL/PyPardiso packages, omit those two solver
+entries; Brightway can use SciPy's sparse solver instead.
+
+With the observed Conda PyPardiso build, `pip check` reports
+`pypardiso 0.4.7 requires mkl, which is not installed`: Conda's MKL runtime is
+present but has no pip distribution metadata. Check `conda list mkl` and a
+small solve before interpreting this particular message as a missing runtime.
+Do not install a second pip MKL over the Conda library to suppress that report.
+Other dependency errors still require investigation. A runtime check from the
+repository root is:
+
+```python
+from config import configure_windows_solver_runtime
+configure_windows_solver_runtime()
+import numpy as np
+from scipy.sparse import csr_matrix
+from pypardiso import spsolve
+a = csr_matrix([[4., 1.], [1., 3.]])
+b = np.array([1., 2.])
+assert np.allclose(a @ spsolve(a, b), b)
+```
+
+If the environment already exists, use a new name, for example
+`conda env create -f lca_transience.yml -n lca_transience_clean`, and register its
+matching kernel. Mamba can use the same YAML. Existing environments are not
+changed by editing these files. Select the registered kernel in VS Code.
+
+For a pip-only installation in a separate Python 3.12 environment:
+
+```bash
+python -m pip install -r requirements.txt
 python -m pip check
 ```
 
-The long pip command is one command; the quotes also work in PowerShell. It
-combines the shared direct dependency pins with the observed 2.5.5 core choices,
-rather than installing the 2.5.2 profile and assuming that its name means
-"latest". Git is needed to install Pathways at the specified revision.
+PyPardiso is optional in this route and is not forced into the base pip profile.
+An optional pip-managed solver can be installed with
+`python -m pip install -c requirements-common.txt "pypardiso==0.4.7"` on a
+supported platform. Keep that stack separate from the provided Conda/MKL setup;
+the current YAML already supplies its solver. Never combine the current and
+legacy requirement files in one environment.
 
-If you use Mamba, substitute its environment creation command and then run the
-same pip installation in the activated environment:
+On Windows, VS Code can launch a Conda kernel without its activation paths.
+PyPardiso may locate MKL but fail at the first solve with `0xc06d007f` when its
+delayed dependencies cannot load. Notebook 2 and its workers call
+`configure_windows_solver_runtime()` before calculation, exposing the active
+environment's DLL directory. Restart the kernel after updating these helpers.
 
-```bash
-mamba create -n lca_transience_255 -c conda-forge python=3.12 pip git
-```
-
-If that environment name already exists, use a different name for a clean test.
-Do not overwrite a working modelling environment simply to follow an example.
-Run the commands from the repository root, and register a matching notebook
-kernel after checking the installation.
-
-This recipe documents the inspected interpreter family and core package choices;
-it is **not a fully resolved, hash-locked environment**. A fresh installation has
-not been created as part of this README rewrite. Resolver changes and platform
-differences can affect transitive packages, so run the checks below and retain
-the resolved environment with any result you plan to archive or publish.
-
-To reproduce the retained **2.5.2** profile instead, use its existing files in a
-separate environment:
+### Create the legacy comparison environment
 
 ```bash
-conda env create -f lca_transience.yml -n lca_transience_252
-conda activate lca_transience_252
+conda env create -f lca_transience_legacy.yml
+conda activate premise_pathways_legacy
 python -m pip check
+python -m ipykernel install --user --name premise_pathways_legacy --display-name "TRANSIENCE legacy (premise 2.3.8)"
 ```
 
-Its pip-only equivalent is `python -m pip install -r requirements.txt` in a
-separate Python 3.11 environment. Do not combine the 2.5.2 and 2.3.8 profiles, or
-pass `requirements.txt` alongside a conflicting 2.5.5 pin in one install command.
-The environment guide includes venv activation and legacy instructions. The
-shared dependencies provide a notebook kernel; install JupyterLab separately
-if you need a browser-based notebook server rather than an IDE kernel.
+This retains the earlier Python 3.11 pip numerical stack and its own Pathways
+revision. It is a version comparison, not a promise of identical recycling
+results. The default files now select 2.5.5; use historical Git revisions when
+reproducing an earlier 2.5.2 installation. JupyterLab remains optional for users
+who prefer a browser interface to an IDE kernel.
+
+A new environment has not been built as part of this dependency-file update.
+After installation, run the checks below and archive the resolved versions with
+the modelling results.
 
 ### Configure credentials
 
@@ -546,7 +604,7 @@ version is ready for modelling, keep its hash/manifest with the run record, and
 rebuild the package after inventory or YAML changes. Existing-package freshness
 checks can then flag a later change to the canonical workbook.
 
-See [environment setup](docs/environment_setup.md#shared-inventory-source-configuration)
+See the shared-inventory configuration above
 for the environment-variable override and manual staging example. No additional
 cloud SDK, login token or Python dependency is needed for this local-sync setup.
 
@@ -738,15 +796,15 @@ changing the working directory.
 Then run the notebook from top to bottom. It:
 
 - loads the Pathways datapackage;
-- selects final-energy/final-product variables beginning with `EXT - 1 - FE`;
+- resolves the selected product aliases against the actual package mapping, independently of external-module numbering;
 - optionally excludes obsolete PBR production;
-- calculates the selected LCIA methods for `NL`, all package years, and all available scenarios;
+- calculates the selected LCIA methods for the visible region, year and case selections;
 - exports a timestamped `results/impacts/results_*.gzip` file;
 - prepares total, product-level, and contribution figures.
 
 Before the main calculation, inspect the printed LCIA ecoinvent version and
-available methods. In the current notebook source the explicit 3.12 argument is
-commented out, so a Pathways default can select 3.11 factors. Follow the
+available methods. Notebook 2 now passes `LCIA_VERSION` explicitly, defaulting
+to `EI_VERSION` (3.12), rather than relying on Pathways' default. Follow the
 [LCIA-version guidance](#inventory-version-and-lcia-version) below rather than
 assuming that the inventory version controls this choice. Standard 3.12 methods
 and RELICS availability need to be checked separately.
@@ -1522,11 +1580,51 @@ For each item, add the source, affected files, responsible reviewer, decision da
 | Module | Descriptor | Scenarios in descriptor | Scenario data | Mapping | Inventory | Declared ecoinvent |
 |---|---|---|---|---|---|---|
 | ITOM PoR | `datapackages/datapackage_itom_por.json` | `CL`, `OCE` | `scenario_data_itom_por.csv` | `config_itom_por.yaml` | `lci-itom_por.xlsx` | 3.12 cut-off |
+| ITOM European steel | `datapackages/datapackage_itom.json` | `ITOM_Steel_Test-scenario` | `scenario_data_itom.csv` | `config_itom.yaml` | `lci-itom.xlsx`: ten uniquely named steel route wrappers | 3.12 cut-off |
 | FORECAST | `datapackages/datapackage_forecast.json` | `fc_nz` | `scenario_data_forecast_all.csv` | `config_forecast.yaml` | `lci-forecast.xlsx` | 3.10 cut-off |
 | EDM-I | `datapackages/datapackage_edm_i.json` | `NDC_LTT`, `CBAM`, `INDEPENDENCE` | `scenario_data_edm_i.csv` | `config_edm_i.yaml` | `lci-edm-i.xlsx` | 3.10 cut-off |
 | Open-PROM | `datapackages/datapackage_open_prom.json` | `NDC-EI` | `scenario_data_open_prom.csv` | `config_open_prom.yaml` | `lci-open-prom.xlsx` | 3.12 cut-off |
 
-The current `1_export_packages.ipynb` activates FORECAST and ITOM PoR. The EDM-I and Open-PROM external scenarios are present but commented out in the scenario composition cell.
+The scenario-composition cell in `1_export_packages.ipynb` selects which external
+modules are active. Check that cell for the current run rather than assuming
+that every loaded descriptor is included in the exported scenarios.
+
+The separate European ITOM steel converter is ready to run with
+`python 0_convert_ITOM_steel_to_IAMC.py`. It preserves annual energy/material
+data, converts countries to ISO2, and derives separate NG, H2, mixed and
+unresolved DRI/HBI steel volumes without changing total steel production.
+It writes both CSV and Excel IAMC outputs, including national supply volumes
+for the RER market over the modelled European countries, including the UK.
+The existing export hook constructs the RER steel markets from the same-grade
+national ITOM markets, weighted by each country's total steel production.
+For example, a 20% German share becomes a 0.2 kg input from the German market
+per kilogram of RER steel. This preserves each national market's technology
+and upstream supplier mix. The Excel copy exposes both country-market weights
+and route diagnostics; JSON receipts are saved under
+`export/itom_steel_country_mix`. Intermediate years interpolate volumes before
+normalizing shares. National and RER rows represent the same production and
+must not be summed together; automatic World-market construction stays disabled.
+Domestic route splitting is a documented proportional-allocation assumption.
+Intra-EU HBI uses the same scenario/year EU27 DRI production mix as a documented
+NG/H2/mixed-route proxy; explicit extra-EU HBI imports retain their reported NG
+or H2 route. Material quantities split the existing HBI-steel output without
+adding steel tonnes. Scrap-EAF volumes are route shares rather than final-product
+recycled-content fractions, and no second finished-steel blend is added. ITOM's
+CCS deployment and technology-specific energy calibration remain pending their
+detailed source tables. The preliminary
+mapping uses declared proxies for mixed/unresolved routes. This steel module is
+activated by including its external scenario in notebook 1. See [conversion, mapping and activation workflow](docs/itom_steel_conversion.md).
+
+Each steel pathway has its own activity name in `lci-itom.xlsx`, including the
+routes that use the same underlying NG or H2 producer. The mapping imports these
+as additional inventories and does not rely on premise renaming repeated aliases.
+Each wrapper contains a 1 kg production exchange and a 1 kg input from the
+existing steel activity. Its materials, energy, direct emissions and uncertainty
+remain in that original supplier, including native premise updates to it.
+Original producers are regionalized alongside the wrappers, preserving the
+route identity without duplicating their full inventories. The European scrap
+source and HBI/mixed-route proxy assumptions are documented in the workbook and
+the steel conversion guide.
 
 Read this as a list of available model links, not a menu of interchangeable
 backgrounds. REMIND supplies the active IAM background. ITOM adds the cluster's
@@ -1578,9 +1676,9 @@ Avoid counting the same stored carbon once as reduced direct emissions and again
 The inventory release and the characterization-factor release are separate model
 choices. `EI_VERSION = "3.12"` in `config.py` controls the source inventory setup;
 it does not automatically override Pathways' LCIA default. In the inspected
-Pathways build that default is 3.11. The current notebook 2 source still has the
-3.12 argument commented out, so check the printed `p.ei_version` before using a
-result in a comparison.
+Pathways build that default is 3.11. Notebook 2 now passes its visible
+`LCIA_VERSION` setting explicitly, defaulting to `EI_VERSION` (3.12). Check
+the printed `p.ei_version` before using a result in a comparison.
 
 For a calculation using standard 3.12 factors, make the choice explicit:
 
@@ -1616,6 +1714,49 @@ Different climate-change methods can treat biogenic CO2 uptake, release, and sto
 - why the methods are shown and which is used for the principal conclusion.
 
 Do not compare the two methods as though they were duplicate implementations of the same accounting convention.
+
+The end of `2_calc_impacts.ipynb` includes a **Companion climate figures including
+biogenic CO₂** section for CL and OCE. It reuses the exact IPCC 2021 GWP100
+method already selected in `methods_sel`, including biogenic CO₂ and short-lived
+climate forcers (SLCFs). Run the poster style and annual-plot definition cells,
+then the companion section. It works independently of the metal-indicator
+poster run. Separate figures, signed source tables and provenance are written
+to `figs/poster_figures/biogenic_CO2/`; the EF figures are retained.
+
+This method characterizes matching atmospheric CO₂ uptake at −1 and non-fossil
+CO₂ releases at +1, including the inventory's non-fossil resource-correction
+flow. It does not add missing uptake exchanges or justify another manual
+biomass, DAC or `stored_CO2` credit. The present production boundary ends at the
+gate: a negative balance does not establish permanent removal, and subsequent
+use/end-of-life emissions are outside it. Differences from EF also reflect
+other characterization choices, including methane and SLCFs. Keep both views
+and check allocation/carbon balances, as discussed in
+[ecoinvent's IPCC guidance](https://support.ecoinvent.org/guidance-on-ipcc-methods).
+Each companion figure identifies the actual LCIA-factor release and inventory
+version, visibly flagging mismatches. Selecting 3.12 factors requires
+`Pathways(..., ecoinvent_version="3.12")` and a new calculation; independently
+check RELICS availability before changing the main calculation's version.
+
+### Additional carbon accounts and product lifetimes
+
+The final sections of notebooks 1 and 2 connect optional carbon-accounting
+workflows without changing the production packages or LCIA results. Notebook 1
+offers a read-only preflight. Notebook 2 traces ITOM carbon origins, reports
+factory-gate carbon, follows new production cohorts through application
+lifetimes/end-of-life, and separates product retention from captured/geological
+CO2 destinations. Source files, assumptions and outputs are recorded in unique
+`results/carbon_accounting/` run directories.
+
+Use `configuration_file/carbon_workflows.yaml` and the connected tables under
+`carbon_workflows/`. The ready-to-run lifetime and waste-treatment profiles are
+explicit screening sensitivities, not observed Rotterdam application data.
+Unknown composition/origin and missing treatment-process LCIA coefficients stay
+unresolved. No extra uptake credit or complete cradle-to-grave score is invented.
+Recovered feedstock is reported separately rather than adding production on top
+of ITOM. MDI/polyols are excluded from in-use polymer stocks until final-article
+conversion is specified. Proposed inventory corrections are exported for review
+and are never applied by this workflow. See [additional carbon workflows,
+assumptions and correction priorities](docs/carbon_workflows.md).
 
 ### Demand region versus burden location
 

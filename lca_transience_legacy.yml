@@ -1,5 +1,6 @@
 # Optional legacy comparison environment. Default: lca_transience.yml.
 # Run from the repo root: conda env create -f lca_transience_legacy.yml
+# Python 3.11 + premise 2.3.8; keep its pip numerical stack separate from current Conda/MKL.
 name: premise_pathways_legacy
 channels:
   - conda-forge

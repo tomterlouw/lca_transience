@@ -16,8 +16,8 @@ import yaml
 ROOT = Path(__file__).resolve().parents[1]
 PROFILES = {
     "requirements.txt": (
-        "lca_transience.yml", "premise_pathways_new", "2.5.2",
-        "82e736438d13c7b465361914534229cf3860bf46", "1.5", "0.8", "5.4.0",
+        "lca_transience.yml", "lca_transience_255", "2.5.5",
+        "a7d510d45192b5f95c76360e78a89224abea97e4", "1.5", "0.8", "5.4.0",
     ),
     "requirements-legacy.txt": (
         "lca_transience_legacy.yml", "premise_pathways_legacy", "2.3.8",
@@ -31,6 +31,7 @@ IMPORT_PACKAGES = {
     "pandas": "pandas", "numpy": "numpy", "matplotlib": "matplotlib",
     "seaborn": "seaborn", "openpyxl": "openpyxl", "yaml": "PyYAML",
     "IPython": "ipython",
+    "xarray": "xarray",
 }
 
 
@@ -137,6 +138,7 @@ class DependencyManifestTests(unittest.TestCase):
         local = {path.stem for path in ROOT.glob("*.py")}
         local.update(path.stem for path in (ROOT / "primary_vs_secondary_metals").glob("*.py"))
         local.add("primary_vs_secondary_metals")
+        local.add("scripts")
         seen, unknown = set(), []
         for label, tree in source_trees():
             for node in ast.walk(tree):
@@ -168,8 +170,11 @@ class DependencyManifestTests(unittest.TestCase):
                 self.assertEqual(specification["name"], environment_name)
                 self.assertEqual(specification["channels"], ["conda-forge", "nodefaults"])
                 conda_dependencies = [entry for entry in specification["dependencies"] if isinstance(entry, str)]
-                self.assertEqual(conda_dependencies,
-                                 ["python=3.11", "pip>=24", "setuptools=82.0.0", "wheel", "git"])
+                expected = (["python=3.12", "pip>=24", "setuptools=82.0.0", "wheel", "git",
+                             "numpy=1.26.4", "scipy=1.13.1", "pypardiso=0.4.7", "mkl=2026.1.0"]
+                            if requirements_file == "requirements.txt" else
+                            ["python=3.11", "pip>=24", "setuptools=82.0.0", "wheel", "git"])
+                self.assertEqual(conda_dependencies, expected)
                 self.assertTrue(all(entry.count("=") <= 1 for entry in conda_dependencies))
                 pip_sections = [entry for entry in specification["dependencies"] if isinstance(entry, dict)]
                 self.assertEqual(pip_sections, [{"pip": ["-r " + requirements_file]}])

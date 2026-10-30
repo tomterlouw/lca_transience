@@ -51,7 +51,7 @@ production pathways:
   # Ethylene pathways
 
 markets:
-  - name: market for ammonia (SPS)
+  - name: market for ammonia (Forecast)
     reference product: ammonia, anhydrous, liquid
     unit: kilogram
     includes:
@@ -113,7 +113,7 @@ markets:
         product: ammonia, anhydrous, liquid
         operator: equals
   
-  - name: market for methanol (SPS)
+  - name: market for methanol (Forecast)
     reference product: methanol
     unit: kilogram
     includes:

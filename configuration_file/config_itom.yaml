@@ -1,0 +1,181 @@
+# European ITOM steel; rebuild with python 0_convert_ITOM_steel_to_IAMC.py.
+# Input: scenario_data/scenario_data_itom.csv. Country markets use ISO2 regions.
+# RER is an additional, production-weighted European route mix from the modelled
+# countries, including GB. It is not additional production on top of countries.
+# IAMC Supply from|COUNTRY rows drive the export post-step: final RER markets
+# buy same-grade national ITOM markets directly, retaining national backgrounds.
+# Native provisional RER technology inputs are replaced, not added to that mix.
+# DRI_NG/H2/mixed volumes use a declared proportional domestic iron-route split.
+# HBI material sources preserve explicit extra-EU NG/H2 imports; intra-EU HBI
+# uses the same scenario/year EU27 DRI production mix (unknown exporter proxy).
+# DRI_NG_H2, DRI_unresolved, HBI_NG_H2 and HBI_unresolved use NG inventory proxies.
+# HBI integrated-route proxies do not resolve exporter, briquetting or shipping.
+# Unalloyed demand uses low-alloyed supplier inventories as an explicit grade proxy.
+# ITOM includes CCS but this export has no capture rates; native uncaptured LCIs
+# do not represent that deployment. Electrowinning is absent from the test run.
+# Keep totals/raw/material rows out of includes; do not add ITOM's dummy blend.
+# EAF_Scrap is a full-scrap route, not a final-product recycled-content figure.
+# Its wrapper initially links the existing European scrap-EAF producer;
+# the generic ecoinvent EAF alias can contain primary iron in other locations.
+# Each pathway has a unique wrapper in lci-itom.xlsx, purchasing 1 kg of its
+# existing native producer. Regionalize originals before the pathway wrappers.
+# Alias regionalize:true preserves pathway metadata in old and new premise.
+# Exclude automatic World supply (countries + RER would double-count production)
+# and global consumers. National and RER-labelled consumers use their own market;
+# unmodelled country consumers retain links. Positive country filters act as AND.
+# Only market providers are replaced; technology-specific converter recipes remain.
+---
+regionalize:
+  datasets:
+  - name: steel production, blast furnace-basic oxygen furnace, low-alloyed
+    reference product: steel, low-alloyed
+    exists in original database: true
+  - name: steel production, natural gas-based direct reduction iron-electric arc furnace, low-alloyed
+    reference product: steel, low-alloyed
+    exists in original database: true
+  - name: steel production, hydrogen-based direct reduction iron-electric arc furnace, low-alloyed
+    reference product: steel, low-alloyed
+    exists in original database: true
+  - name: steel production, electric, low-alloyed
+    reference product: steel, low-alloyed
+    exists in original database: true
+
+production pathways:
+  steel_bof:
+    production volume:
+      variable: Production|Steel|BF/BOF
+    ecoinvent alias:
+      name: steel production, blast furnace-basic oxygen furnace, low-alloyed (ITOM BOF)
+      reference product: steel, low-alloyed
+      exists in original database: false
+      regionalize: true
+  steel_eaf_scrap:
+    # High-level route output. Do not add a second primary/secondary blending step.
+    production volume:
+      variable: Production|Steel|Secondary steel
+    ecoinvent alias:
+      name: steel production, scrap-based electric arc furnace, low-alloyed (ITOM)
+      reference product: steel, low-alloyed
+      exists in original database: false
+      regionalize: true
+  steel_eaf_dri_ng:
+    production volume:
+      variable: Production|Steel|DRI_NG
+    ecoinvent alias:
+      name: steel production, natural gas-based direct reduction iron-electric arc furnace, low-alloyed (ITOM DRI NG)
+      reference product: steel, low-alloyed
+      exists in original database: false
+      regionalize: true
+  steel_eaf_dri_h2:
+    production volume:
+      variable: Production|Steel|DRI_H2
+    ecoinvent alias:
+      name: steel production, hydrogen-based direct reduction iron-electric arc furnace, low-alloyed (ITOM DRI H2)
+      reference product: steel, low-alloyed
+      exists in original database: false
+      regionalize: true
+  steel_eaf_dri_ng_h2:
+    production volume:
+      variable: Production|Steel|DRI_NG_H2
+    ecoinvent alias:
+      name: steel production, natural gas-based direct reduction iron-electric arc furnace, low-alloyed (ITOM DRI NG-H2 proxy)
+      reference product: steel, low-alloyed
+      exists in original database: false
+      regionalize: true
+  steel_eaf_dri_unresolved:
+    production volume:
+      variable: Production|Steel|DRI_unresolved
+    ecoinvent alias:
+      name: steel production, natural gas-based direct reduction iron-electric arc furnace, low-alloyed (ITOM DRI unresolved proxy)
+      reference product: steel, low-alloyed
+      exists in original database: false
+      regionalize: true
+  steel_eaf_hbi_ng:
+    # Explicit HBI_import_NG plus the NG share of intra-EU HBI's proxy mix.
+    production volume:
+      variable: Production|Steel|HBI_NG
+    ecoinvent alias:
+      name: steel production, natural gas-based direct reduction iron-electric arc furnace, low-alloyed (ITOM HBI NG proxy)
+      reference product: steel, low-alloyed
+      exists in original database: false
+      regionalize: true
+  steel_eaf_hbi_h2:
+    # Explicit HBI_import_H2 plus the H2 share of intra-EU HBI's proxy mix.
+    production volume:
+      variable: Production|Steel|HBI_H2
+    ecoinvent alias:
+      name: steel production, hydrogen-based direct reduction iron-electric arc furnace, low-alloyed (ITOM HBI H2 proxy)
+      reference product: steel, low-alloyed
+      exists in original database: false
+      regionalize: true
+  steel_eaf_hbi_ng_h2:
+    production volume:
+      variable: Production|Steel|HBI_NG_H2
+    ecoinvent alias:
+      name: steel production, natural gas-based direct reduction iron-electric arc furnace, low-alloyed (ITOM HBI NG-H2 proxy)
+      reference product: steel, low-alloyed
+      exists in original database: false
+      regionalize: true
+  steel_eaf_hbi_unresolved:
+    production volume:
+      variable: Production|Steel|HBI_unresolved
+    ecoinvent alias:
+      name: steel production, natural gas-based direct reduction iron-electric arc furnace, low-alloyed (ITOM HBI unresolved proxy)
+      reference product: steel, low-alloyed
+      exists in original database: false
+      regionalize: true
+
+markets:
+- name: market for steel, low-alloyed (ITOM)
+  reference product: steel, low-alloyed
+  unit: kilogram
+  except regions:
+  - World
+  includes:
+  - steel_bof
+  - steel_eaf_scrap
+  - steel_eaf_dri_ng
+  - steel_eaf_dri_h2
+  - steel_eaf_dri_ng_h2
+  - steel_eaf_dri_unresolved
+  - steel_eaf_hbi_ng
+  - steel_eaf_hbi_h2
+  - steel_eaf_hbi_ng_h2
+  - steel_eaf_hbi_unresolved
+  replaces:
+  - name: market for steel, low-alloyed
+    product: steel, low-alloyed
+  replaces in:
+  - excludes:
+      location: GLO
+  - excludes:
+      location: RoW
+  - excludes:
+      location: World
+
+- name: market for steel, unalloyed (ITOM)
+  reference product: steel, unalloyed
+  unit: kilogram
+  except regions:
+  - World
+  includes:
+  - steel_bof
+  - steel_eaf_scrap
+  - steel_eaf_dri_ng
+  - steel_eaf_dri_h2
+  - steel_eaf_dri_ng_h2
+  - steel_eaf_dri_unresolved
+  - steel_eaf_hbi_ng
+  - steel_eaf_hbi_h2
+  - steel_eaf_hbi_ng_h2
+  - steel_eaf_hbi_unresolved
+  replaces:
+  - name: market for steel, unalloyed
+    product: steel, unalloyed
+  replaces in:
+  - excludes:
+      location: GLO
+  - excludes:
+      location: RoW
+  - excludes:
+      location: World

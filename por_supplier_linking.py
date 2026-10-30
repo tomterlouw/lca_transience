@@ -1,9 +1,11 @@
 """Targeted, auditable supplier linking after premise scenario updates.
 
-No installed package files are edited. All changes are 1:1 supplier substitutions
+No installed package files are edited. PoR links are 1:1 supplier substitutions
 with unchanged quantities/units and uncertainty data. Imported routes and fixed
 renewable mixes are protected using the original inventory workbook. Scenario
 cache references are committed only after every selected scenario is validated.
+The separate ITOM steel aggregation step constructs RER recipes from national
+market production weights; it is not a regional supplier substitution.
 """
 from __future__ import annotations
 
@@ -1266,6 +1268,9 @@ def attach_por_supplier_linking(builder, *, policy=None, report_dir=ROOT / "expo
     @wraps(original_update)
     def update_with_por_links(*args, **kwargs):
         policy.verify_sources()
+        from por_scenario_inputs import load_itom_steel_country_mix
+        steel_sources = [load_itom_steel_country_mix(scene) for scene in builder.scenarios]
+        steel_signatures = [item["source_signature"] if item else None for item in steel_sources]
         from premise_compat import capture_updated_stores, checkpoint_token
         prepared = {}
         eligible = getattr(builder, "_metal_steel_policy_nonferrous_case", "baseline") == "baseline"
@@ -1314,6 +1319,11 @@ def attach_por_supplier_linking(builder, *, policy=None, report_dir=ROOT / "expo
             load_database_func=load_database_func, dump_database_func=dump_database_func,
             verbose=verbose, prepared_native=prepared,
         )
+        builder.itom_steel_country_market_reports = apply_itom_steel_country_market_aggregation(
+            builder, stage=stage, verbose=verbose, expected_signatures=steel_signatures,
+            report_dir=Path(report_dir).parent / "itom_steel_country_mix",
+            load_database_func=load_database_func, dump_database_func=dump_database_func,
+        )
         return result
 
     builder.update = update_with_por_links
@@ -1321,6 +1331,156 @@ def attach_por_supplier_linking(builder, *, policy=None, report_dir=ROOT / "expo
     if verbose:
         print(f"Attached PoR supplier linking ({stage}); processing starts after premise.update().", flush=True)
     return True
+
+
+def apply_itom_steel_country_market_aggregation(builder, *, stage="export", verbose=True,
+        report_dir=ROOT / "export/itom_steel_country_mix", expected_signatures=None,
+        load_database_func=None, dump_database_func=None):
+    """Construct RER market recipes from exported national production volumes.
+
+    This is a separate modelling transformation after the 1:1 PoR linker.
+    Only declared RER steel markets are changed; native stores are forked and
+    certified, and all scenario references are published after every plan passes.
+    """
+    from por_scenario_inputs import load_itom_steel_country_mix, plan_itom_steel_country_markets
+    from premise_compat import open_inventory_store, iter_activity_metadata
+
+    registry_present = hasattr(builder, "_validation_reports")
+    registry = getattr(builder, "_validation_reports", None)
+    saved_reports = dict(registry) if isinstance(registry, dict) else None
+    scenes = getattr(builder, "scenarios", ())
+    try:
+        specs = [load_itom_steel_country_mix(scene) for scene in scenes]
+        signatures = [spec["source_signature"] if spec else None for spec in specs]
+        if expected_signatures is not None and signatures != list(expected_signatures):
+            raise SupplierLinkingError("ITOM country-market inputs changed during update; regenerate inputs and recreate the builder.")
+        if not any(specs):
+            return []
+        directory = Path(report_dir)
+        directory.mkdir(parents=True, exist_ok=True)
+        pending = []
+        for scene, spec in zip(scenes, specs):
+            if spec is None:
+                continue
+            if "external" not in scene.get("applied functions", ()):
+                raise SupplierLinkingError("ITOM country-market aggregation requires completed external market creation.")
+            working = dict(scene)
+            if _has_inventory_store(scene):
+                api = _inventory_store_api()
+                source = open_inventory_store(scene, api)
+                names = {market["name"] for market in spec["markets"]}
+                identities, activity_ids = [], []
+                for activity_id, metadata in iter_activity_metadata(source):
+                    entry = {key: metadata.get(key) for key in ("name", "reference product", "unit", "location", "database", "code")}
+                    if entry["name"] in names:
+                        entry = source.activity(activity_id).to_dict()
+                    identities.append(entry)
+                    activity_ids.append(activity_id)
+                linked, receipt, changed = plan_itom_steel_country_markets(identities, spec)
+                if changed:
+                    validation = _inventory_validation_api()
+                    certify = getattr(builder, "_certify_scenario_store", None)
+                    if not callable(certify):
+                        raise SupplierLinkingError("ITOM country-market changes require native certification support.")
+                    baseline = _graph_baseline(source, validation)
+                    if baseline is None:
+                        fingerprints, cycles = validation.inventory_baseline_snapshot(source)
+                    else:
+                        fingerprints, cycles = baseline[:2]
+                    staged = source.fork(scenario_identity=source.scenario_identity)
+                    with staged.transaction("repo:itom_steel_country_market_mix") as transaction:
+                        for position in changed:
+                            transaction.replace_exchanges(activity_ids[position], linked[position]["exchanges"])
+                    if baseline is None:
+                        after_cycles = validation.inventory_cycle_signatures(staged)
+                    else:
+                        _, _, before_graph, graph_keys, identity_index, address_index = baseline
+                        graph = dict(before_graph)
+                        for position in changed:
+                            graph[activity_ids[position]] = _consumer_edges(linked[position]["exchanges"], identity_index, address_index)
+                        after_cycles = validation._cycle_signatures(graph, graph_keys)
+                    new_components = after_cycles - cycles
+                    background_changes = {component for component in new_components if any(component & previous for previous in cycles)}
+                    if new_components - background_changes:
+                        raise SupplierLinkingError("RER steel country aggregation introduced a new technosphere cycle.")
+                    for key in ("database", "database filepath", "database metadata filepath", "_inventory_checkpoint",
+                                "_inventory_export_handoff", "_inventory_working_copy"):
+                        working.pop(key, None)
+                    working["_inventory_store"] = staged
+                    intent = validation.ValidationIntent(transformation="repo_itom_steel_country_market_mix", targeted=True,
+                        affected_activity_ids=frozenset(activity_ids[position] for position in changed),
+                        expected_match_count=len(changed), baseline_fingerprints=fingerprints, baseline_cycles=cycles)
+                    _certify_linked_store(builder, working, staged, validation, intent, activity_ids, identities, receipt)
+                    persisted = scene.get("_inventory_checkpoint") is not None
+                    if persisted:
+                        # Recipe replacement changes exchange counts. Use the
+                        # normal full writer, not a same-ID sparse delta.
+                        if hasattr(staged, "_scenario_cache_compatibility"):
+                            staged._scenario_cache_compatibility = False
+                        destination = directory / "inventory_stores" / f"itom_{uuid.uuid4().hex}.inventory-store"
+                        destination.parent.mkdir(parents=True, exist_ok=True)
+                        checkpoint = staged.checkpoint(destination)
+                        if checkpoint is None:
+                            raise SupplierLinkingError("ITOM country-market inventory checkpoint was not saved.")
+                        working["_inventory_checkpoint"] = checkpoint
+                    if scene.get("mapping"):
+                        hydrate = getattr(api, "_hydrate_scenario_mapping", None)
+                        compact = getattr(api, "_compact_scenario_mapping", None)
+                        activities = getattr(getattr(staged, "_state", None), "activities", None)
+                        if not callable(hydrate) or activities is None or (persisted and not callable(compact)):
+                            raise SupplierLinkingError("Cannot rebind scenario mappings to the aggregated ITOM steel inventory.")
+                        mapping = hydrate(scene["mapping"], activities)
+                        working["mapping"] = compact(mapping, staged, checkpoint) if persisted else mapping
+                    if persisted:
+                        working.pop("_inventory_store", None)
+                    receipt.update(inventory_storage="inventory_checkpoint" if persisted else "inventory_store",
+                                   native_validation_scope="RER steel country-market recipes",
+                                   native_validation_targets=len(changed), native_validation_new_cycles=0)
+            else:
+                if working.get("database") is None:
+                    if not working.get("database filepath"):
+                        raise SupplierLinkingError("Updated ITOM inventory is missing; refusing reference-database fallback.")
+                    if load_database_func is None:
+                        from premise.utils import load_database as load_database_func
+                    working = load_database_func(scenario=working, original_database=[], delete=False, load_metadata=False, warning=False)
+                linked, receipt, changed = plan_itom_steel_country_markets(working["database"], spec)
+                if changed:
+                    working["database"] = linked
+                    if dump_database_func is None:
+                        from premise.utils import dump_database as dump_database_func
+                    dump_database_func(working)
+                    if working.get("database") is not None or not working.get("database filepath"):
+                        raise SupplierLinkingError("ITOM country-market changes were not persisted by premise.")
+                else:
+                    working = dict(scene)
+                receipt["inventory_storage"] = "legacy_cache" if working.get("database filepath") else "legacy_list"
+            pending.append((scene, working, receipt))
+        if [load_itom_steel_country_mix(scene)["source_signature"] if spec else None
+                for scene, spec in zip(scenes, specs)] != signatures:
+            raise SupplierLinkingError("ITOM country-market inputs changed during aggregation; no staged inventories published.")
+        reports = []
+        for original, working, receipt in pending:
+            path = directory / f"{stage}_{original.get('year')}_{uuid.uuid4().hex}.json"
+            receipt.update(stage=stage, report_path=str(path.resolve()))
+            path.write_text(json.dumps(receipt, indent=2, allow_nan=False), encoding="utf-8")
+            working["itom steel market aggregation"] = receipt
+            reports.append(receipt)
+        for original, working, _ in pending:
+            original.clear()
+            original.update(working)
+        if verbose:
+            print(f"ITOM RER steel country mix: {len(reports)} scenario(s), {sum(r['changed_markets'] for r in reports)} market recipe(s) updated. Reports: {directory}", flush=True)
+        return reports
+    except BaseException as error:
+        if saved_reports is not None:
+            registry.clear()
+            registry.update(saved_reports)
+            builder._validation_reports = registry
+        elif not registry_present and hasattr(builder, "_validation_reports"):
+            del builder._validation_reports
+        if isinstance(error, ValueError):
+            raise SupplierLinkingError(f"ITOM steel country-market aggregation: {error}") from error
+        raise
 
 
 def preflight_por_brightway_export(builder):

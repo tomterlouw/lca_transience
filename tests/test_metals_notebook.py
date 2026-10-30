@@ -199,6 +199,7 @@ class MetalsNotebookTest(unittest.TestCase):
                 events.append(("package", options["name"]))
 
         namespace = dict(create_dbs=True, create_db_package=True, scenarios=definitions,
+                         BRIGHTWAY_YEARS=[2050], BRIGHTWAY_SCENARIO_INDICES=[0], PACKAGE_YEARS=[2025, 2050],
                          scenario_names=["target_OCE", "target_CL"],
                          pr=SimpleNamespace(NewDatabase=Builder, PathwaysDataPackage=Package),
                          bd=SimpleNamespace(databases=registry), DB_NAME_INIT="fixture", EI_VERSION="3.12",

@@ -1,0 +1,40 @@
+# Additional analyses only. This file is NOT a premise external-scenario config.
+schema_version: 1
+workbooks:
+  CL: scenario_data/TRANSIENCE-WP8_ITOM-petchem_data_CL-scenario_2026-04-15.xlsx
+  OCE: scenario_data/TRANSIENCE-WP8_ITOM-petchem_data_OCE-scenario_2026-08-19.xlsx
+workbook_period_years: 5
+inventory: inventories/lci-itom_por.xlsx
+inventory_version: "3.12"
+carbon_content: carbon_workflows/carbon_content.csv
+external_origin_rules: carbon_workflows/external_origin_rules.csv
+product_mapping: carbon_workflows/product_mapping.csv
+applications: carbon_workflows/applications_screening.csv
+end_of_life: carbon_workflows/end_of_life_screening.csv
+captured_destinations: carbon_workflows/captured_destinations.csv
+treatment_lcia_factors: carbon_workflows/treatment_lcia_factors.csv
+output_root: results/carbon_accounting
+region: NL
+external_index: 1
+start_year: 2025
+end_year: 2100
+# Annual interpolation occurs only between supplied production years.
+# There are no new production inflows after the last supplied year.
+production_interpolation: linear
+# Both profiles are illustrative contrasts, not observed application mixes.
+application_profiles:
+  - short_lived_screening
+  - long_lived_screening
+end_of_life_profiles:
+  - incineration_screening
+  - recycling_screening
+  - retention_screening
+# All retirements retain carbon origin. Recovered carbon stays in a reported
+# secondary pool: it does not create extra production on top of ITOM volumes.
+recycling_mode: separate_pool
+inflow_basis: independent_production_cohorts
+assume_zero_initial_stock: true
+initial_stock: null  # Optional CSV: scenario,product,application,origin,amount_kgC,age_years
+# Zero initial stock describes only the newly followed cohorts. It does NOT
+# describe the existing in-use stock or total waste/emissions in Rotterdam.
+apply_inventory_corrections: false

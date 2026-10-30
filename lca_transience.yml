@@ -1,15 +1,20 @@
-# Default/current environment: premise 2.5.2 and the pinned newer Pathways build.
+# Current environment: premise 2.5.5 and the inspected Pathways source revision.
 # Run from the repo root: conda env create -f lca_transience.yml
-# Python tools are shared with the pip-only installation through requirements.txt.
-name: premise_pathways_new
+# Conda owns the numerical/solver stack before pip installs the model packages.
+# Matches the Windows x86-64 setup; omit pypardiso/mkl on unsupported platforms.
+name: lca_transience_255
 channels:
   - conda-forge
   - nodefaults
 dependencies:
-  - python=3.11
+  - python=3.12
   - pip>=24
   - setuptools=82.0.0
   - wheel
   - git
+  - numpy=1.26.4
+  - scipy=1.13.1
+  - pypardiso=0.4.7
+  - mkl=2026.1.0
   - pip:
       - -r requirements.txt

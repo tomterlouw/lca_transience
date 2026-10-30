@@ -391,6 +391,70 @@ class NativeStoreIntegrationTest(unittest.TestCase):
             del reopened, payloads, hydrated, loaded, updated, definition, builder, store, mapping, reference
             gc.collect()  # Release native Windows memory maps before temp cleanup.
 
+    def test_itom_country_market_recipes_are_certified_and_survive_native_checkpoint_export(self):
+        from por_supplier_linking import apply_itom_steel_country_market_aggregation
+        from tests.test_itom_steel_conversion import country_mix_scenario, country_market_database
+        api, validation = self.api, self.validation
+        data = country_market_database()[:-1]
+        # Keep the test graph complete: ancillary transport is tested in the
+        # pure planner; here we check the native graph/certificate/export path.
+        for dataset in data:
+            dataset["database"] = "fixture"
+            dataset["exchanges"] = [e for e in dataset["exchanges"] if e.get("unit") != "ton kilometer"]
+        for persisted in (False, True):
+            with self.subTest(persisted=persisted), tempfile.TemporaryDirectory(ignore_cleanup_errors=True) as directory:
+                original = api.create_inventory_store(data, backend="compact", scenario_identity="CL")
+                before = validation.inventory_activity_fingerprints(original)
+                scene = dict(country_mix_scenario(), **{"applied functions": ["external"]})
+                if persisted:
+                    checkpoint = original.checkpoint(Path(directory) / "original.inventory-store")
+                    scene["_inventory_checkpoint"] = checkpoint
+                    scene["mapping"] = api._compact_scenario_mapping(
+                        {"steel": {"Production|Steel": [original._state.activities[0]]}}, original, checkpoint)
+                else:
+                    scene["_inventory_store"] = original
+                    scene["mapping"] = {"steel": {"Production|Steel": [original._state.activities[0]]}}
+                builder = self.validating_builder([scene])
+                with patch("por_supplier_linking._inventory_store_api", return_value=api), patch(
+                        "por_supplier_linking._inventory_validation_api", return_value=validation):
+                    reports = apply_itom_steel_country_market_aggregation(
+                        builder, report_dir=Path(directory) / "reports", verbose=False)
+                self.assertEqual(reports[0]["changed_markets"], 2)
+                self.assertFalse(validation.ValidationReport.from_dict(scene["_validation_report"]).errors)
+                self.assertEqual(validation.inventory_activity_fingerprints(original), before)
+                if persisted:
+                    self.assertNotEqual(scene["_inventory_checkpoint"], checkpoint)
+                    self.assertNotIn("_inventory_store", scene)
+                    self.assertNotIn("database", scene)
+                    reference = scene["mapping"]["steel"]["Production|Steel"][0]
+                    self.assertEqual(reference._resolver.checkpoint, scene["_inventory_checkpoint"])
+                    result = api.InventoryStore.open(scene["_inventory_checkpoint"])
+                else:
+                    result = scene["_inventory_store"]
+                saved = result.materialize()
+                for position in (0, 3):
+                    supplies = [e for e in saved[position]["exchanges"] if e["type"] == "technosphere"]
+                    self.assertEqual({e["location"] for e in supplies}, {"DE", "AT"})
+                    self.assertAlmostEqual(sum(e["amount"] for e in supplies), 1., places=6)
+                    self.assertTrue(all(e["name"] == saved[position]["name"] for e in supplies))
+                self.assertEqual(result.generation, scene["_validation_report"]["store_generation"])
+                self.assertEqual([e["amount"] for e in saved[1]["exchanges"]], [1., 2.])
+                self.assertEqual([e["amount"] for e in saved[2]["exchanges"]], [1., 10.])
+                if persisted:
+                    source = ast.parse((self.directory / "utils.py").read_text(encoding="utf-8"))
+                    fn = next(n for n in source.body if isinstance(n, ast.FunctionDef) and n.name == "load_database")
+                    ns = {"__package__": self.package_name, "Dict": Dict, "List": List, "Any": Any, "uuid": uuid}
+                    exec(compile(ast.Module(body=[fn], type_ignores=[]), "native_load_database", "exec"), ns)
+                    loaded = ns["load_database"](scenario=scene, original_database=[], delete=False, load_metadata=True, warning=False)
+                    supplies = [e for e in loaded["database"][0]["exchanges"] if e["type"] == "technosphere"]
+                    self.assertEqual({e["location"] for e in supplies}, {"DE", "AT"})
+                    storage = getattr(result._state.exchanges, "_storage", None)
+                    if storage is not None:
+                        storage.close()
+                    del loaded, reference, storage
+                del result, saved, original, builder, scene
+                gc.collect()
+
     def test_real_certification_does_not_misattribute_unrelated_background_errors(self):
         import numpy as np
         api, validation = self.api, self.validation

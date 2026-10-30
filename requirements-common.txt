@@ -1,6 +1,6 @@
-# Shared direct dependencies for Python 3.11.
-# Observed in the two working environments on 2026-10-14.
-# Install requirements.txt (premise 2.5.2), not this file by itself.
+# Shared direct dependencies for Python 3.11 (legacy) / 3.12 (current).
+# Checked against the working premise 2.5.5 environment on 2026-10-30.
+# Install requirements.txt (premise 2.5.5), not this file by itself.
 # These are reviewed runtime pins, not a complete transitive/hash lockfile.
 
 # Brightway 2.5 and regionalized LCIA.
@@ -21,6 +21,8 @@ scipy==1.13.1
 pandas==2.3.3
 xarray==2024.2.0
 sparse==0.18.0
+# Pathways uses SALib; this inspected release supports the required NumPy 1.x.
+SALib==1.5.1
 
 # Inventory/plot data input and output.
 openpyxl==3.1.5

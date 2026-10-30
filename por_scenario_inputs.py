@@ -22,6 +22,7 @@ _RUNTIME_FIELDS = frozenset({
     "database metadata filepath", "database name", "external data",
     "heat diagnostics", "iam data", "index",
     "inventories metadata cache filepath", "mapping", "por supplier linking", "metal steel policy",
+    "itom steel market aggregation",
     "unmatched category flows", "additional valid regions",
 })
 
@@ -94,6 +95,217 @@ def fresh_scenario_definitions(scenarios: Iterable[Mapping]) -> list[dict]:
             definition["external scenarios"] = entries
         fresh.append(definition)
     return fresh
+
+
+# European ITOM steel market construction. IAMC supplies the volumes; after
+# native market creation these quantities select the actual national markets.
+STEEL_COUNTRY_SUPPLY_PREFIX = "Production|Steel|Supply from|"
+STEEL_COUNTRY_MIX_DESCRIPTOR = "itom_steel_country_market_mix"
+
+
+def load_itom_steel_country_mix(scenario):
+    """Read declared national supply volumes without loading an LCA database."""
+    import csv
+    import hashlib
+    import io
+    import json
+
+    selected = []
+    for entry in scenario.get("external scenarios", ()):
+        package = entry.get("data")
+        descriptor = getattr(package, "descriptor", {})
+        declaration = descriptor.get(STEEL_COUNTRY_MIX_DESCRIPTOR)
+        if declaration is None:
+            continue
+        if not callable(getattr(package, "get_resource", None)):
+            raise ValueError("ITOM country-market aggregation requires the loaded datapackage object.")
+        selected.append((entry, package, declaration))
+    if not selected:
+        return None
+    if len(selected) != 1:
+        raise ValueError("Only one European ITOM steel country-market mix may be active in a scenario.")
+    entry, package, declaration = selected[0]
+    if declaration.get("version") != 1 or declaration.get("region") != "RER":
+        raise ValueError("Unsupported ITOM steel country-market aggregation contract.")
+    prefix = declaration.get("variable_prefix")
+    if prefix != STEEL_COUNTRY_SUPPLY_PREFIX:
+        raise ValueError("Unsupported ITOM steel country-supply variable prefix.")
+    markets = declaration.get("markets", ())
+    if (not markets or len({(m.get("name"), m.get("reference product"), m.get("unit")) for m in markets}) != len(markets)
+            or any(not m.get("name") or not m.get("reference product") or m.get("unit") != "kilogram" for m in markets)):
+        raise ValueError("ITOM country-market targets must have unique names/products and kilogram units.")
+    resource = package.get_resource("scenario_data")
+    raw = resource.raw_read()
+    raw = raw.encode("utf-8") if isinstance(raw, str) else bytes(raw)
+    reader = csv.DictReader(io.StringIO(raw.decode("utf-8-sig")))
+    headers = reader.fieldnames or []
+    if not set(METADATA).issubset(headers):
+        raise ValueError("ITOM steel IAMC resource is missing required metadata columns.")
+    years = sorted(int(key) for key in headers if str(key).isdigit() and len(str(key)) == 4)
+    if not years:
+        raise ValueError("ITOM steel country-supply export has no years.")
+    rows = [row for row in reader if row.get("scenario") == str(entry.get("scenario"))
+            and row.get("region") == "RER"
+            and (row.get("variables", "").startswith(prefix)
+                 or row.get("variables") == declaration.get("total_variable", "Production|Steel"))]
+    models = {row["model"] for row in rows}
+    if len(models) != 1:
+        raise ValueError("ITOM country-market supply must identify exactly one source model for the selected external scenario.")
+    country_rows, total_rows = {}, []
+    for row in rows:
+        if row["unit"] != "Mt/yr":
+            raise ValueError("ITOM country-market volumes must be annual Mt/yr.")
+        variable = row["variables"]
+        if variable.startswith(prefix):
+            country = variable[len(prefix):]
+            if len(country) != 2 or not country.isalpha() or country != country.upper():
+                raise ValueError(f"Invalid national steel supply country: {country!r}.")
+            if country in country_rows:
+                raise ValueError(f"Duplicate national steel supply row: {country}.")
+            country_rows[country] = row
+        else:
+            total_rows.append(row)
+    if not country_rows or len(total_rows) != 1:
+        raise ValueError("Regenerate ITOM IAMC: national RER supply rows and one European total are required.")
+
+    def volumes(row):
+        values = []
+        for year in years:
+            text = row.get(str(year))
+            if text is None or str(text).strip() == "":
+                raise ValueError(f"Missing ITOM steel production for {year}.")
+            try:
+                amount = float(text)
+            except (TypeError, ValueError) as error:
+                raise ValueError(f"Invalid ITOM steel production for {year}.") from error
+            if not math.isfinite(amount) or amount < 0:
+                raise ValueError(f"Non-finite or negative ITOM steel production for {year}.")
+            values.append(amount)
+        return values
+
+    national = {country: volumes(row) for country, row in country_rows.items()}
+    reported_total = volumes(total_rows[0])
+    for position, year in enumerate(years):
+        if not math.isclose(sum(values[position] for values in national.values()), reported_total[position], rel_tol=1e-9, abs_tol=1e-8):
+            raise ValueError(f"ITOM country-market production does not reconcile with RER total in {year}.")
+    year = float(scenario["year"])
+    if not math.isfinite(year):
+        raise ValueError("ITOM country-market scenario year must be finite.")
+    effective = min(max(year, years[0]), years[-1])
+    upper = next((i for i, point in enumerate(years) if point >= effective), len(years) - 1)
+    lower = max(upper - 1, 0)
+    fraction = 0. if lower == upper else (effective - years[lower]) / (years[upper] - years[lower])
+
+    def interpolate(values):
+        return float(values[lower] + fraction * (values[upper] - values[lower]))
+
+    country_volumes = {country: interpolate(values) for country, values in sorted(national.items())}
+    total = sum(country_volumes.values())
+    weights = {country: amount / total for country, amount in country_volumes.items() if amount > 0} if total > 0 else {}
+    source_hash = hashlib.sha256(raw).hexdigest()
+    signature = hashlib.sha256(raw + json.dumps(declaration, sort_keys=True).encode("utf-8")).hexdigest()
+    return dict(source_sha256=source_hash, source_signature=signature,
+        source=str(getattr(resource, "source", "scenario_data")), model=next(iter(models)),
+        scenario=str(entry["scenario"]), year=year, effective_year=effective, region="RER",
+        country_volumes=country_volumes, weights=weights, total=total,
+        markets=[dict(m) for m in markets], status="ready" if total > 0 else "no_european_production")
+
+
+def plan_itom_steel_country_markets(database, spec):
+    """Return a nonmutating RER recipe plan using same-grade national markets."""
+    from collections import defaultdict
+
+    if spec is None:
+        return list(database), {}, []
+    region = spec["region"]
+    if region != "RER":
+        raise ValueError("ITOM steel country-market aggregation only targets RER.")
+    weights, volumes = spec["weights"], spec["country_volumes"]
+    total = float(spec["total"])
+    if (not math.isfinite(total) or total < 0 or any(not math.isfinite(float(v)) or v < 0 for v in volumes.values())
+            or not math.isclose(sum(volumes.values()), total, rel_tol=1e-9, abs_tol=1e-8)):
+        raise ValueError("Invalid national steel market production totals.")
+    expected_weights = {c: amount / total for c, amount in volumes.items() if amount > 0} if total > 0 else {}
+    if (set(weights) != set(expected_weights)
+            or any(not math.isfinite(float(weights[c])) or not math.isclose(weights[c], expected_weights[c], rel_tol=1e-10, abs_tol=1e-12) for c in expected_weights)):
+        raise ValueError("ITOM country-market weights do not match the production volumes.")
+    index = defaultdict(list)
+
+    def key(dataset):
+        return (dataset.get("name"), dataset.get("reference product"), dataset.get("unit"), dataset.get("location"))
+
+    for position, dataset in enumerate(database):
+        index[key(dataset)].append((position, dataset))
+    result, changed, planned = list(database), [], []
+    for market in spec["markets"]:
+        target_key = (market["name"], market["reference product"], market["unit"], region)
+        targets = index.get(target_key, ())
+        if total == 0:
+            if any(exc.get("type") == "technosphere" and exc.get("amount", 0) != 0
+                   for _, target in targets for exc in target.get("exchanges", ())):
+                raise ValueError("A populated RER ITOM steel market exists despite zero European production.")
+            continue
+        if len(targets) != 1:
+            raise ValueError(f"Expected one RER ITOM steel market, found {len(targets)}: {target_key}")
+        position, target = targets[0]
+        production = [exc for exc in target.get("exchanges", ()) if exc.get("type") == "production"]
+        if len(production) != 1 or not math.isclose(float(production[0]["amount"]), 1., rel_tol=1e-10):
+            raise ValueError(f"RER steel market must produce one kilogram: {target_key}")
+
+        def verify_volume(dataset, expected):
+            for exc in dataset.get("exchanges", ()):
+                if exc.get("type") == "production" and "production volume" in exc:
+                    volume = float(exc["production volume"])
+                    if not math.isfinite(volume) or not math.isclose(volume, expected, rel_tol=1e-6, abs_tol=1e-8):
+                        raise ValueError(f"Native steel production disagrees with exported IAMC for {key(dataset)}: {volume} versus {expected}")
+
+        verify_volume(target, total)
+        supplies = []
+        for country, weight in sorted(weights.items()):
+            if len(country) != 2 or country in (region, "World", "GLO", "RoW"):
+                raise ValueError(f"Invalid country in RER steel market: {country!r}")
+            supplier_key = (market["name"], market["reference product"], market["unit"], country)
+            suppliers = index.get(supplier_key, ())
+            if len(suppliers) != 1:
+                raise ValueError(f"Positive steel production requires one national ITOM market, found {len(suppliers)}: {supplier_key}")
+            supplier = suppliers[0][1]
+            verify_volume(supplier, volumes[country])
+            if any(exc.get("type") == "technosphere" and exc.get("name") == market["name"]
+                   and exc.get("location") == region and exc.get("amount", 0) != 0 for exc in supplier.get("exchanges", ())):
+                raise ValueError(f"National steel market consumes its RER aggregate: {supplier_key}")
+            supplies.append(dict(name=market["name"], product=market["reference product"],
+                unit="kilogram", location=country, amount=float(weight), type="technosphere", **{"uncertainty type": 0}))
+        if not math.isclose(sum(exc["amount"] for exc in supplies), 1., rel_tol=1e-10, abs_tol=1e-10):
+            raise ValueError("RER national-market supply does not sum to one kilogram.")
+        def commodity(exc):
+            return (exc.get("type") == "technosphere" and exc.get("unit") == "kilogram"
+                    and exc.get("product", exc.get("reference product")) in ("steel, low-alloyed", "steel, unalloyed"))
+        old_commodity = [exc for exc in target["exchanges"] if commodity(exc)]
+        unchanged = len(old_commodity) == len(supplies) and all(
+            left.get("name") == right["name"] and left.get("product", left.get("reference product")) == right["product"]
+            and left.get("location") == right["location"]
+            and math.isclose(float(left.get("amount", 0)), right["amount"], rel_tol=1e-6, abs_tol=1e-10)
+            for left, right in zip(old_commodity, supplies))
+        if not unchanged:
+            new_exchanges, inserted = [], False
+            for exc in target["exchanges"]:
+                if commodity(exc):
+                    if not inserted:
+                        new_exchanges.extend(supplies)
+                        inserted = True
+                else:
+                    new_exchanges.append(exc)
+            if not inserted:
+                new_exchanges.extend(supplies)
+            result[position] = dict(target, exchanges=new_exchanges)
+            changed.append(position)
+        planned.append(dict(name=market["name"], reference_product=market["reference product"],
+            location=region, countries=len(supplies), total_input=sum(exc["amount"] for exc in supplies)))
+    receipt = {key: spec[key] for key in ("source_sha256", "source_signature", "source", "model", "scenario", "year",
+        "effective_year", "region", "country_volumes", "weights", "total", "status") if key in spec}
+    receipt.update(markets=planned, changed_markets=len(changed),
+        method="national production volumes; direct same-grade national ITOM market suppliers")
+    return result, receipt, changed
 
 
 # ITOM p-xylene purity reconciliation

@@ -1,13 +1,14 @@
-# Default/current modelling profile: premise 2.5.2, Python 3.11.
+# Default modelling profile: premise 2.5.5, tested with Python 3.12.
 # Run from the repo root: python -m pip install -r requirements.txt
 # Do not combine with requirements-legacy.txt in one environment.
 -r requirements-common.txt
 
-premise[bw25]==2.5.2
+premise[bw25]==2.5.5
 # Both local Pathways builds report 1.0.4 but differ in source and requirements.
 # Pin the actual newer-environment source instead of the ambiguous version label.
-pathways @ git+https://github.com/polca/pathways.git@82e736438d13c7b465361914534229cf3860bf46
+pathways @ git+https://github.com/polca/pathways.git@a7d510d45192b5f95c76360e78a89224abea97e4
 bw-processing==1.5
 matrix-utils==0.8
-# premise 2.5.2 requires lxml<6 on Windows; retain the observed compatible pin.
+# premise 2.5.5 requires lxml<6 on Windows.
 lxml==5.4.0
+# PyPardiso/MKL are supplied by lca_transience.yml, not forced on pip-only users.

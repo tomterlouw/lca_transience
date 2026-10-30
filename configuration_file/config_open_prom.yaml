@@ -201,8 +201,10 @@ production pathways:
     production volume:
       variable: Secondary Energy|Electricity|Solar
     ecoinvent alias:
-      name: electricity production, photovoltaic
-      reference product: electricity, low voltage
+      # Native premise 2.5.5 aggregate PV mix (2026 inventories).
+      # OPEN-PROM does not distinguish rooftop and commercial generation.
+      name: electricity production, photovoltaic, production mix
+      reference product: electricity, photovoltaic, at plant
       exists in original database: True
       mask: renewable energy products
 
@@ -237,7 +239,7 @@ production pathways:
     production volume:
       variable: Secondary Energy|Electricity
     ecoinvent alias:
-      name: market group for electricity, high voltage (SPS)
+      name: market group for electricity, high voltage (OPEN-PROM)
       reference product: electricity, high voltage
       exists in original database: False
       new dataset: True
@@ -246,7 +248,7 @@ production pathways:
   #  production volume:
   #    variable: Secondary Energy|Electricity
   #  ecoinvent alias:
-  #    name: market group for electricity, medium voltage (SPS)
+  #    name: market group for electricity, medium voltage (OPEN-PROM)
   #    reference product: electricity, medium voltage
   #    exists in original database: False
   #    new dataset: True
@@ -328,7 +330,7 @@ production pathways:
   #    exists in original database: False
 
 markets:
-  - name: market for hydrogen (SPS)
+  - name: market for hydrogen (OPEN-PROM)
     reference product: hydrogen, gaseous, low pressure
     unit: kilogram
     includes:
@@ -349,7 +351,7 @@ markets:
   ################
   ################      
 
-  - name: market group for electricity, high voltage (SPS)
+  - name: market group for electricity, high voltage (OPEN-PROM)
     reference product: electricity, high voltage
     unit: kilowatt hour
     includes:
@@ -386,7 +388,7 @@ markets:
         product: electricity, high voltage
         operator: contains
 
-  - name: market group for electricity, medium voltage (SPS)
+  - name: market group for electricity, medium voltage (OPEN-PROM)
     reference product: electricity, medium voltage
     unit: kilowatt hour
     includes:
@@ -406,7 +408,7 @@ markets:
         unit: kilogram
         amount: 5.4e-08
 
-      - name: market group for electricity, high voltage (SPS)
+      - name: market group for electricity, high voltage (OPEN-PROM)
         reference product: electricity, high voltage
         amount: 0.065
 
@@ -415,7 +417,7 @@ markets:
         product: electricity, medium voltage
         operator: contains
 
-  - name: market group for electricity, low voltage (SPS)
+  - name: market group for electricity, low voltage (OPEN-PROM)
     reference product: electricity, low voltage
     unit: kilowatt hour
     includes:
@@ -435,7 +437,7 @@ markets:
         unit: kilogram
         amount: 2.99e-09
 
-      - name: market group for electricity, medium voltage (SPS)
+      - name: market group for electricity, medium voltage (OPEN-PROM)
         reference product: electricity, medium voltage
         amount: 0.027
 
@@ -444,7 +446,7 @@ markets:
         product: electricity, low voltage
         operator: contains
 
-  - name: market for electricity, high voltage (SPS)
+  - name: market for electricity, high voltage (OPEN-PROM)
     reference product: electricity, high voltage
     unit: kilowatt hour
     includes:
@@ -481,7 +483,7 @@ markets:
         product: electricity, high voltage
         operator: contains
 
-  - name: market for electricity, medium voltage (SPS)
+  - name: market for electricity, medium voltage (OPEN-PROM)
     reference product: electricity, medium voltage
     unit: kilowatt hour
     includes:
@@ -501,7 +503,7 @@ markets:
         unit: kilogram
         amount: 5.4e-08
 
-      - name: market for electricity, high voltage (SPS)
+      - name: market for electricity, high voltage (OPEN-PROM)
         reference product: electricity, high voltage
         amount: 0.065
 
@@ -510,7 +512,7 @@ markets:
         product: electricity, medium voltage
         operator: contains
 
-  - name: market for electricity, low voltage (SPS)
+  - name: market for electricity, low voltage (OPEN-PROM)
     reference product: electricity, low voltage
     unit: kilowatt hour
     includes:
@@ -530,7 +532,7 @@ markets:
         unit: kilogram
         amount: 2.99e-09
 
-      - name: market for electricity, medium voltage (SPS)
+      - name: market for electricity, medium voltage (OPEN-PROM)
         reference product: electricity, medium voltage
         amount: 0.027
 
