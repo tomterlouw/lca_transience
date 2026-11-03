@@ -1,0 +1,86 @@
+{
+  "source": "C:\\Users\\terlouw_t\\Documents\\Projects\\TRANSIENCE\\lca_transience\\scenario_data\\scenario_data_forecast_steel_production.xlsx",
+  "source_sha256": "81b01ffc8e150da62d269e4e807157d368b30711c1b0badb855e1259de304c26",
+  "route_mapping_sha256": "b55b3466d0dad56ffe75ccf92162e89a1709260c82ba3df78287ab434f57b461",
+  "scenarios": [
+    "forecast_steel_1",
+    "forecast_steel_2"
+  ],
+  "source_scenarios": {
+    "1": "forecast_steel_1",
+    "2": "forecast_steel_2"
+  },
+  "countries": [
+    "AT",
+    "BE",
+    "BG",
+    "CH",
+    "CZ",
+    "DE",
+    "ES",
+    "FI",
+    "FR",
+    "GB",
+    "GR",
+    "HR",
+    "HU",
+    "IT",
+    "LU",
+    "LV",
+    "NL",
+    "NO",
+    "PL",
+    "PT",
+    "RO",
+    "SE",
+    "SI",
+    "SK"
+  ],
+  "years": [
+    2025,
+    2030,
+    2035,
+    2040,
+    2045,
+    2050
+  ],
+  "input_rows": 108,
+  "iamc_rows": 398,
+  "blank_numeric_cells": 160,
+  "source_blank_policy": "zero_inactive_route",
+  "assumptions": [
+    "Missing route rows within a reported country are zero.",
+    "Sparse numeric blanks mean inactive route under the explicit YAML assumption; --strict-blanks rejects them.",
+    "RER covers supplied European countries, including GB, CH and NO. Missing countries are not estimated.",
+    "RER and national production are alternative views and must not be summed.",
+    "RER markets buy national same-grade steel markets using annual national production weights.",
+    "Intermediate years interpolate production volumes before calculating country shares.",
+    "BOF and NG-DRI CCS routes use native CCS inventories and their existing capture/energy assumptions.",
+    "Scrap-EAF CCS remains an uncaptured scrap-route proxy; its capture benefit is unresolved.",
+    "No additional capture percentage, energy penalty or storage credit is inferred from production labels.",
+    "Unalloyed demand uses low-alloyed production inventories as a grade proxy.",
+    "Native premise backgrounds remain; FORECAST production volumes do not replace process energy coefficients."
+  ],
+  "ccs_routes": [
+    "Production|Steel|BF/BOF_CCS",
+    "Production|Steel|DRI_NG_CCS",
+    "Production|Steel|Secondary steel_CCS"
+  ],
+  "ccs_inventories": [
+    {
+      "variable": "Production|Steel|BF/BOF_CCS",
+      "activity": "steel production, blast furnace-basic oxygen furnace, with carbon capture and storage, low-alloyed",
+      "representation": "native"
+    },
+    {
+      "variable": "Production|Steel|DRI_NG_CCS",
+      "activity": "steel production, natural gas-based direct reduction iron-electric arc furnace, with carbon capture and storage, low-alloyed",
+      "representation": "native"
+    },
+    {
+      "variable": "Production|Steel|Secondary steel_CCS",
+      "activity": "steel production, low-alloyed (FORECAST scrap EAF CCS unresolved proxy)",
+      "representation": "unresolved_proxy"
+    }
+  ]
+}

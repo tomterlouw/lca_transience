@@ -76,16 +76,27 @@ class NotebookScopeTests(unittest.TestCase):
         ns["PRODUCT_ALIASES"] = ["steel_bof"]
         exec(find_source("# Resolve named pathways"), ns)
         source = next("".join(c["source"]) for c in cells("2_calc_impacts.ipynb") if c.get("id") == "steel-market-demand")
-        with self.assertRaisesRegex(ValueError, "all ten route"):
+        with self.assertRaisesRegex(ValueError, "all selected route"):
             exec(source, ns)
         ns["STEEL_VIEW"] = "routes"
         exec(source, ns)
         self.assertEqual(ns["selected_variables"], ["EXT - 7 - steel_bof"])
 
+    def test_forecast_market_demand_uses_six_routes_and_its_own_market(self):
+        ns = self.fixture("forecast_steel")
+        exec(find_source("# Resolve named pathways"), ns)
+        source = next("".join(c["source"]) for c in cells("2_calc_impacts.ipynb") if c.get("id") == "steel-market-demand")
+        exec(source, ns)
+        variable = ns["selected_variables"][0]
+        self.assertEqual(float(ns["p"].scenarios.sel(variables=variable, region="DE").sum()), 6e9)
+        self.assertEqual(ns["p"].mapping[variable]["dataset"][0]["name"],
+                         "market for steel, low-alloyed (FORECAST-sites)")
+
     def test_scope_scenarios_are_visible_and_have_correct_module_order(self):
         source = find_source("# The external modules and their order", "1_export_packages.ipynb")
         tree = ast.parse(source)
-        selection = next(n for n in tree.body if isinstance(n, ast.If) and "ASSESSMENT_SCOPE" in ast.unparse(n.test))
+        selection = next(n for n in tree.body if isinstance(n, ast.If)
+                         and "ASSESSMENT_SCOPE" in ast.unparse(n.test) and "scenarios =" in ast.unparse(n))
         for scope, count, tail in [("por_polymers", 2, ["OCE", "CL"]), ("european_steel", 1, ["ITOM_Steel_Test-scenario"])]:
             ns = {"ASSESSMENT_SCOPE": scope, "bau_iam_scenario": "background",
                   **{name: name for name in ["sps_op", "sps_itom", "sps_itom_por", "sps_forecast"]}}

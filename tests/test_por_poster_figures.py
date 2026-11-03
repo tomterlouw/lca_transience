@@ -201,7 +201,9 @@ class NotebookMetalAxisTests(unittest.TestCase):
                 self.namespace["plot_poster_geography_metals"](data, folder, scenario, "")
             self.assertEqual(len(captured), 1)
             figure = captured[0]
-            axis = figure.axes[1]
+            self.assertEqual(len(figure.axes), 1)
+            self.assertFalse(any("Geographic" in ax.get_title(loc="left") for ax in figure.axes))
+            axis = figure.axes[0]
             self.assertEqual(axis.get_xscale(), scale)
             self.assertLessEqual(len(axis.get_xticks()), 20)
             self.assertTrue(np.isclose(axis.get_xticks(), 100.).any())

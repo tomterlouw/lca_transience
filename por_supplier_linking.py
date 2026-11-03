@@ -1469,7 +1469,7 @@ def apply_itom_steel_country_market_aggregation(builder, *, stage="export", verb
             original.clear()
             original.update(working)
         if verbose:
-            print(f"ITOM RER steel country mix: {len(reports)} scenario(s), {sum(r['changed_markets'] for r in reports)} market recipe(s) updated. Reports: {directory}", flush=True)
+            print(f"European RER steel country mix: {len(reports)} scenario(s), {sum(r['changed_markets'] for r in reports)} market recipe(s) updated. Reports: {directory}", flush=True)
         return reports
     except BaseException as error:
         if saved_reports is not None:

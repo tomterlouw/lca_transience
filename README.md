@@ -113,8 +113,8 @@ The distinction between a configured target and an applied market share is centr
 
 ## Where to start
 
-**Notebook scope controls.** Set `ASSESSMENT_SCOPE` to `por_polymers` or
-`european_steel` near the top of both main notebooks. The small preset dictionary
+**Notebook scope controls.** Set `ASSESSMENT_SCOPE` to `por_polymers`,
+`european_steel` (ITOM) or `forecast_steel` near the top of both main notebooks. The small preset dictionary
 in `config.py` supplies package names, default years/regions and pathway aliases.
 Scenario dictionaries and all premise/Pathways calls remain in the notebooks.
 
@@ -124,8 +124,8 @@ Scenario dictionaries and all premise/Pathways calls remain in the notebooks.
 2. In notebook 2, select the scope and metals case, or set `PACKAGE_FILE` to an
    explicit archive. `ANALYSIS_REGIONS`, `ANALYSIS_YEARS`, `ANALYSIS_SCENARIOS`
    and `PRODUCT_ALIASES` narrow the calculation. Inspect the activity table.
-3. For steel, `STEEL_VIEW = "market"` uses the existing final ITOM market,
-   including RER's national-market recipe. Its visible demand cell sums the ten
+3. For steel, `STEEL_VIEW = "market"` uses the selected module's final market,
+   including RER's national-market recipe. Its visible demand cell sums the
    mutually exclusive route volumes once, separately for each region/year.
    Select `"routes"` for individual technology diagnostics. Do not add market
    and route demands, or national and RER totals, together.
@@ -137,6 +137,15 @@ Scenario dictionaries and all premise/Pathways calls remain in the notebooks.
 PoR inventory staging is skipped for steel. OPEN-PROM input conversion is an
 explicit optional preparation step. No workflow controller or run-receipt layer
 is required; connections to the underlying packages remain directly editable.
+
+**FORECAST-sites steel test.** With `forecast_steel`, notebook 1 converts
+`scenario_data/scenario_data_forecast_steel_production.xlsx` and loads the
+separate `datapackage_forecast_steel.json`. Both source cases (`1` and `2`) are
+available through `FORECAST_STEEL_SCENARIOS`. The RER market purchases national
+FORECAST steel markets by production share. BOF and NG-DRI CCS use native CCS
+inventories, while scrap-EAF CCS remains unresolved. Sparse blanks have a
+documented inactive-route interpretation. See the short [FORECAST steel guide](docs/forecast_steel.md)
+for setup, outputs and limitations. This selection does not add ITOM steel.
 
 You do not need to read every implementation note before opening the project. Choose a route that matches what you are trying to do:
 

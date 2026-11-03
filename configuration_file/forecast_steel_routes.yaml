@@ -1,0 +1,62 @@
+# Source production labels are mutually exclusive route outputs, in Mt/year.
+# BOF and NG-DRI CCS use the existing native CCS inventories. Their capture and
+# energy assumptions come from those inventories, not FORECAST-specific data.
+# Scrap-EAF CCS remains an unresolved proxy using the uncaptured scrap recipe.
+# Observed sparse output uses blanks around route retirement/start-up and CCS
+# switches. This is an explicit input interpretation, pending provider confirmation.
+source_blank_policy: zero_inactive_route
+# Available for regionalisation only; no electrowinning output is invented.
+regionalize_extra:
+  - steel production, electrowinning-electric arc furnace, low-alloyed
+routes:
+  - input_variable: BF-BOF|Production
+    variable: Production|Steel|BF/BOF
+    alias: steel_bof
+    activity: steel production, blast furnace-basic oxygen furnace, low-alloyed
+    provider: steel production, blast furnace-basic oxygen furnace, low-alloyed
+    location: GLO
+    exists_in_original_database: true
+    ccs: false
+  - input_variable: Secondary EAF|Production
+    variable: Production|Steel|Secondary steel
+    alias: steel_eaf_scrap
+    activity: steel production, electric, low-alloyed
+    provider: steel production, electric, low-alloyed
+    location: Europe without Switzerland and Austria
+    exists_in_original_database: true
+    ccs: false
+  - input_variable: DRI-NG-EAF|Production
+    variable: Production|Steel|DRI_NG
+    alias: steel_eaf_dri_ng
+    activity: steel production, natural gas-based direct reduction iron-electric arc furnace, low-alloyed
+    provider: steel production, natural gas-based direct reduction iron-electric arc furnace, low-alloyed
+    location: GLO
+    exists_in_original_database: true
+    ccs: false
+  - input_variable: BF-BOF-CCS|Production
+    variable: Production|Steel|BF/BOF_CCS
+    alias: steel_bof_ccs
+    activity: steel production, blast furnace-basic oxygen furnace, with carbon capture and storage, low-alloyed
+    provider: steel production, blast furnace-basic oxygen furnace, with carbon capture and storage, low-alloyed
+    location: GLO
+    exists_in_original_database: true
+    ccs: true
+    ccs_inventory: native
+  - input_variable: DRI-NG-EAF-CCS|Production
+    variable: Production|Steel|DRI_NG_CCS
+    alias: steel_eaf_dri_ng_ccs
+    activity: steel production, natural gas-based direct reduction iron-electric arc furnace, with carbon capture and storage, low-alloyed
+    provider: steel production, natural gas-based direct reduction iron-electric arc furnace, with carbon capture and storage, low-alloyed
+    location: GLO
+    exists_in_original_database: true
+    ccs: true
+    ccs_inventory: native
+  - input_variable: Secondary EAF-CCS|Production
+    variable: Production|Steel|Secondary steel_CCS
+    alias: steel_eaf_scrap_ccs
+    activity: steel production, low-alloyed (FORECAST scrap EAF CCS unresolved proxy)
+    provider: steel production, electric, low-alloyed
+    location: Europe without Switzerland and Austria
+    exists_in_original_database: false
+    ccs: true
+    ccs_inventory: unresolved_proxy

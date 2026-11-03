@@ -1,0 +1,116 @@
+{
+  "profile": "data-package",
+  "name": "forecast-steel",
+  "title": "FORECAST-sites national steel production and European market mix",
+  "description": "Country steel route outputs and production-weighted national markets at RER. Native BOF/NG-DRI CCS inventories; scrap-EAF CCS remains unresolved.",
+  "version": "0.2.0",
+  "dependencies": {
+    "premise": ">=2.3.8"
+  },
+  "ecoinvent": {
+    "version": "3.12",
+    "system model": "cut-off"
+  },
+  "scenarios": [
+    "forecast_steel_1",
+    "forecast_steel_2"
+  ],
+  "source_scenarios": {
+    "1": "forecast_steel_1",
+    "2": "forecast_steel_2"
+  },
+  "steel_country_market_mix": {
+    "version": 1,
+    "region": "RER",
+    "variable_prefix": "Production|Steel|Supply from|",
+    "total_variable": "Production|Steel",
+    "markets": [
+      {
+        "name": "market for steel, low-alloyed (FORECAST-sites)",
+        "reference product": "steel, low-alloyed",
+        "unit": "kilogram"
+      },
+      {
+        "name": "market for steel, unalloyed (FORECAST-sites)",
+        "reference product": "steel, unalloyed",
+        "unit": "kilogram"
+      }
+    ]
+  },
+  "resources": [
+    {
+      "path": "scenario_data/scenario_data_forecast_steel_iamc.csv",
+      "profile": "tabular-data-resource",
+      "name": "scenario_data",
+      "format": "csv",
+      "mediatype": "text/csv",
+      "encoding": "utf-8-sig",
+      "schema": {
+        "fields": [
+          {
+            "name": "model",
+            "type": "string"
+          },
+          {
+            "name": "scenario",
+            "type": "string"
+          },
+          {
+            "name": "region",
+            "type": "string"
+          },
+          {
+            "name": "variables",
+            "type": "string"
+          },
+          {
+            "name": "unit",
+            "type": "string"
+          },
+          {
+            "name": "2025",
+            "type": "number"
+          },
+          {
+            "name": "2030",
+            "type": "number"
+          },
+          {
+            "name": "2035",
+            "type": "number"
+          },
+          {
+            "name": "2040",
+            "type": "number"
+          },
+          {
+            "name": "2045",
+            "type": "number"
+          },
+          {
+            "name": "2050",
+            "type": "number"
+          }
+        ],
+        "missingValues": [
+          ""
+        ]
+      }
+    },
+    {
+      "path": "configuration_file/config_forecast_steel.yaml",
+      "profile": "data-resource",
+      "name": "config",
+      "format": "yaml",
+      "mediatype": "text/yaml",
+      "encoding": "utf-8"
+    },
+    {
+      "path": "inventories/lci-forecast_steel.xlsx",
+      "profile": "data-resource",
+      "name": "inventories",
+      "format": "xlsx",
+      "mediatype": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    }
+  ]
+}

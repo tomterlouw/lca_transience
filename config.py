@@ -67,11 +67,18 @@ ASSESSMENT_SCOPES = {
                     "FE_polyols_retrofit", "FE_polyols_lignin", "FE_PLA", "FE_PBS", "FE_PMMA", "FE_PVC"],
     },
     "european_steel": {
-        "package": "remind-transience_steel_test", "regions": ["DE"],
+        "package": "remind-transience_steel_test", "regions": ["RER"],
         "years": [2025, 2035, 2050],
         "aliases": ["steel_bof", "steel_eaf_scrap", "steel_eaf_dri_ng", "steel_eaf_dri_h2",
                     "steel_eaf_dri_ng_h2", "steel_eaf_dri_unresolved", "steel_eaf_hbi_ng",
                     "steel_eaf_hbi_h2", "steel_eaf_hbi_ng_h2", "steel_eaf_hbi_unresolved"],
+    },
+    "forecast_steel": {
+        "package": "remind-transience_forecast_steel", "regions": ["RER"],
+        "years": [2025, 2035, 2050],
+        "market": "market for steel, low-alloyed (FORECAST-sites)",
+        "aliases": ["steel_bof", "steel_eaf_scrap", "steel_eaf_dri_ng",
+                    "steel_bof_ccs", "steel_eaf_dri_ng_ccs", "steel_eaf_scrap_ccs"],
     },
 }
 

@@ -114,7 +114,14 @@ def load_itom_steel_country_mix(scenario):
     for entry in scenario.get("external scenarios", ()):
         package = entry.get("data")
         descriptor = getattr(package, "descriptor", {})
-        declaration = descriptor.get(STEEL_COUNTRY_MIX_DESCRIPTOR)
+        # Generic contract for FORECAST-sites and other steel modules. Retain
+        # the original ITOM key so existing packages continue to work.
+        declaration = descriptor.get("steel_country_market_mix")
+        legacy_declaration = descriptor.get(STEEL_COUNTRY_MIX_DESCRIPTOR)
+        if declaration is not None and legacy_declaration is not None:
+            raise ValueError("Declare only one steel country-market aggregation contract per package.")
+        if declaration is None:
+            declaration = legacy_declaration
         if declaration is None:
             continue
         if not callable(getattr(package, "get_resource", None)):
@@ -304,7 +311,7 @@ def plan_itom_steel_country_markets(database, spec):
     receipt = {key: spec[key] for key in ("source_sha256", "source_signature", "source", "model", "scenario", "year",
         "effective_year", "region", "country_volumes", "weights", "total", "status") if key in spec}
     receipt.update(markets=planned, changed_markets=len(changed),
-        method="national production volumes; direct same-grade national ITOM market suppliers")
+        method="national production volumes; direct same-grade national steel market suppliers")
     return result, receipt, changed
 
 

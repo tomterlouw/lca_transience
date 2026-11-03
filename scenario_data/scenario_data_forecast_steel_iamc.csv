@@ -1,0 +1,399 @@
+﻿model,scenario,region,variables,unit,2025,2030,2035,2040,2045,2050
+forecast,forecast_steel_1,AT,Production|Steel|BF/BOF,Mt/yr,4.12697039727166,3.704313228422883,3.281656059574106,2.858998890725328,2.39482573601395,1.930652581302572
+forecast,forecast_steel_1,AT,Production|Steel|Secondary steel,Mt/yr,0.2952791579814714,0.4012089007668802,0.507138643552289,0.6130683863376978,0.7134801787200942,0.8138919711024906
+forecast,forecast_steel_1,AT,Production|Steel|DRI_NG,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_1,AT,Production|Steel|BF/BOF_CCS,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_1,AT,Production|Steel|DRI_NG_CCS,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_1,AT,Production|Steel|Secondary steel_CCS,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_1,BE,Production|Steel|BF/BOF,Mt/yr,2.725872125014306,2.446706227491996,2.167540329969686,1.888374432447376,1.581787143998646,1.275199855549915
+forecast,forecast_steel_1,BE,Production|Steel|Secondary steel,Mt/yr,2.051413097555486,2.787346047433062,3.523278997310639,4.259211947188216,4.95680966268697,5.654407378185724
+forecast,forecast_steel_1,BE,Production|Steel|DRI_NG,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_1,BE,Production|Steel|BF/BOF_CCS,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_1,BE,Production|Steel|DRI_NG_CCS,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_1,BE,Production|Steel|Secondary steel_CCS,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_1,BG,Production|Steel|BF/BOF,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_1,BG,Production|Steel|Secondary steel,Mt/yr,0.4440288089946939,0.6033216552885416,0.7626145015823894,0.9219073478762372,1.072902524391119,1.223897700906001
+forecast,forecast_steel_1,BG,Production|Steel|DRI_NG,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_1,BG,Production|Steel|BF/BOF_CCS,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_1,BG,Production|Steel|DRI_NG_CCS,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_1,BG,Production|Steel|Secondary steel_CCS,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_1,CH,Production|Steel|BF/BOF,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_1,CH,Production|Steel|Secondary steel,Mt/yr,1.143,1.143,1.143,1.143,1.143,1.143
+forecast,forecast_steel_1,CH,Production|Steel|DRI_NG,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_1,CH,Production|Steel|BF/BOF_CCS,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_1,CH,Production|Steel|DRI_NG_CCS,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_1,CH,Production|Steel|Secondary steel_CCS,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_1,CZ,Production|Steel|BF/BOF,Mt/yr,2.943941895015451,2.642442725691356,2.340943556367261,2.039444387043166,1.708330115518537,1.377215843993909
+forecast,forecast_steel_1,CZ,Production|Steel|Secondary steel,Mt/yr,0.2779620344306784,0.3776793562106271,0.4773966779905758,0.5771139997705245,0.6716369802688404,0.7661599607671564
+forecast,forecast_steel_1,CZ,Production|Steel|DRI_NG,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_1,CZ,Production|Steel|BF/BOF_CCS,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_1,CZ,Production|Steel|DRI_NG_CCS,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_1,CZ,Production|Steel|Secondary steel_CCS,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_1,DE,Production|Steel|BF/BOF,Mt/yr,20.8638252448595,18.72708946522374,16.59035368558798,14.45361790595221,12.10699880016563,9.760379694379052
+forecast,forecast_steel_1,DE,Production|Steel|Secondary steel,Mt/yr,6.360268660039995,8.64197939035307,10.92369012066615,13.20540085097922,15.36825575937839,17.53111066777755
+forecast,forecast_steel_1,DE,Production|Steel|DRI_NG,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_1,DE,Production|Steel|BF/BOF_CCS,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_1,DE,Production|Steel|DRI_NG_CCS,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_1,DE,Production|Steel|Secondary steel_CCS,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_1,ES,Production|Steel|BF/BOF,Mt/yr,2.943941895015451,2.642442725691356,2.340943556367261,2.039444387043166,1.708330115518537,1.377215843993908
+forecast,forecast_steel_1,ES,Production|Steel|Secondary steel,Mt/yr,6.64267098256062,9.025691963116582,11.40871294367255,13.79173392422851,16.05062176489114,18.30950960555377
+forecast,forecast_steel_1,ES,Production|Steel|DRI_NG,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_1,ES,Production|Steel|BF/BOF_CCS,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_1,ES,Production|Steel|DRI_NG_CCS,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_1,ES,Production|Steel|Secondary steel_CCS,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_1,FI,Production|Steel|BF/BOF,Mt/yr,1.526488390008012,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_1,FI,Production|Steel|Secondary steel,Mt/yr,0.8569756013597594,1.164410794706886,1.471845988054012,1.779281181401138,2.07070187207486,2.362122562748582
+forecast,forecast_steel_1,FI,Production|Steel|DRI_NG,Mt/yr,0.0,1.370155487395518,1.213822584783024,1.05748968217053,0.8858008006392415,0.7141119191079525
+forecast,forecast_steel_1,FI,Production|Steel|BF/BOF_CCS,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_1,FI,Production|Steel|DRI_NG_CCS,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_1,FI,Production|Steel|Secondary steel_CCS,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_1,FR,Production|Steel|BF/BOF,Mt/yr,6.460316936283906,5.798693759156031,5.137070582028156,4.475447404900281,3.74883553127679,3.022223657653299
+forecast,forecast_steel_1,FR,Production|Steel|Secondary steel,Mt/yr,3.355525709572901,4.559301749015509,5.763077788458117,6.966853827900724,8.107924376823686,9.248994925746647
+forecast,forecast_steel_1,FR,Production|Steel|DRI_NG,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_1,FR,Production|Steel|BF/BOF_CCS,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_1,FR,Production|Steel|DRI_NG_CCS,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_1,FR,Production|Steel|Secondary steel_CCS,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_1,GB,Production|Steel|BF/BOF,Mt/yr,6.487575657534048,5.82316082143095,5.158745985327853,4.494331149224755,3.764653402716776,3.034975656208799
+forecast,forecast_steel_1,GB,Production|Steel|Secondary steel,Mt/yr,1.598503712380898,2.17195795903875,2.745412205696602,3.318866452354454,3.862449087808028,4.406031723261603
+forecast,forecast_steel_1,GB,Production|Steel|DRI_NG,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_1,GB,Production|Steel|BF/BOF_CCS,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_1,GB,Production|Steel|DRI_NG_CCS,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_1,GB,Production|Steel|Secondary steel_CCS,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_1,GR,Production|Steel|BF/BOF,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_1,GR,Production|Steel|Secondary steel,Mt/yr,1.665108033730102,2.262456207332031,2.85980438093396,3.457152554535889,4.023384466466696,4.589616378397503
+forecast,forecast_steel_1,GR,Production|Steel|DRI_NG,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_1,GR,Production|Steel|BF/BOF_CCS,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_1,GR,Production|Steel|DRI_NG_CCS,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_1,GR,Production|Steel|Secondary steel_CCS,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_1,HR,Production|Steel|BF/BOF,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_1,HR,Production|Steel|Secondary steel,Mt/yr,0.1554100831481428,0.2111625793509896,0.2669150755538363,0.322667571756683,0.3755158835368916,0.4283641953171003
+forecast,forecast_steel_1,HR,Production|Steel|DRI_NG,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_1,HR,Production|Steel|BF/BOF_CCS,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_1,HR,Production|Steel|DRI_NG_CCS,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_1,HR,Production|Steel|Secondary steel_CCS,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_1,HU,Production|Steel|BF/BOF,Mt/yr,0.8995378012547212,0.8074130550723588,0.7152883088899964,0.6231635627076341,0.5219897575195531,0.4208159523314721
+forecast,forecast_steel_1,HU,Production|Steel|Secondary steel,Mt/yr,0.5550360112433672,0.7541520691106771,0.9532681269779866,1.152384184845296,1.341128155488899,1.529872126132501
+forecast,forecast_steel_1,HU,Production|Steel|DRI_NG,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_1,HU,Production|Steel|BF/BOF_CCS,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_1,HU,Production|Steel|DRI_NG_CCS,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_1,HU,Production|Steel|Secondary steel_CCS,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_1,IT,Production|Steel|BF/BOF,Mt/yr,6.269505887532905,5.627424323231592,4.985342758930279,4.343261194628965,3.638110431196885,2.932959667764805
+forecast,forecast_steel_1,IT,Production|Steel|Secondary steel,Mt/yr,12.21523253544403,16.59737873698778,20.97952493853153,25.36167114007529,29.51554844599968,33.66942575192408
+forecast,forecast_steel_1,IT,Production|Steel|DRI_NG,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_1,IT,Production|Steel|BF/BOF_CCS,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_1,IT,Production|Steel|DRI_NG_CCS,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_1,IT,Production|Steel|Secondary steel_CCS,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_1,LU,Production|Steel|BF/BOF,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_1,LU,Production|Steel|Secondary steel,Mt/yr,0.9990648202380612,1.357473724399219,1.715882628560376,2.074291532721534,2.414030679880018,2.753769827038502
+forecast,forecast_steel_1,LU,Production|Steel|DRI_NG,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_1,LU,Production|Steel|BF/BOF_CCS,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_1,LU,Production|Steel|DRI_NG_CCS,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_1,LU,Production|Steel|Secondary steel_CCS,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_1,LV,Production|Steel|BF/BOF,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_1,LV,Production|Steel|Secondary steel,Mt/yr,0.3996259280952245,0.5429894897596874,0.6863530514241505,0.8297166130886134,0.9656122719520073,1.101507930815401
+forecast,forecast_steel_1,LV,Production|Steel|DRI_NG,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_1,LV,Production|Steel|BF/BOF_CCS,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_1,LV,Production|Steel|DRI_NG_CCS,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_1,LV,Production|Steel|Secondary steel_CCS,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_1,NL,Production|Steel|BF/BOF,Mt/yr,3.925255860020602,3.523256967588475,3.121258075156348,2.719259182724222,2.27777348735805,1.836287791991878
+forecast,forecast_steel_1,NL,Production|Steel|Secondary steel,Mt/yr,0.1154474903386204,0.1568636303750208,0.1982797704114213,0.2396959104478217,0.278954656341691,0.3182134022355603
+forecast,forecast_steel_1,NL,Production|Steel|DRI_NG,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_1,NL,Production|Steel|BF/BOF_CCS,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_1,NL,Production|Steel|DRI_NG_CCS,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_1,NL,Production|Steel|Secondary steel_CCS,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_1,NO,Production|Steel|BF/BOF,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_1,NO,Production|Steel|Secondary steel,Mt/yr,0.72,0.72,0.72,0.72,0.72,0.72
+forecast,forecast_steel_1,NO,Production|Steel|DRI_NG,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_1,NO,Production|Steel|BF/BOF_CCS,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_1,NO,Production|Steel|DRI_NG_CCS,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_1,NO,Production|Steel|Secondary steel_CCS,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_1,PL,Production|Steel|BF/BOF,Mt/yr,4.143325630021746,3.718993465787834,3.294661301553923,2.870329137320011,2.404316458877942,1.938303780435871
+forecast,forecast_steel_1,PL,Production|Steel|Secondary steel,Mt/yr,2.038092233285645,2.769246397774406,3.500400562263168,4.231554726751929,4.924622586955236,5.617690447158544
+forecast,forecast_steel_1,PL,Production|Steel|DRI_NG,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_1,PL,Production|Steel|BF/BOF_CCS,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_1,PL,Production|Steel|DRI_NG_CCS,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_1,PL,Production|Steel|Secondary steel_CCS,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_1,PT,Production|Steel|BF/BOF,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_1,PT,Production|Steel|Secondary steel,Mt/yr,0.7992518561904489,1.085978979519375,1.372706102848301,1.659433226177227,1.931224543904014,2.203015861630802
+forecast,forecast_steel_1,PT,Production|Steel|DRI_NG,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_1,PT,Production|Steel|BF/BOF_CCS,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_1,PT,Production|Steel|DRI_NG_CCS,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_1,PT,Production|Steel|Secondary steel_CCS,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_1,RO,Production|Steel|BF/BOF,Mt/yr,1.744558160009156,1.565891985594878,1.387225811180599,1.20855963676632,1.012343772159133,0.8161279075519458
+forecast,forecast_steel_1,RO,Production|Steel|Secondary steel,Mt/yr,1.20331807237562,1.635001685831948,2.066685299288276,2.498368912744603,2.907565841099932,3.316762769455262
+forecast,forecast_steel_1,RO,Production|Steel|DRI_NG,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_1,RO,Production|Steel|BF/BOF_CCS,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_1,RO,Production|Steel|DRI_NG_CCS,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_1,RO,Production|Steel|Secondary steel_CCS,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_1,SE,Production|Steel|BF/BOF,Mt/yr,2.126180257511159,1.908430857443757,1.690681457376355,1.472932057308953,1.233793972318943,0.994655887328934
+forecast,forecast_steel_1,SE,Production|Steel|Secondary steel,Mt/yr,0.686024509896802,0.9321319574207968,1.178239404944792,1.424346852468786,1.657634400184279,1.890921947899771
+forecast,forecast_steel_1,SE,Production|Steel|DRI_NG,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_1,SE,Production|Steel|BF/BOF_CCS,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_1,SE,Production|Steel|DRI_NG_CCS,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_1,SE,Production|Steel|Secondary steel_CCS,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_1,SI,Production|Steel|BF/BOF,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_1,SI,Production|Steel|Secondary steel,Mt/yr,0.3285813186560735,0.4464580249135209,0.5643347311709682,0.6822114374284156,0.7939478680494281,0.9056842986704406
+forecast,forecast_steel_1,SI,Production|Steel|DRI_NG,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_1,SI,Production|Steel|BF/BOF_CCS,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_1,SI,Production|Steel|DRI_NG_CCS,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_1,SI,Production|Steel|Secondary steel_CCS,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_1,SK,Production|Steel|BF/BOF,Mt/yr,2.39876747001259,2.153101480192957,1.907435490373324,1.661769500553691,1.391972686718808,1.122175872883926
+forecast,forecast_steel_1,SK,Production|Steel|Secondary steel,Mt/yr,0.4484690970846409,0.6093548718414272,0.7702406465982133,0.9311264213549997,1.08363154963503,1.236136677915061
+forecast,forecast_steel_1,SK,Production|Steel|DRI_NG,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_1,SK,Production|Steel|BF/BOF_CCS,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_1,SK,Production|Steel|DRI_NG_CCS,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_1,SK,Production|Steel|Secondary steel_CCS,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_1,AT,Production|Steel,Mt/yr,4.422249555253131,4.1055221291897634,3.788794703126395,3.472067277063026,3.1083059147340446,2.7445445524050625
+forecast,forecast_steel_1,RER,Production|Steel|Supply from|AT,Mt/yr,4.422249555253131,4.1055221291897634,3.788794703126395,3.472067277063026,3.1083059147340446,2.7445445524050625
+forecast,forecast_steel_1,BE,Production|Steel,Mt/yr,4.777285222569792,5.234052274925058,5.690819327280325,6.147586379635593,6.538596806685616,6.929607233735639
+forecast,forecast_steel_1,RER,Production|Steel|Supply from|BE,Mt/yr,4.777285222569792,5.234052274925058,5.690819327280325,6.147586379635593,6.538596806685616,6.929607233735639
+forecast,forecast_steel_1,BG,Production|Steel,Mt/yr,0.4440288089946939,0.6033216552885416,0.7626145015823894,0.9219073478762372,1.072902524391119,1.223897700906001
+forecast,forecast_steel_1,RER,Production|Steel|Supply from|BG,Mt/yr,0.4440288089946939,0.6033216552885416,0.7626145015823894,0.9219073478762372,1.072902524391119,1.223897700906001
+forecast,forecast_steel_1,CH,Production|Steel,Mt/yr,1.143,1.143,1.143,1.143,1.143,1.143
+forecast,forecast_steel_1,RER,Production|Steel|Supply from|CH,Mt/yr,1.143,1.143,1.143,1.143,1.143,1.143
+forecast,forecast_steel_1,CZ,Production|Steel,Mt/yr,3.221903929446129,3.0201220819019827,2.8183402343578368,2.6165583868136904,2.3799670957873778,2.1433758047610656
+forecast,forecast_steel_1,RER,Production|Steel|Supply from|CZ,Mt/yr,3.221903929446129,3.0201220819019827,2.8183402343578368,2.6165583868136904,2.3799670957873778,2.1433758047610656
+forecast,forecast_steel_1,DE,Production|Steel,Mt/yr,27.224093904899494,27.369068855576813,27.51404380625413,27.65901875693143,27.47525455954402,27.291490362156605
+forecast,forecast_steel_1,RER,Production|Steel|Supply from|DE,Mt/yr,27.224093904899494,27.369068855576813,27.51404380625413,27.65901875693143,27.47525455954402,27.291490362156605
+forecast,forecast_steel_1,ES,Production|Steel,Mt/yr,9.586612877576071,11.668134688807939,13.74965650003981,15.831178311271675,17.758951880409676,19.68672544954768
+forecast,forecast_steel_1,RER,Production|Steel|Supply from|ES,Mt/yr,9.586612877576071,11.668134688807939,13.74965650003981,15.831178311271675,17.758951880409676,19.68672544954768
+forecast,forecast_steel_1,FI,Production|Steel,Mt/yr,2.3834639913677713,2.534566282102404,2.685668572837036,2.836770863571668,2.9565026727141017,3.076234481856534
+forecast,forecast_steel_1,RER,Production|Steel|Supply from|FI,Mt/yr,2.3834639913677713,2.534566282102404,2.685668572837036,2.836770863571668,2.9565026727141017,3.076234481856534
+forecast,forecast_steel_1,FR,Production|Steel,Mt/yr,9.815842645856808,10.35799550817154,10.900148370486272,11.442301232801006,11.856759908100475,12.271218583399946
+forecast,forecast_steel_1,RER,Production|Steel|Supply from|FR,Mt/yr,9.815842645856808,10.35799550817154,10.900148370486272,11.442301232801006,11.856759908100475,12.271218583399946
+forecast,forecast_steel_1,GB,Production|Steel,Mt/yr,8.086079369914946,7.995118780469699,7.904158191024455,7.813197601579209,7.627102490524804,7.441007379470402
+forecast,forecast_steel_1,RER,Production|Steel|Supply from|GB,Mt/yr,8.086079369914946,7.995118780469699,7.904158191024455,7.813197601579209,7.627102490524804,7.441007379470402
+forecast,forecast_steel_1,GR,Production|Steel,Mt/yr,1.665108033730102,2.262456207332031,2.85980438093396,3.457152554535889,4.023384466466696,4.589616378397503
+forecast,forecast_steel_1,RER,Production|Steel|Supply from|GR,Mt/yr,1.665108033730102,2.262456207332031,2.85980438093396,3.457152554535889,4.023384466466696,4.589616378397503
+forecast,forecast_steel_1,HR,Production|Steel,Mt/yr,0.1554100831481428,0.2111625793509896,0.2669150755538363,0.322667571756683,0.3755158835368916,0.4283641953171003
+forecast,forecast_steel_1,RER,Production|Steel|Supply from|HR,Mt/yr,0.1554100831481428,0.2111625793509896,0.2669150755538363,0.322667571756683,0.3755158835368916,0.4283641953171003
+forecast,forecast_steel_1,HU,Production|Steel,Mt/yr,1.4545738124980883,1.561565124183036,1.668556435867983,1.7755477475529302,1.863117913008452,1.950688078463973
+forecast,forecast_steel_1,RER,Production|Steel|Supply from|HU,Mt/yr,1.4545738124980883,1.561565124183036,1.668556435867983,1.7755477475529302,1.863117913008452,1.950688078463973
+forecast,forecast_steel_1,IT,Production|Steel,Mt/yr,18.484738422976935,22.224803060219372,25.96486769746181,29.704932334704257,33.15365887719656,36.602385419688886
+forecast,forecast_steel_1,RER,Production|Steel|Supply from|IT,Mt/yr,18.484738422976935,22.224803060219372,25.96486769746181,29.704932334704257,33.15365887719656,36.602385419688886
+forecast,forecast_steel_1,LU,Production|Steel,Mt/yr,0.9990648202380612,1.357473724399219,1.715882628560376,2.074291532721534,2.414030679880018,2.753769827038502
+forecast,forecast_steel_1,RER,Production|Steel|Supply from|LU,Mt/yr,0.9990648202380612,1.357473724399219,1.715882628560376,2.074291532721534,2.414030679880018,2.753769827038502
+forecast,forecast_steel_1,LV,Production|Steel,Mt/yr,0.3996259280952245,0.5429894897596874,0.6863530514241505,0.8297166130886134,0.9656122719520073,1.101507930815401
+forecast,forecast_steel_1,RER,Production|Steel|Supply from|LV,Mt/yr,0.3996259280952245,0.5429894897596874,0.6863530514241505,0.8297166130886134,0.9656122719520073,1.101507930815401
+forecast,forecast_steel_1,NL,Production|Steel,Mt/yr,4.040703350359222,3.6801205979634957,3.319537845567769,2.958955093172044,2.556728143699741,2.1545011942274384
+forecast,forecast_steel_1,RER,Production|Steel|Supply from|NL,Mt/yr,4.040703350359222,3.6801205979634957,3.319537845567769,2.958955093172044,2.556728143699741,2.1545011942274384
+forecast,forecast_steel_1,NO,Production|Steel,Mt/yr,0.72,0.72,0.72,0.72,0.72,0.72
+forecast,forecast_steel_1,RER,Production|Steel|Supply from|NO,Mt/yr,0.72,0.72,0.72,0.72,0.72,0.72
+forecast,forecast_steel_1,PL,Production|Steel,Mt/yr,6.181417863307391,6.4882398635622405,6.795061863817091,7.10188386407194,7.328939045833177,7.5559942275944145
+forecast,forecast_steel_1,RER,Production|Steel|Supply from|PL,Mt/yr,6.181417863307391,6.4882398635622405,6.795061863817091,7.10188386407194,7.328939045833177,7.5559942275944145
+forecast,forecast_steel_1,PT,Production|Steel,Mt/yr,0.7992518561904489,1.085978979519375,1.372706102848301,1.659433226177227,1.931224543904014,2.203015861630802
+forecast,forecast_steel_1,RER,Production|Steel|Supply from|PT,Mt/yr,0.7992518561904489,1.085978979519375,1.372706102848301,1.659433226177227,1.931224543904014,2.203015861630802
+forecast,forecast_steel_1,RO,Production|Steel,Mt/yr,2.9478762323847763,3.200893671426826,3.453911110468875,3.706928549510923,3.919909613259065,4.132890677007207
+forecast,forecast_steel_1,RER,Production|Steel|Supply from|RO,Mt/yr,2.9478762323847763,3.200893671426826,3.453911110468875,3.706928549510923,3.919909613259065,4.132890677007207
+forecast,forecast_steel_1,SE,Production|Steel,Mt/yr,2.8122047674079607,2.840562814864554,2.868920862321147,2.897278909777739,2.8914283725032224,2.885577835228705
+forecast,forecast_steel_1,RER,Production|Steel|Supply from|SE,Mt/yr,2.8122047674079607,2.840562814864554,2.868920862321147,2.897278909777739,2.8914283725032224,2.885577835228705
+forecast,forecast_steel_1,SI,Production|Steel,Mt/yr,0.3285813186560735,0.4464580249135209,0.5643347311709682,0.6822114374284156,0.7939478680494281,0.9056842986704406
+forecast,forecast_steel_1,RER,Production|Steel|Supply from|SI,Mt/yr,0.3285813186560735,0.4464580249135209,0.5643347311709682,0.6822114374284156,0.7939478680494281,0.9056842986704406
+forecast,forecast_steel_1,SK,Production|Steel,Mt/yr,2.847236567097231,2.762456352034384,2.677676136971537,2.5928959219086907,2.475604236353838,2.358312550798987
+forecast,forecast_steel_1,RER,Production|Steel|Supply from|SK,Mt/yr,2.847236567097231,2.762456352034384,2.677676136971537,2.5928959219086907,2.475604236353838,2.358312550798987
+forecast,forecast_steel_1,RER,Production|Steel|BF/BOF,Mt/yr,69.5860636073652,61.08936108802016,54.119146958683125,47.14893282934608,39.49406141135818,31.839189993370287
+forecast,forecast_steel_1,RER,Production|Steel|BF/BOF_CCS,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_1,RER,Production|Steel|DRI_NG,Mt/yr,0.0,1.370155487395518,1.213822584783024,1.05748968217053,0.8858008006392415,0.7141119191079525
+forecast,forecast_steel_1,RER,Production|Steel|DRI_NG_CCS,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_1,RER,Production|Steel|Secondary steel,Mt/yr,45.35428975460328,60.95654617054679,76.5588025864903,92.16105900243382,106.95058355653693,121.74010811064005
+forecast,forecast_steel_1,RER,Production|Steel|Secondary steel_CCS,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_1,RER,Production|Steel,Mt/yr,114.94035336196848,123.41606274596248,131.89177212995648,140.36748151395037,147.33044576853433,154.2934100231183
+forecast,forecast_steel_2,AT,Production|Steel|BF/BOF,Mt/yr,4.12697039727166,3.704313228422883,0.0,0.0,0.0,0.0
+forecast,forecast_steel_2,AT,Production|Steel|Secondary steel,Mt/yr,0.2952791579814714,0.4012089007668802,0.507138643552289,0.6130683863376978,0.7134801787200942,0.8138919711024906
+forecast,forecast_steel_2,AT,Production|Steel|DRI_NG,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_2,AT,Production|Steel|BF/BOF_CCS,Mt/yr,0.0,0.0,1.243358512173578,0.8207013433248,0.4484025384062168,0.07674855768777354
+forecast,forecast_steel_2,AT,Production|Steel|DRI_NG_CCS,Mt/yr,0.0,0.0,2.038297547400528,2.038297547400528,1.946423197607733,1.853904023614799
+forecast,forecast_steel_2,AT,Production|Steel|Secondary steel_CCS,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_2,BE,Production|Steel|BF/BOF,Mt/yr,2.725872125014306,2.446706227491996,0.0,0.0,0.0,0.0
+forecast,forecast_steel_2,BE,Production|Steel|Secondary steel,Mt/yr,2.051413097555486,2.787346047433062,3.523278997310639,4.259211947188216,4.95680966268697,5.654407378185724
+forecast,forecast_steel_2,BE,Production|Steel|DRI_NG,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_2,BE,Production|Steel|BF/BOF_CCS,Mt/yr,0.0,0.0,2.167540329969686,1.888374432447376,1.581787143998646,1.275199855549915
+forecast,forecast_steel_2,BE,Production|Steel|DRI_NG_CCS,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_2,BE,Production|Steel|Secondary steel_CCS,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_2,BG,Production|Steel|BF/BOF,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_2,BG,Production|Steel|Secondary steel,Mt/yr,0.4440288089946939,0.6033216552885416,0.7626145015823894,0.9219073478762372,0.0,0.0
+forecast,forecast_steel_2,BG,Production|Steel|DRI_NG,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_2,BG,Production|Steel|BF/BOF_CCS,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_2,BG,Production|Steel|DRI_NG_CCS,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_2,BG,Production|Steel|Secondary steel_CCS,Mt/yr,0.0,0.0,0.0,0.0,1.072902524391119,1.223897700906001
+forecast,forecast_steel_2,CH,Production|Steel|BF/BOF,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_2,CH,Production|Steel|Secondary steel,Mt/yr,1.143,1.143,1.143,1.143,0.0,0.0
+forecast,forecast_steel_2,CH,Production|Steel|DRI_NG,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_2,CH,Production|Steel|BF/BOF_CCS,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_2,CH,Production|Steel|DRI_NG_CCS,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_2,CH,Production|Steel|Secondary steel_CCS,Mt/yr,0.0,0.0,0.0,0.0,1.143,1.143
+forecast,forecast_steel_2,CZ,Production|Steel|BF/BOF,Mt/yr,2.943941895015451,2.642442725691356,0.0,0.0,0.0,0.0
+forecast,forecast_steel_2,CZ,Production|Steel|Secondary steel,Mt/yr,0.2779620344306784,0.3776793562106271,0.4423164109177859,0.5347062617682176,0.622283464146849,0.7098606665254804
+forecast,forecast_steel_2,CZ,Production|Steel|DRI_NG,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_2,CZ,Production|Steel|BF/BOF_CCS,Mt/yr,0.0,0.0,2.340943556367261,2.039444387043166,1.708330115518537,1.377215843993909
+forecast,forecast_steel_2,CZ,Production|Steel|DRI_NG_CCS,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_2,CZ,Production|Steel|Secondary steel_CCS,Mt/yr,0.0,0.0,0.03508026707278992,0.04240773800230691,0.04935351612199147,0.05629929424167604
+forecast,forecast_steel_2,DE,Production|Steel|BF/BOF,Mt/yr,20.8638252448595,18.72708946522374,16.59035368558798,14.45361790595221,12.10699880016563,9.760379694379052
+forecast,forecast_steel_2,DE,Production|Steel|Secondary steel,Mt/yr,6.360268660039995,8.64197939035307,10.92369012066615,13.20540085097922,15.36825575937839,17.53111066777755
+forecast,forecast_steel_2,DE,Production|Steel|DRI_NG,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_2,DE,Production|Steel|BF/BOF_CCS,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_2,DE,Production|Steel|DRI_NG_CCS,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_2,DE,Production|Steel|Secondary steel_CCS,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_2,ES,Production|Steel|BF/BOF,Mt/yr,2.943941895015451,2.642442725691356,0.0,0.0,0.0,0.0
+forecast,forecast_steel_2,ES,Production|Steel|Secondary steel,Mt/yr,6.64267098256062,9.025691963116582,11.40871294367255,13.79173392422851,16.05062176489114,18.30950960555377
+forecast,forecast_steel_2,ES,Production|Steel|DRI_NG,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_2,ES,Production|Steel|BF/BOF_CCS,Mt/yr,0.0,0.0,2.340943556367261,2.039444387043166,1.708330115518537,1.377215843993908
+forecast,forecast_steel_2,ES,Production|Steel|DRI_NG_CCS,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_2,ES,Production|Steel|Secondary steel_CCS,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_2,FI,Production|Steel|BF/BOF,Mt/yr,1.526488390008012,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_2,FI,Production|Steel|Secondary steel,Mt/yr,0.8569756013597594,1.164410794706886,1.471845988054012,1.779281181401138,0.0,0.0
+forecast,forecast_steel_2,FI,Production|Steel|DRI_NG,Mt/yr,0.0,1.370155487395518,1.213822584783024,1.05748968217053,0.8858008006392415,0.0
+forecast,forecast_steel_2,FI,Production|Steel|BF/BOF_CCS,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_2,FI,Production|Steel|DRI_NG_CCS,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.7141119191079525
+forecast,forecast_steel_2,FI,Production|Steel|Secondary steel_CCS,Mt/yr,0.0,0.0,0.0,0.0,2.07070187207486,2.362122562748582
+forecast,forecast_steel_2,FR,Production|Steel|BF/BOF,Mt/yr,6.460316936283906,5.798693759156031,2.926179445459076,0.0,0.0,0.0
+forecast,forecast_steel_2,FR,Production|Steel|Secondary steel,Mt/yr,3.355525709572901,4.559301749015509,5.763077788458117,6.966853827900724,8.107924376823686,9.248994925746647
+forecast,forecast_steel_2,FR,Production|Steel|DRI_NG,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_2,FR,Production|Steel|BF/BOF_CCS,Mt/yr,0.0,0.0,2.21089113656908,4.475447404900281,3.74883553127679,3.022223657653299
+forecast,forecast_steel_2,FR,Production|Steel|DRI_NG_CCS,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_2,FR,Production|Steel|Secondary steel_CCS,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_2,GB,Production|Steel|BF/BOF,Mt/yr,6.487575657534048,5.82316082143095,0.0,0.0,0.0,0.0
+forecast,forecast_steel_2,GB,Production|Steel|Secondary steel,Mt/yr,1.598503712380898,2.17195795903875,2.745412205696602,3.318866452354454,3.862449087808028,4.406031723261603
+forecast,forecast_steel_2,GB,Production|Steel|DRI_NG,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_2,GB,Production|Steel|BF/BOF_CCS,Mt/yr,0.0,0.0,5.158745985327853,4.494331149224755,3.764653402716776,3.034975656208799
+forecast,forecast_steel_2,GB,Production|Steel|DRI_NG_CCS,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_2,GB,Production|Steel|Secondary steel_CCS,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_2,GR,Production|Steel|BF/BOF,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_2,GR,Production|Steel|Secondary steel,Mt/yr,1.665108033730102,2.262456207332031,2.85980438093396,3.457152554535889,4.023384466466696,3.916472642899202
+forecast,forecast_steel_2,GR,Production|Steel|DRI_NG,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_2,GR,Production|Steel|BF/BOF_CCS,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_2,GR,Production|Steel|DRI_NG_CCS,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_2,GR,Production|Steel|Secondary steel_CCS,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.6731437354983004
+forecast,forecast_steel_2,HR,Production|Steel|BF/BOF,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_2,HR,Production|Steel|Secondary steel,Mt/yr,0.1554100831481428,0.2111625793509896,0.2669150755538363,0.322667571756683,0.3755158835368916,0.0
+forecast,forecast_steel_2,HR,Production|Steel|DRI_NG,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_2,HR,Production|Steel|BF/BOF_CCS,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_2,HR,Production|Steel|DRI_NG_CCS,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_2,HR,Production|Steel|Secondary steel_CCS,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.4283641953171003
+forecast,forecast_steel_2,HU,Production|Steel|BF/BOF,Mt/yr,0.8995378012547212,0.8074130550723588,0.0,0.0,0.0,0.0
+forecast,forecast_steel_2,HU,Production|Steel|Secondary steel,Mt/yr,0.5550360112433672,0.7541520691106771,0.9532681269779866,1.152384184845296,1.341128155488899,1.529872126132501
+forecast,forecast_steel_2,HU,Production|Steel|DRI_NG,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_2,HU,Production|Steel|BF/BOF_CCS,Mt/yr,0.0,0.0,0.7152883088899964,0.6231635627076341,0.5219897575195531,0.4208159523314721
+forecast,forecast_steel_2,HU,Production|Steel|DRI_NG_CCS,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_2,HU,Production|Steel|Secondary steel_CCS,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_2,IT,Production|Steel|BF/BOF,Mt/yr,6.269505887532905,5.627424323231592,0.0,0.0,0.0,0.0
+forecast,forecast_steel_2,IT,Production|Steel|Secondary steel,Mt/yr,12.21523253544403,16.59737873698778,20.97952493853153,25.36167114007529,29.51554844599968,33.66942575192408
+forecast,forecast_steel_2,IT,Production|Steel|DRI_NG,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_2,IT,Production|Steel|BF/BOF_CCS,Mt/yr,0.0,0.0,4.985342758930279,4.343261194628965,3.638110431196885,2.932959667764805
+forecast,forecast_steel_2,IT,Production|Steel|DRI_NG_CCS,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_2,IT,Production|Steel|Secondary steel_CCS,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_2,LU,Production|Steel|BF/BOF,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_2,LU,Production|Steel|Secondary steel,Mt/yr,0.9990648202380612,1.357473724399219,1.715882628560376,2.074291532721534,2.414030679880018,1.529872126132501
+forecast,forecast_steel_2,LU,Production|Steel|DRI_NG,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_2,LU,Production|Steel|BF/BOF_CCS,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_2,LU,Production|Steel|DRI_NG_CCS,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_2,LU,Production|Steel|Secondary steel_CCS,Mt/yr,0.0,0.0,0.0,0.0,0.0,1.223897700906001
+forecast,forecast_steel_2,LV,Production|Steel|BF/BOF,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_2,LV,Production|Steel|Secondary steel,Mt/yr,0.3996259280952245,0.5429894897596874,0.6863530514241505,0.8297166130886134,0.9656122719520073,1.101507930815401
+forecast,forecast_steel_2,LV,Production|Steel|DRI_NG,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_2,LV,Production|Steel|BF/BOF_CCS,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_2,LV,Production|Steel|DRI_NG_CCS,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_2,LV,Production|Steel|Secondary steel_CCS,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_2,NL,Production|Steel|BF/BOF,Mt/yr,3.925255860020602,3.523256967588475,0.0,0.0,0.0,0.0
+forecast,forecast_steel_2,NL,Production|Steel|Secondary steel,Mt/yr,0.1154474903386204,0.1568636303750208,0.1982797704114213,0.2396959104478217,0.278954656341691,0.3182134022355603
+forecast,forecast_steel_2,NL,Production|Steel|DRI_NG,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_2,NL,Production|Steel|BF/BOF_CCS,Mt/yr,0.0,0.0,3.121258075156348,2.719259182724222,2.27777348735805,1.836287791991878
+forecast,forecast_steel_2,NL,Production|Steel|DRI_NG_CCS,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_2,NL,Production|Steel|Secondary steel_CCS,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_2,NO,Production|Steel|BF/BOF,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_2,NO,Production|Steel|Secondary steel,Mt/yr,0.72,0.72,0.72,0.72,0.0,0.0
+forecast,forecast_steel_2,NO,Production|Steel|DRI_NG,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_2,NO,Production|Steel|BF/BOF_CCS,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_2,NO,Production|Steel|DRI_NG_CCS,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_2,NO,Production|Steel|Secondary steel_CCS,Mt/yr,0.0,0.0,0.0,0.0,0.72,0.72
+forecast,forecast_steel_2,PL,Production|Steel|BF/BOF,Mt/yr,4.143325630021746,3.718993465787834,0.0,0.0,0.0,0.0
+forecast,forecast_steel_2,PL,Production|Steel|Secondary steel,Mt/yr,2.038092233285645,2.769246397774406,3.500400562263168,4.231554726751929,4.924622586955236,5.617690447158544
+forecast,forecast_steel_2,PL,Production|Steel|DRI_NG,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_2,PL,Production|Steel|BF/BOF_CCS,Mt/yr,0.0,0.0,3.294661301553923,2.870329137320011,2.404316458877942,1.938303780435871
+forecast,forecast_steel_2,PL,Production|Steel|DRI_NG_CCS,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_2,PL,Production|Steel|Secondary steel_CCS,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_2,PT,Production|Steel|BF/BOF,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_2,PT,Production|Steel|Secondary steel,Mt/yr,0.7992518561904489,1.085978979519375,1.372706102848301,1.659433226177227,1.287483029269343,1.468677241087201
+forecast,forecast_steel_2,PT,Production|Steel|DRI_NG,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_2,PT,Production|Steel|BF/BOF_CCS,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_2,PT,Production|Steel|DRI_NG_CCS,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_2,PT,Production|Steel|Secondary steel_CCS,Mt/yr,0.0,0.0,0.0,0.0,0.6437415146346713,0.7343386205436004
+forecast,forecast_steel_2,RO,Production|Steel|BF/BOF,Mt/yr,1.744558160009156,1.565891985594878,0.0,0.0,0.0,0.0
+forecast,forecast_steel_2,RO,Production|Steel|Secondary steel,Mt/yr,1.20331807237562,1.635001685831948,2.066685299288276,2.498368912744603,2.907565841099932,3.316762769455262
+forecast,forecast_steel_2,RO,Production|Steel|DRI_NG,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_2,RO,Production|Steel|BF/BOF_CCS,Mt/yr,0.0,0.0,1.387225811180599,1.20855963676632,1.012343772159133,0.8161279075519458
+forecast,forecast_steel_2,RO,Production|Steel|DRI_NG_CCS,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_2,RO,Production|Steel|Secondary steel_CCS,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_2,SE,Production|Steel|BF/BOF,Mt/yr,2.126180257511159,1.089060731001863,0.0,0.0,0.0,0.0
+forecast,forecast_steel_2,SE,Production|Steel|Secondary steel,Mt/yr,0.686024509896802,0.9321319574207968,1.178239404944792,1.424346852468786,0.2467675806099573,0.0
+forecast,forecast_steel_2,SE,Production|Steel|DRI_NG,Mt/yr,0.0,0.8193701264418949,0.0,0.0,0.0,0.0
+forecast,forecast_steel_2,SE,Production|Steel|BF/BOF_CCS,Mt/yr,0.0,0.0,0.8713113309344604,0.6535619308670584,0.5493222527944901,0.4428507717183011
+forecast,forecast_steel_2,SE,Production|Steel|DRI_NG_CCS,Mt/yr,0.0,0.0,0.8193701264418949,0.8193701264418949,0.6844717195244535,0.5518051156106328
+forecast,forecast_steel_2,SE,Production|Steel|Secondary steel_CCS,Mt/yr,0.0,0.0,0.0,0.0,1.410866819574321,1.890921947899771
+forecast,forecast_steel_2,SI,Production|Steel|BF/BOF,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_2,SI,Production|Steel|Secondary steel,Mt/yr,0.3285813186560735,0.4464580249135209,0.5643347311709682,0.6822114374284156,0.7939478680494281,0.5507539654077004
+forecast,forecast_steel_2,SI,Production|Steel|DRI_NG,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_2,SI,Production|Steel|BF/BOF_CCS,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_2,SI,Production|Steel|DRI_NG_CCS,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_2,SI,Production|Steel|Secondary steel_CCS,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.3549303332627403
+forecast,forecast_steel_2,SK,Production|Steel|BF/BOF,Mt/yr,2.39876747001259,2.153101480192957,0.0,0.0,0.0,0.0
+forecast,forecast_steel_2,SK,Production|Steel|Secondary steel,Mt/yr,0.4484690970846409,0.6093548718414272,0.7702406465982133,0.9311264213549997,1.08363154963503,1.236136677915061
+forecast,forecast_steel_2,SK,Production|Steel|DRI_NG,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_2,SK,Production|Steel|BF/BOF_CCS,Mt/yr,0.0,0.0,1.907435490373324,1.661769500553691,1.391972686718808,1.122175872883926
+forecast,forecast_steel_2,SK,Production|Steel|DRI_NG_CCS,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_2,SK,Production|Steel|Secondary steel_CCS,Mt/yr,0.0,0.0,0.0,0.0,0.0,0.0
+forecast,forecast_steel_2,AT,Production|Steel,Mt/yr,4.422249555253131,4.1055221291897634,3.788794703126395,3.472067277063026,3.108305914734044,2.7445445524050633
+forecast,forecast_steel_2,RER,Production|Steel|Supply from|AT,Mt/yr,4.422249555253131,4.1055221291897634,3.788794703126395,3.472067277063026,3.108305914734044,2.7445445524050633
+forecast,forecast_steel_2,BE,Production|Steel,Mt/yr,4.777285222569792,5.234052274925058,5.690819327280325,6.147586379635593,6.538596806685616,6.929607233735639
+forecast,forecast_steel_2,RER,Production|Steel|Supply from|BE,Mt/yr,4.777285222569792,5.234052274925058,5.690819327280325,6.147586379635593,6.538596806685616,6.929607233735639
+forecast,forecast_steel_2,BG,Production|Steel,Mt/yr,0.4440288089946939,0.6033216552885416,0.7626145015823894,0.9219073478762372,1.072902524391119,1.223897700906001
+forecast,forecast_steel_2,RER,Production|Steel|Supply from|BG,Mt/yr,0.4440288089946939,0.6033216552885416,0.7626145015823894,0.9219073478762372,1.072902524391119,1.223897700906001
+forecast,forecast_steel_2,CH,Production|Steel,Mt/yr,1.143,1.143,1.143,1.143,1.143,1.143
+forecast,forecast_steel_2,RER,Production|Steel|Supply from|CH,Mt/yr,1.143,1.143,1.143,1.143,1.143,1.143
+forecast,forecast_steel_2,CZ,Production|Steel,Mt/yr,3.221903929446129,3.0201220819019827,2.8183402343578368,2.616558386813691,2.3799670957873773,2.1433758047610656
+forecast,forecast_steel_2,RER,Production|Steel|Supply from|CZ,Mt/yr,3.221903929446129,3.0201220819019827,2.8183402343578368,2.616558386813691,2.3799670957873773,2.1433758047610656
+forecast,forecast_steel_2,DE,Production|Steel,Mt/yr,27.224093904899494,27.369068855576813,27.51404380625413,27.65901875693143,27.47525455954402,27.291490362156605
+forecast,forecast_steel_2,RER,Production|Steel|Supply from|DE,Mt/yr,27.224093904899494,27.369068855576813,27.51404380625413,27.65901875693143,27.47525455954402,27.291490362156605
+forecast,forecast_steel_2,ES,Production|Steel,Mt/yr,9.586612877576071,11.668134688807939,13.74965650003981,15.831178311271675,17.758951880409676,19.68672544954768
+forecast,forecast_steel_2,RER,Production|Steel|Supply from|ES,Mt/yr,9.586612877576071,11.668134688807939,13.74965650003981,15.831178311271675,17.758951880409676,19.68672544954768
+forecast,forecast_steel_2,FI,Production|Steel,Mt/yr,2.3834639913677713,2.534566282102404,2.685668572837036,2.836770863571668,2.9565026727141017,3.076234481856534
+forecast,forecast_steel_2,RER,Production|Steel|Supply from|FI,Mt/yr,2.3834639913677713,2.534566282102404,2.685668572837036,2.836770863571668,2.9565026727141017,3.076234481856534
+forecast,forecast_steel_2,FR,Production|Steel,Mt/yr,9.815842645856808,10.35799550817154,10.900148370486272,11.442301232801006,11.856759908100475,12.271218583399946
+forecast,forecast_steel_2,RER,Production|Steel|Supply from|FR,Mt/yr,9.815842645856808,10.35799550817154,10.900148370486272,11.442301232801006,11.856759908100475,12.271218583399946
+forecast,forecast_steel_2,GB,Production|Steel,Mt/yr,8.086079369914946,7.995118780469699,7.904158191024455,7.813197601579209,7.627102490524804,7.441007379470403
+forecast,forecast_steel_2,RER,Production|Steel|Supply from|GB,Mt/yr,8.086079369914946,7.995118780469699,7.904158191024455,7.813197601579209,7.627102490524804,7.441007379470403
+forecast,forecast_steel_2,GR,Production|Steel,Mt/yr,1.665108033730102,2.262456207332031,2.85980438093396,3.457152554535889,4.023384466466696,4.589616378397502
+forecast,forecast_steel_2,RER,Production|Steel|Supply from|GR,Mt/yr,1.665108033730102,2.262456207332031,2.85980438093396,3.457152554535889,4.023384466466696,4.589616378397502
+forecast,forecast_steel_2,HR,Production|Steel,Mt/yr,0.1554100831481428,0.2111625793509896,0.2669150755538363,0.322667571756683,0.3755158835368916,0.4283641953171003
+forecast,forecast_steel_2,RER,Production|Steel|Supply from|HR,Mt/yr,0.1554100831481428,0.2111625793509896,0.2669150755538363,0.322667571756683,0.3755158835368916,0.4283641953171003
+forecast,forecast_steel_2,HU,Production|Steel,Mt/yr,1.4545738124980883,1.561565124183036,1.668556435867983,1.7755477475529302,1.863117913008452,1.950688078463973
+forecast,forecast_steel_2,RER,Production|Steel|Supply from|HU,Mt/yr,1.4545738124980883,1.561565124183036,1.668556435867983,1.7755477475529302,1.863117913008452,1.950688078463973
+forecast,forecast_steel_2,IT,Production|Steel,Mt/yr,18.484738422976935,22.224803060219372,25.96486769746181,29.704932334704257,33.15365887719656,36.602385419688886
+forecast,forecast_steel_2,RER,Production|Steel|Supply from|IT,Mt/yr,18.484738422976935,22.224803060219372,25.96486769746181,29.704932334704257,33.15365887719656,36.602385419688886
+forecast,forecast_steel_2,LU,Production|Steel,Mt/yr,0.9990648202380612,1.357473724399219,1.715882628560376,2.074291532721534,2.414030679880018,2.753769827038502
+forecast,forecast_steel_2,RER,Production|Steel|Supply from|LU,Mt/yr,0.9990648202380612,1.357473724399219,1.715882628560376,2.074291532721534,2.414030679880018,2.753769827038502
+forecast,forecast_steel_2,LV,Production|Steel,Mt/yr,0.3996259280952245,0.5429894897596874,0.6863530514241505,0.8297166130886134,0.9656122719520073,1.101507930815401
+forecast,forecast_steel_2,RER,Production|Steel|Supply from|LV,Mt/yr,0.3996259280952245,0.5429894897596874,0.6863530514241505,0.8297166130886134,0.9656122719520073,1.101507930815401
+forecast,forecast_steel_2,NL,Production|Steel,Mt/yr,4.040703350359222,3.6801205979634957,3.319537845567769,2.958955093172044,2.556728143699741,2.1545011942274384
+forecast,forecast_steel_2,RER,Production|Steel|Supply from|NL,Mt/yr,4.040703350359222,3.6801205979634957,3.319537845567769,2.958955093172044,2.556728143699741,2.1545011942274384
+forecast,forecast_steel_2,NO,Production|Steel,Mt/yr,0.72,0.72,0.72,0.72,0.72,0.72
+forecast,forecast_steel_2,RER,Production|Steel|Supply from|NO,Mt/yr,0.72,0.72,0.72,0.72,0.72,0.72
+forecast,forecast_steel_2,PL,Production|Steel,Mt/yr,6.181417863307391,6.4882398635622405,6.795061863817091,7.10188386407194,7.328939045833177,7.5559942275944145
+forecast,forecast_steel_2,RER,Production|Steel|Supply from|PL,Mt/yr,6.181417863307391,6.4882398635622405,6.795061863817091,7.10188386407194,7.328939045833177,7.5559942275944145
+forecast,forecast_steel_2,PT,Production|Steel,Mt/yr,0.7992518561904489,1.085978979519375,1.372706102848301,1.659433226177227,1.9312245439040145,2.2030158616308015
+forecast,forecast_steel_2,RER,Production|Steel|Supply from|PT,Mt/yr,0.7992518561904489,1.085978979519375,1.372706102848301,1.659433226177227,1.9312245439040145,2.2030158616308015
+forecast,forecast_steel_2,RO,Production|Steel,Mt/yr,2.9478762323847763,3.200893671426826,3.453911110468875,3.7069285495109234,3.919909613259065,4.132890677007207
+forecast,forecast_steel_2,RER,Production|Steel|Supply from|RO,Mt/yr,2.9478762323847763,3.200893671426826,3.453911110468875,3.7069285495109234,3.919909613259065,4.132890677007207
+forecast,forecast_steel_2,SE,Production|Steel,Mt/yr,2.8122047674079607,2.8405628148645548,2.868920862321147,2.8972789097777394,2.891428372503222,2.885577835228705
+forecast,forecast_steel_2,RER,Production|Steel|Supply from|SE,Mt/yr,2.8122047674079607,2.8405628148645548,2.868920862321147,2.8972789097777394,2.891428372503222,2.885577835228705
+forecast,forecast_steel_2,SI,Production|Steel,Mt/yr,0.3285813186560735,0.4464580249135209,0.5643347311709682,0.6822114374284156,0.7939478680494281,0.9056842986704408
+forecast,forecast_steel_2,RER,Production|Steel|Supply from|SI,Mt/yr,0.3285813186560735,0.4464580249135209,0.5643347311709682,0.6822114374284156,0.7939478680494281,0.9056842986704408
+forecast,forecast_steel_2,SK,Production|Steel,Mt/yr,2.847236567097231,2.762456352034384,2.677676136971537,2.5928959219086907,2.475604236353838,2.358312550798987
+forecast,forecast_steel_2,RER,Production|Steel|Supply from|SK,Mt/yr,2.847236567097231,2.762456352034384,2.677676136971537,2.5928959219086907,2.475604236353838,2.358312550798987
+forecast,forecast_steel_2,RER,Production|Steel|BF/BOF,Mt/yr,69.5860636073652,60.26999096157827,19.51653313104706,14.45361790595221,12.10699880016563,9.760379694379052
+forecast,forecast_steel_2,RER,Production|Steel|BF/BOF_CCS,Mt/yr,0.0,0.0,31.74494615379365,29.837647249551445,24.756167694060366,19.673101159765803
+forecast,forecast_steel_2,RER,Production|Steel|DRI_NG,Mt/yr,0.0,2.1895256138374126,1.213822584783024,1.05748968217053,0.8858008006392415,0.0
+forecast,forecast_steel_2,RER,Production|Steel|DRI_NG_CCS,Mt/yr,0.0,0.0,2.857667673842423,2.857667673842423,2.6308949171321867,3.1198210583333843
+forecast,forecast_steel_2,RER,Production|Steel|Secondary steel,Mt/yr,45.35428975460328,60.95654617054679,76.52372231941752,92.1186512644315,99.84001730973996,110.92919201931629
+forecast,forecast_steel_2,RER,Production|Steel|Secondary steel_CCS,Mt/yr,0.0,0.0,0.03508026707278992,0.04240773800230691,7.110566246796963,10.810916091323772
+forecast,forecast_steel_2,RER,Production|Steel,Mt/yr,114.94035336196848,123.41606274596248,131.89177212995648,140.3674815139504,147.33044576853433,154.2934100231183
