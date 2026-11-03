@@ -1,0 +1,101 @@
+{
+  "results_file": "results_edges_european_steel_market_20261103_172121.gzip",
+  "results_sha256": "b78f36cfe3ebbc86bd34eb8c84f9912f168601a65fa9a30c246948f00318f50f",
+  "focus_year": 2050,
+  "methods": [
+    [
+      "AWARE 2.0",
+      "Country",
+      "unspecified",
+      "yearly"
+    ],
+    [
+      "ImpactWorld+ 2.1",
+      "Particulate matter formation",
+      "midpoint"
+    ],
+    [
+      "ImpactWorld+ 2.1",
+      "Terrestrial acidification",
+      "midpoint"
+    ],
+    [
+      "ImpactWorld+ 2.1",
+      "Land occupation, biodiversity",
+      "midpoint"
+    ]
+  ],
+  "units": {
+    "('AWARE 2.0', 'Country', 'unspecified', 'yearly')": "m3 deprived water-eq.",
+    "('ImpactWorld+ 2.1', 'Particulate matter formation', 'midpoint')": "kg PM2.5 eq",
+    "('ImpactWorld+ 2.1', 'Terrestrial acidification', 'midpoint')": "kg SO2 eq",
+    "('ImpactWorld+ 2.1', 'Land occupation, biodiversity', 'midpoint')": "m2 arable land eq .yr"
+  },
+  "scope_order": [
+    "RER-labelled activities",
+    "Other country-labelled activities",
+    "Aggregate / unresolved geography"
+  ],
+  "absolute_share_definition": "sum(abs(exported row contributions)) before geographic grouping",
+  "source_provenance": {
+    "created_utc": "2026-11-03T16:21:21.382545+00:00",
+    "versions": {
+      "pathways": "1.0.4",
+      "edges": "1.2.2"
+    },
+    "assessment_scope": "european_steel",
+    "steel_view": "market",
+    "datapackage": "remind-transience_steel_test.zip",
+    "datapackage_sha256": "833e4c3f0f9dd390b7f01ec26d54654eef3e6cfee61cf3121eca93e53ef27ad0",
+    "source_sha256": {
+      "scenario_data\\scenario_data_itom.csv": "f25674c7228320158fc2924991b013b107350ffd5db42c1d132f1286873dd377",
+      "configuration_file\\config_itom.yaml": "0dcafb35d147abf87902b66044b222b8a5229aa7d3ac142289a1c9b73608c326",
+      "inventories\\lci-itom.xlsx": "4c288b195671f04c0602c8c927092f40545e02b3ace5ae9921ee328aca346eb5"
+    },
+    "methods": [
+      [
+        "AWARE 2.0",
+        "Country",
+        "unspecified",
+        "yearly"
+      ],
+      [
+        "ImpactWorld+ 2.1",
+        "Particulate matter formation",
+        "midpoint"
+      ],
+      [
+        "ImpactWorld+ 2.1",
+        "Terrestrial acidification",
+        "midpoint"
+      ],
+      [
+        "ImpactWorld+ 2.1",
+        "Land occupation, biodiversity",
+        "midpoint"
+      ]
+    ],
+    "method_sha256": {
+      "('AWARE 2.0', 'Country', 'unspecified', 'yearly')": "327891d5459a8854e947cbbbcde2a29827692ef014181d227252024ac8340460",
+      "('ImpactWorld+ 2.1', 'Particulate matter formation', 'midpoint')": "a72714f48b45542b343f32d5b6220e96e7904e876d7555ff79a456b29627a6c0",
+      "('ImpactWorld+ 2.1', 'Terrestrial acidification', 'midpoint')": "7497f98c7711c3b493493a02e71b149b65234bcdb914948388fdc997f5bc265f",
+      "('ImpactWorld+ 2.1', 'Land occupation, biodiversity', 'midpoint')": "cd33f2a766cc0578845e8978a00ac8368b71244299fde3d6599c17e2248a0e97"
+    },
+    "scenarios": [
+      "SSP2-PkBudg1000 - NDC-EI - ITOM_Steel_Test-scenario"
+    ],
+    "years": [
+      2025,
+      2050
+    ],
+    "variables": [
+      "ASSESS - steel market"
+    ],
+    "demand_region": "RER",
+    "excluded_aliases": [
+      "FE_PBR"
+    ],
+    "exclude_standalone_ccs": true,
+    "characterization": "Static regional factors; prospective inventories"
+  }
+}

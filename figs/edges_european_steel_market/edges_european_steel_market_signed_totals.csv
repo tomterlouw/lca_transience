@@ -1,0 +1,9 @@
+scenario,year,method,net_total,positive_total,negative_total,absolute_total,unit
+SSP2-PkBudg1000 - NDC-EI - ITOM_Steel_Test-scenario,2025,AWARE 2.0 / Country / unspecified / yearly,57063967148430.87,57081790065161.68,-17822916730.80812,57099612981892.484,m3 deprived water-eq.
+SSP2-PkBudg1000 - NDC-EI - ITOM_Steel_Test-scenario,2025,"ImpactWorld+ 2.1 / Land occupation, biodiversity / midpoint",4481235424.567292,4481235424.567292,-3.3392934374205126e-20,4481235424.567292,m2 arable land eq .yr
+SSP2-PkBudg1000 - NDC-EI - ITOM_Steel_Test-scenario,2025,ImpactWorld+ 2.1 / Particulate matter formation / midpoint,97518066.13188995,97518066.13188995,-5.604019143126706e-24,97518066.13188995,kg PM2.5 eq
+SSP2-PkBudg1000 - NDC-EI - ITOM_Steel_Test-scenario,2025,ImpactWorld+ 2.1 / Terrestrial acidification / midpoint,509840223.87577474,509840223.87577474,-3.2339855344988e-23,509840223.87577474,kg SO2 eq
+SSP2-PkBudg1000 - NDC-EI - ITOM_Steel_Test-scenario,2050,AWARE 2.0 / Country / unspecified / yearly,33176659758796.055,33180412647640.996,-3752888844.9386888,33184165536485.938,m3 deprived water-eq.
+SSP2-PkBudg1000 - NDC-EI - ITOM_Steel_Test-scenario,2050,"ImpactWorld+ 2.1 / Land occupation, biodiversity / midpoint",2143319779.0112133,2143319779.0112133,0.0,2143319779.0112133,m2 arable land eq .yr
+SSP2-PkBudg1000 - NDC-EI - ITOM_Steel_Test-scenario,2050,ImpactWorld+ 2.1 / Particulate matter formation / midpoint,24255942.634523135,24255942.634523135,-4.716079516589458e-24,24255942.634523135,kg PM2.5 eq
+SSP2-PkBudg1000 - NDC-EI - ITOM_Steel_Test-scenario,2050,ImpactWorld+ 2.1 / Terrestrial acidification / midpoint,113375772.84130795,113375772.84130795,-2.3479789747973365e-23,113375772.84130795,kg SO2 eq

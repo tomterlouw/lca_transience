@@ -1,0 +1,246 @@
+location,scope,Water scarcity · AWARE 2.0 · exact CF location declared,Particulate matter · IMPACT World+ · exact CF location declared,Terrestrial acidification · IMPACT World+ · exact CF location declared,Land occupation and biodiversity · IMPACT World+ · exact CF location declared
+APAC,Aggregate / unresolved geography,False,False,False,False
+Asia without China,Aggregate / unresolved geography,False,False,False,False
+CAZ,Aggregate / unresolved geography,False,False,False,False
+CHA,Aggregate / unresolved geography,False,False,False,False
+Canada without Quebec,Aggregate / unresolved geography,False,False,False,False
+EUR,Aggregate / unresolved geography,False,False,False,False
+Europe without Austria,Aggregate / unresolved geography,False,False,False,False
+Europe without Switzerland,Aggregate / unresolved geography,False,False,False,False
+GLO,Aggregate / unresolved geography,False,False,False,False
+"IAI Area, Africa",Aggregate / unresolved geography,False,False,False,False
+"IAI Area, Asia, without China and GCC",Aggregate / unresolved geography,False,False,False,False
+"IAI Area, Gulf Cooperation Council",Aggregate / unresolved geography,False,False,False,False
+"IAI Area, Russia and Eastern Europe",Aggregate / unresolved geography,False,False,False,False
+"IAI Area, South America",Aggregate / unresolved geography,False,False,False,False
+"IAI Area, Western and Central Europe",Aggregate / unresolved geography,False,False,False,False
+IND,Aggregate / unresolved geography,False,False,False,False
+JPN,Aggregate / unresolved geography,False,False,False,False
+LAM,Aggregate / unresolved geography,False,False,False,False
+MEA,Aggregate / unresolved geography,False,False,False,False
+NEU,Aggregate / unresolved geography,False,False,False,False
+NORDEL,Aggregate / unresolved geography,False,False,False,False
+OAS,Aggregate / unresolved geography,False,False,False,False
+RAF,Aggregate / unresolved geography,False,False,False,False
+RAS,Aggregate / unresolved geography,False,False,False,False
+REF,Aggregate / unresolved geography,False,False,False,False
+RER w/o RU,Aggregate / unresolved geography,False,False,False,False
+RLA,Aggregate / unresolved geography,False,False,False,False
+RNA,Aggregate / unresolved geography,False,False,False,False
+RoE,Aggregate / unresolved geography,False,False,False,False
+RoW,Aggregate / unresolved geography,False,False,False,False
+SAS,Aggregate / unresolved geography,False,False,False,False
+SSA,Aggregate / unresolved geography,False,False,False,False
+UCTE,Aggregate / unresolved geography,False,False,False,False
+UCTE without Germany,Aggregate / unresolved geography,False,False,False,False
+UN-EASIA,Aggregate / unresolved geography,False,False,False,False
+UN-OCEANIA,Aggregate / unresolved geography,False,False,False,False
+UN-SAMERICA,Aggregate / unresolved geography,False,False,False,False
+UN-SEASIA,Aggregate / unresolved geography,False,False,False,False
+USA,Aggregate / unresolved geography,False,False,False,False
+WECC,Aggregate / unresolved geography,False,False,False,False
+WEU,Aggregate / unresolved geography,False,False,False,False
+World,Aggregate / unresolved geography,False,False,False,False
+AE,Other country-labelled activities,True,True,True,True
+AF,Other country-labelled activities,True,True,True,True
+AL,Other country-labelled activities,True,True,True,True
+AM,Other country-labelled activities,True,True,True,True
+AR,Other country-labelled activities,True,True,True,True
+AT,Other country-labelled activities,True,True,True,True
+AU,Other country-labelled activities,True,True,True,True
+AU-NSW,Other country-labelled activities,True,True,True,False
+AU-QLD,Other country-labelled activities,True,True,True,False
+AU-SA,Other country-labelled activities,True,True,True,False
+AU-TAS,Other country-labelled activities,True,True,True,False
+AU-VIC,Other country-labelled activities,True,True,True,False
+AU-WA,Other country-labelled activities,True,True,True,False
+AZ,Other country-labelled activities,True,True,True,True
+BA,Other country-labelled activities,True,True,True,True
+BD,Other country-labelled activities,True,True,True,True
+BE,Other country-labelled activities,True,True,True,True
+BG,Other country-labelled activities,True,True,True,True
+BI,Other country-labelled activities,True,True,True,True
+BN,Other country-labelled activities,True,True,True,True
+BO,Other country-labelled activities,True,True,True,True
+BR,Other country-labelled activities,True,True,True,True
+BR-BA,Other country-labelled activities,True,True,True,False
+BR-GO,Other country-labelled activities,True,True,True,False
+BR-MA,Other country-labelled activities,True,True,True,False
+BR-MG,Other country-labelled activities,True,True,True,False
+BR-MS,Other country-labelled activities,True,True,True,False
+BR-MT,Other country-labelled activities,True,True,True,False
+BR-PI,Other country-labelled activities,True,True,True,False
+BR-PR,Other country-labelled activities,True,True,True,False
+BR-RS,Other country-labelled activities,True,True,True,False
+BR-SP,Other country-labelled activities,True,True,True,False
+BR-South-eastern/Mid-western grid,Other country-labelled activities,False,False,False,False
+BR-TO,Other country-labelled activities,True,True,True,False
+BY,Other country-labelled activities,True,True,True,True
+CA,Other country-labelled activities,True,True,True,True
+CA-AB,Other country-labelled activities,True,True,True,False
+CA-NB,Other country-labelled activities,True,True,True,False
+CA-NS,Other country-labelled activities,True,True,True,False
+CA-ON,Other country-labelled activities,True,True,True,False
+CA-PE,Other country-labelled activities,True,True,True,False
+CA-QC,Other country-labelled activities,True,True,True,False
+CA-SK,Other country-labelled activities,True,True,True,False
+CD,Other country-labelled activities,True,True,True,True
+CH,Other country-labelled activities,True,True,True,True
+CL,Other country-labelled activities,True,True,True,True
+CM,Other country-labelled activities,True,True,True,True
+CN,Other country-labelled activities,True,True,True,True
+CN-FJ,Other country-labelled activities,True,True,True,False
+CN-NM,Other country-labelled activities,True,True,True,False
+CN-SC,Other country-labelled activities,True,True,True,False
+CO,Other country-labelled activities,True,True,True,True
+CR,Other country-labelled activities,True,True,True,True
+CU,Other country-labelled activities,True,True,True,True
+CY,Other country-labelled activities,True,True,True,True
+CZ,Other country-labelled activities,True,True,True,True
+DE,Other country-labelled activities,True,True,True,True
+DK,Other country-labelled activities,True,True,True,True
+DO,Other country-labelled activities,True,True,True,True
+DZ,Other country-labelled activities,True,True,True,True
+EC,Other country-labelled activities,True,True,True,True
+EE,Other country-labelled activities,True,True,True,True
+EG,Other country-labelled activities,True,True,True,True
+ES,Other country-labelled activities,True,True,True,True
+ET,Other country-labelled activities,True,True,True,True
+FI,Other country-labelled activities,True,True,True,True
+FR,Other country-labelled activities,True,True,True,True
+GB,Other country-labelled activities,True,True,True,True
+GE,Other country-labelled activities,True,True,True,True
+GH,Other country-labelled activities,True,True,True,True
+GQ,Other country-labelled activities,True,True,True,True
+GR,Other country-labelled activities,True,True,True,True
+GT,Other country-labelled activities,True,True,True,True
+HN,Other country-labelled activities,True,True,True,True
+HR,Other country-labelled activities,True,True,True,True
+HU,Other country-labelled activities,True,True,True,True
+ID,Other country-labelled activities,True,True,True,True
+IE,Other country-labelled activities,True,True,True,True
+IL,Other country-labelled activities,True,True,True,True
+IN,Other country-labelled activities,True,True,True,True
+IN-AP,Other country-labelled activities,True,True,True,False
+IN-AR,Other country-labelled activities,True,True,True,False
+IN-AS,Other country-labelled activities,True,True,True,False
+IN-BR,Other country-labelled activities,True,True,True,False
+IN-CT,Other country-labelled activities,True,True,True,False
+IN-DL,Other country-labelled activities,True,True,True,False
+IN-GA,Other country-labelled activities,True,True,True,False
+IN-GJ,Other country-labelled activities,True,True,True,False
+IN-HP,Other country-labelled activities,True,True,True,False
+IN-HR,Other country-labelled activities,True,True,True,False
+IN-JH,Other country-labelled activities,True,True,True,False
+IN-JK,Other country-labelled activities,True,True,True,False
+IN-KA,Other country-labelled activities,True,True,True,False
+IN-KL,Other country-labelled activities,True,True,True,False
+IN-MH,Other country-labelled activities,True,True,True,False
+IN-ML,Other country-labelled activities,True,True,True,False
+IN-MN,Other country-labelled activities,True,True,True,False
+IN-MP,Other country-labelled activities,True,True,True,False
+IN-MZ,Other country-labelled activities,True,True,True,False
+IN-NL,Other country-labelled activities,True,True,True,False
+IN-OR,Other country-labelled activities,True,True,True,False
+IN-PB,Other country-labelled activities,True,True,True,False
+IN-RJ,Other country-labelled activities,True,True,True,False
+IN-SK,Other country-labelled activities,True,True,True,False
+IN-TN,Other country-labelled activities,True,True,True,False
+IN-TR,Other country-labelled activities,True,True,True,False
+IN-UP,Other country-labelled activities,True,True,True,False
+IN-UT,Other country-labelled activities,True,True,True,False
+IN-WB,Other country-labelled activities,True,True,True,False
+IQ,Other country-labelled activities,True,True,True,True
+IR,Other country-labelled activities,True,True,True,True
+IS,Other country-labelled activities,True,True,True,False
+IT,Other country-labelled activities,True,True,True,True
+JO,Other country-labelled activities,True,True,True,True
+JP,Other country-labelled activities,True,True,True,True
+KE,Other country-labelled activities,True,True,True,True
+KG,Other country-labelled activities,True,True,True,True
+KP,Other country-labelled activities,True,True,True,True
+KR,Other country-labelled activities,True,True,True,True
+KW,Other country-labelled activities,True,True,True,True
+KZ,Other country-labelled activities,True,True,True,True
+LA,Other country-labelled activities,True,True,True,True
+LB,Other country-labelled activities,True,True,True,True
+LK,Other country-labelled activities,True,True,True,True
+LT,Other country-labelled activities,True,True,True,True
+LU,Other country-labelled activities,True,True,True,True
+LV,Other country-labelled activities,True,True,True,True
+LY,Other country-labelled activities,True,True,True,True
+MA,Other country-labelled activities,True,True,True,True
+MG,Other country-labelled activities,True,True,True,True
+MK,Other country-labelled activities,True,True,True,True
+MM,Other country-labelled activities,True,True,True,True
+MT,Other country-labelled activities,True,True,True,True
+MX,Other country-labelled activities,True,True,True,True
+MY,Other country-labelled activities,True,True,True,True
+MZ,Other country-labelled activities,True,True,True,True
+NG,Other country-labelled activities,True,True,True,True
+NI,Other country-labelled activities,True,True,True,True
+NL,Other country-labelled activities,True,True,True,True
+NO,Other country-labelled activities,True,True,True,True
+NZ,Other country-labelled activities,True,True,True,True
+OM,Other country-labelled activities,True,True,True,True
+PE,Other country-labelled activities,True,True,True,True
+PG,Other country-labelled activities,True,True,True,True
+PH,Other country-labelled activities,True,True,True,True
+PK,Other country-labelled activities,True,True,True,True
+PL,Other country-labelled activities,True,True,True,True
+PT,Other country-labelled activities,True,True,True,True
+QA,Other country-labelled activities,True,True,True,True
+RO,Other country-labelled activities,True,True,True,True
+RS,Other country-labelled activities,True,True,True,True
+RU,Other country-labelled activities,True,True,True,True
+RW,Other country-labelled activities,True,True,True,True
+SA,Other country-labelled activities,True,True,True,True
+SD,Other country-labelled activities,True,True,True,True
+SE,Other country-labelled activities,True,True,True,True
+SG,Other country-labelled activities,True,True,True,True
+SI,Other country-labelled activities,True,True,True,True
+SK,Other country-labelled activities,True,True,True,True
+SL,Other country-labelled activities,True,True,True,True
+SN,Other country-labelled activities,True,True,True,True
+SV,Other country-labelled activities,True,True,True,True
+TH,Other country-labelled activities,True,True,True,True
+TJ,Other country-labelled activities,True,True,True,True
+TM,Other country-labelled activities,True,True,True,True
+TN,Other country-labelled activities,True,True,True,True
+TR,Other country-labelled activities,True,True,True,True
+TT,Other country-labelled activities,True,True,True,True
+TW,Other country-labelled activities,True,True,True,True
+TZ,Other country-labelled activities,True,True,True,True
+UA,Other country-labelled activities,True,True,True,True
+UG,Other country-labelled activities,True,True,True,True
+US,Other country-labelled activities,True,True,True,True
+US-ASCC,Other country-labelled activities,False,True,True,False
+US-CO,Other country-labelled activities,True,True,True,False
+US-HICC,Other country-labelled activities,False,True,True,False
+US-IA,Other country-labelled activities,True,True,True,False
+US-ID,Other country-labelled activities,True,True,True,False
+US-IL,Other country-labelled activities,True,True,True,False
+US-IN,Other country-labelled activities,True,True,True,False
+US-LA,Other country-labelled activities,False,False,False,False
+US-MN,Other country-labelled activities,True,True,True,False
+US-MRO,Other country-labelled activities,False,True,True,False
+US-ND,Other country-labelled activities,True,True,True,False
+US-NE,Other country-labelled activities,True,True,True,False
+US-NPCC,Other country-labelled activities,False,True,True,False
+US-OH,Other country-labelled activities,True,True,True,False
+US-OR,Other country-labelled activities,True,True,True,False
+US-RFC,Other country-labelled activities,False,True,True,False
+US-SD,Other country-labelled activities,True,True,True,False
+US-SERC,Other country-labelled activities,False,True,True,False
+US-TRE,Other country-labelled activities,False,True,True,False
+US-WA,Other country-labelled activities,True,True,True,False
+US-WECC,Other country-labelled activities,False,True,True,False
+US-WI,Other country-labelled activities,True,True,True,False
+UY,Other country-labelled activities,True,True,True,True
+UZ,Other country-labelled activities,True,True,True,True
+VE,Other country-labelled activities,True,True,True,True
+VN,Other country-labelled activities,True,True,True,True
+ZA,Other country-labelled activities,True,True,True,True
+ZM,Other country-labelled activities,True,True,True,True
+ZW,Other country-labelled activities,True,True,True,True
+RER,RER-labelled activities,False,False,False,False
