@@ -471,10 +471,58 @@ SCENARIO_INPUTS = {
 }
 
 
-def main():
+def complete_absent_pathways(iamc, config_path):
+    """Complete a missing scenario row only when another scenario supplies it.
+
+    Preserve existing rows. Unknown variables and classification mismatches
+    are errors, rather than assumed zero production.
+    """
+    import yaml
+
+    config = yaml.safe_load(Path(config_path).read_text(encoding="utf-8"))
+    required = {item["production volume"]["variable"]
+                for item in config["production pathways"].values()}
+    metadata = ["model", "scenario", "region"]
+    years = [column for column in iamc if str(column).isdigit()]
+    additions, audit = [], []
+    for context, group in iamc.groupby(metadata, sort=False):
+        for variable in sorted(required - set(group["variables"])):
+            suffix = variable.split("|", 1)[-1]
+            if group["variables"].str.split("|", n=1).str[-1].eq(suffix).any():
+                raise ValueError(f"Classification mismatch for {variable}, {context}")
+            evidence = iamc.loc[iamc["variables"].eq(variable)
+                                & iamc["model"].eq(context[0])
+                                & iamc["region"].eq(context[2])]
+            if evidence.empty or evidence["unit"].isna().any() or evidence["unit"].nunique() != 1:
+                raise ValueError(f"No consistent source evidence for absent pathway: {variable}, {context}")
+            row = {**dict(zip(metadata, context)), "variables": variable,
+                   "unit": evidence["unit"].iloc[0], **{year: 0.0 for year in years}}
+            additions.append(row)
+            audit.append({**dict(zip(metadata, context)), "variable": variable,
+                          "unit": row["unit"],
+                          "reason": "Absent in this source scenario; present in the other"})
+    if additions:
+        iamc = pd.concat([iamc, pd.DataFrame(additions)], ignore_index=True)
+    return iamc, audit
+
+
+def main(config_path=None, output_tag=None, complete_absent=False):
+    """Use optional PoR mappings and tagged outputs; preserve no-argument behaviour."""
     # Resolve paths relative to this script.
     base_dir = Path(__file__).resolve().parent
     data_dir = base_dir / "scenario_data"
+    config_path = (base_dir / "configuration_file/config_itom_por.yaml"
+                   if config_path is None else Path(config_path).expanduser())
+    if not config_path.is_absolute():
+        config_path = base_dir / config_path
+    config_path = config_path.resolve(strict=True)
+    if output_tag is not None and not re.fullmatch(r"[A-Za-z0-9_-]+", output_tag):
+        raise ValueError("output_tag must contain only letters, digits, underscores or hyphens.")
+    if complete_absent and not output_tag:
+        raise ValueError("Absent-pathway completion requires a separate output tag.")
+
+    def output_path(stem, suffix):
+        return data_dir / f"{stem}{'_' + output_tag if output_tag else ''}{suffix}"
 
     # Check both inputs before starting.
     for scenario, filename in SCENARIO_INPUTS.items():
@@ -589,7 +637,7 @@ def main():
     mode_detail = mode_detail[metadata_columns + year_columns]
     combined = add_mode_aware_rows(
         combined, mode_detail,
-        base_dir / "configuration_file" / "config_itom_por.yaml",
+        config_path,
     )
 
     # Sum annualized storage flows while retaining the detailed technology rows.
@@ -598,8 +646,12 @@ def main():
     # Add missing final-product/storage pathways independently per scenario/region.
     combined = ensure_required_fe_variables(
         combined,
-        base_dir / "configuration_file" / "config_itom_por.yaml",
+        config_path,
     )
+
+    zero_rows = []
+    if complete_absent:
+        combined, zero_rows = complete_absent_pathways(combined, config_path)
 
     combined = combined[metadata_columns + year_columns].sort_values(
         ["scenario", "region", "variables", "unit"]
@@ -610,25 +662,37 @@ def main():
 
     # Write one CSV per scenario.
     for scenario in SCENARIO_INPUTS:
-        output = data_dir / f"scenario_data_itom_por_{scenario}.csv"
+        output = output_path(f"scenario_data_itom_por_{scenario}", ".csv")
         scenario_data = combined.loc[combined["scenario"] == scenario]
         scenario_data.to_csv(output, index=False)
         print(f"Wrote {output.name}: {len(scenario_data)} rows")
 
     # Write the combined CSV.
-    output = data_dir / "scenario_data_itom_por.csv"
+    output = output_path("scenario_data_itom_por", ".csv")
     combined.to_csv(output, index=False)
     print(f"Wrote {output.name}: {len(combined)} rows (CL + OCE)")
 
-    audit_path = data_dir / "p_xylene_terminal_purity_audit.json"
-    audit_path.write_text(json.dumps({
+    audit_path = output_path("p_xylene_terminal_purity_audit", ".json")
+    audit_data = {
         "schema_version": 1,
         "source_sha256": {filename: hashlib.sha256((data_dir / filename).read_bytes()).hexdigest()
                           for filename in SCENARIO_INPUTS.values()},
         "records": px_purity_audit,
-    }, indent=2), encoding="utf-8")
+    }
+    if complete_absent:
+        audit_data["explicit_zero_pathways"] = zero_rows
+    audit_path.write_text(json.dumps(audit_data, indent=2), encoding="utf-8")
     print(f"Wrote {audit_path.name}: {len(px_purity_audit)} scenario-year balances")
 
 
 if __name__ == "__main__":
-    main()
+    import argparse
+
+    parser = argparse.ArgumentParser(description="Convert ITOM production and trade to IAMC CSVs.")
+    parser.add_argument("--config", type=Path, help="PoR YAML used for mode and final-product mappings.")
+    parser.add_argument("--output-tag", help="Write tagged CSVs and audit without replacing default outputs.")
+    parser.add_argument("--complete-absent", action="store_true",
+                        help="Add evidenced absent-scenario pathways as zeros; requires --output-tag.")
+    arguments = parser.parse_args()
+    main(config_path=arguments.config, output_tag=arguments.output_tag,
+         complete_absent=arguments.complete_absent)
