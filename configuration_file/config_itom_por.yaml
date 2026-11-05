@@ -1123,5 +1123,9 @@ markets:
       - name: market for methanol (SPS)
         product: methanol
 
+      # Current FORECAST name; retain SPS for older scenario packages.
+      - name: market for methanol (Forecast)
+        product: methanol
+
     replaces in:
       - location: NL
