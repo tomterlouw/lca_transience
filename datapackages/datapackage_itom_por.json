@@ -102,7 +102,7 @@
             }
         },
         {
-            "path": "configuration_file/config_itom_por.yaml",
+            "path": "configuration_file/config_itom_por-rebuild.yaml",
             "profile": "data-resource",
             "name": "config",
             "format": "yaml",

@@ -1,0 +1,85 @@
+# Post-import transformation, not a premise external-scenario configuration.
+schema_version: 1
+# This is an explicit homogeneous-feedstock-mixing assumption. DAC and biomass
+# remain separate in the audit, but use the existing non-fossil release flow.
+unknown_origin: retain_fossil
+balance_relative_tolerance: 0.005
+# An incomplete screening recipe may retain a positive residual up to this
+# limit. This is an acceptance bound, not a claim of physical closure.
+maximum_positive_residual_fraction: 0.05
+nonfossil_flow: Carbon dioxide, non-fossil
+source_origins:
+  - name: methanol, DAC-based, imported outside EU (por)
+    product: methanol
+    origin: dac
+    evidence: Explicit DAC methanol terminal; uptake is already in its upstream inventory.
+  - name: methanol production, from coal gasification
+    product: methanol
+    origin: fossil
+    evidence: Explicit coal-based feedstock route.
+# Joint material yields, kg per kg external methanol, from the inv2026-11-05a
+# workbook comments. These reconstruct the process BEFORE mass allocation.
+# Positive syngas CO2 make-up in the actual recipe is an external carbon input.
+# Internal recycle is already embedded and is not added a second time.
+processes:
+  ethylene_oxide:
+    name_fragment: ethylene oxide production, ethylene oxidation
+    activation: regionalized
+    basis: reference_product
+    reference_product: ethylene oxide
+    allowed_carbon_inputs: [ethylene]
+    yields: {ethylene oxide: 1.0}
+    # These carbon-bearing releases participate in the physical balance only;
+    # this correction changes CO2 origin labels, not CO/CH4 or VOC exchanges.
+    biosphere_carbon_formulas:
+      Carbon monoxide, fossil: CO
+      Carbon monoxide, non-fossil: CO
+      Methane, fossil: CH4
+      Methane, non-fossil: CH4
+      Ethylene: C2H4
+      Ethylene oxide: C2H4O
+    # DOC/TOC may overlap. Bound their physical C between max and sum rather
+    # than treating both measurements as independent material outflows.
+    organic_carbon_indicators: ["DOC, Dissolved Organic Carbon", "TOC, Total Organic Carbon"]
+    unresolved_carbon_emissions: ["NMVOC, non-methane volatile organic compounds"]
+  methanol_syngas:
+    name_fragment: methanol production, from syngas, stage-based (por)
+    basis: reference_product
+    reference_product: methanol
+    allowed_carbon_inputs:
+      - syngas, CO component (por)
+      - syngas, CO2 component (por)
+    yields: {methanol: 1.0}
+    # The current recipe has an 8.1% positive carbon residual. Do not relax the
+    # global acceptance bound or invent a missing CO2 stream. Audit this recipe,
+    # retain its fossil emission label, and propagate UNKNOWN methanol origin.
+    on_positive_balance_failure: retain_fossil_and_unknown_output
+  MTO_1:
+    name_fragment: MTO with loop, mode 1, stage-based, mass allocation (por)
+    yields: {ethane: 0.0033, ethylene: 0.1924, propane: 0.0017, propylene: 0.1942}
+  MTO_2:
+    name_fragment: MTO with loop, mode 2, stage-based, mass allocation (por)
+    yields: {ethane: 0.0031, ethylene: 0.1849, propane: 0.0016, propylene: 0.1866}
+  MTA_1:
+    name_fragment: MTA retrofit, mode 1, stage-based, mass allocation (por)
+    yields: {butadiene: 0.0039, hydrogen: 0.0078, ethylene: 0.0766, methane: 0.0562, propylene: 0.0244, benzene: 0.0542, p-xylene: 0.0270, toluene: 0.1274}
+  MTA_2:
+    name_fragment: MTA retrofit, mode 2, stage-based, mass allocation (por)
+    yields: {butadiene: 0.0036, hydrogen: 0.0072, ethylene: 0.0698, methane: 0.0512, propylene: 0.0222, benzene: 0.0494, p-xylene: 0.0246, toluene: 0.1162}
+carbon_formulas:
+  ethylene oxide: C2H4O
+  methanol: CH4O
+  ethane: C2H6
+  ethylene: C2H4
+  propane: C3H8
+  propylene: C3H6
+  butadiene: C4H6
+  hydrogen: H2
+  methane: CH4
+  benzene: C6H6
+  p-xylene: C8H10
+  toluene: C7H8
+  syngas, CO component (por): CO
+  syngas, CO2 component (por): CO2
+  carbon monoxide: CO
+  carbon dioxide, liquid: CO2

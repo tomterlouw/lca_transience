@@ -17,7 +17,7 @@ from typing import Any, MutableMapping
 import unittest
 from unittest.mock import patch
 
-from por_supplier_linking import apply_por_supplier_linking, _graph_baseline
+from por_supplier_linking import apply_por_supplier_linking, _graph_baseline, _columnar_supplier_graph
 import tests.test_por_inventory_store as native_fixtures
 from tests.test_por_supplier_linking import activity, policy
 
@@ -164,6 +164,54 @@ class NativeLinkingPerformanceTest(unittest.TestCase):
         self.assertEqual(reports[0]["native_validation_new_cycles"], 0)
         self.assertFalse(self.validation.ValidationReport.from_dict(builder.scenarios[0]["_validation_report"]).errors)
         self.assertEqual(self.validation.inventory_cycle_signatures(linked), expected_cycles)
+
+    def test_columnar_baseline_matches_original_with_cold_hashes_and_sparse_changes(self):
+        data = self.valid_database()
+        # Same semantic identity is ambiguous, but an explicit code still resolves.
+        duplicate = deepcopy(data[1])
+        data[1].update(database="test", code="first")
+        duplicate.update(database="test", code="second")
+        data.append(duplicate)
+        data[0]["exchanges"].extend([
+            {"name": "missing", "product": "missing", "location": "XX", "type": "technosphere",
+             "amount": 0, "input": ["test", "second"], "metadata": {"nested": [1, None]}},
+            {"name": data[1]["name"], "product": data[1]["reference product"],
+             "location": data[1]["location"], "type": "technosphere", "amount": -1,
+             "input": ("stale", "address")},
+            {"name": data[2]["name"], "reference product": data[2]["reference product"],
+             "location": data[2]["location"], "type": "technosphere", "amount": .1},
+        ])
+        with tempfile.TemporaryDirectory(ignore_cleanup_errors=True) as directory:
+            source = self.api.create_inventory_store(data, backend="compact")
+            path = source.checkpoint(Path(directory) / "source.inventory-store")
+            columnar = self.api.InventoryStore.open(path)
+            self.assertIsNotNone(_columnar_supplier_graph(columnar, {}, {}))
+            staged = columnar.fork()
+            ids = staged._state.activity_exchanges[0]
+            # An override, a deleted row and a newly appended self-edge must all
+            # agree with the old reader; cycles and zero demands are not filtered.
+            with staged.transaction("test sparse edits") as transaction:
+                transaction.patch_exchange(ids[-1], {"input": ("test", "first")}, activity_id=0)
+                transaction.remove_exchange(ids[-2])
+                transaction.add_exchange(0, {"name": data[0]["name"], "product": data[0]["reference product"],
+                                            "location": data[0]["location"], "type": "technosphere", "amount": 0})
+            for candidate in (columnar, staged):
+                candidate._state.activity_fingerprints.clear()
+                with patch("por_supplier_linking._columnar_supplier_graph", return_value=None):
+                    expected = _graph_baseline(candidate, self.validation)
+                candidate._state.activity_fingerprints.clear()
+                actual = _graph_baseline(candidate, self.validation)
+                self.assertEqual(actual, expected)
+                self.assertEqual(len(candidate._state.activity_fingerprints), len(data))
+            del candidate, columnar, staged, source, transaction
+            gc.collect()
+
+    def test_unknown_store_layout_uses_original_graph_reader(self):
+        store = self.api.create_inventory_store(self.valid_database(), backend="compact")
+        self.assertIsNone(_columnar_supplier_graph(store, {}, {}))
+        actual = _graph_baseline(store, self.validation)
+        expected = self.validation.inventory_baseline_snapshot(store)
+        self.assertEqual(actual[:2], tuple(expected))
 
     def test_linked_persisted_scenario_remains_sparse_and_reloads_with_stable_ids(self):
         api = self.api

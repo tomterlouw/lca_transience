@@ -900,7 +900,9 @@ The current scenario-to-file mapping is defined in `SCENARIO_INPUTS`. The conver
 - uses `kt/yr` for material flows;
 - aggregates selected stored-CO2 flows into gasification and waste-pyrolysis CCS variables while retaining the detailed rows;
 - adds required final-product and storage variables with zero values when a pathway is absent from one scenario;
-- verifies that both scenarios exist before exporting.
+- verifies that both scenarios exist before exporting;
+- reads the active PoR descriptor's YAML, adds its required operating-mode rows and reconciles their sums to the original totals;
+- records evidenced absent-scenario pathways completed with zeros in the conversion audit.
 
 Do not silently change units or annualization. Installed capacities and process coefficients are conceptually different from five-year production totals and should not be divided by five unless the source definition explicitly requires it.
 
@@ -1055,6 +1057,8 @@ The reusable **inventory supplier compatibility adapter** runs before PoR invent
 Supplier checks also distinguish an invalid new self-link from an inherited electricity-market loss exchange. Verified, unchanged self-consuming loss exchanges in standard electricity markets retain their original amounts and uncertainty and are reported separately. Newly introduced self-links and non-electricity self-supply remain forbidden. This is included in the same linker for both export routes and supported premise versions, without another adapter file. See [inherited electricity losses](docs/por_supplier_linking.md#inherited-electricity-loss-self-inputs-policy-version-6).
 
 CSV/JSON change reports are saved under `export/por_supplier_linking/`. A scoped export guard prevents later geographic preparation from undoing validated links; where an old manually added pre-market hook is present, it is disabled in memory. No installed package file needs editing. The technical policy history includes domestic market-supply completion in version 2, embedded-input regionalization in version 3, compatibility decisions in version 4 and inherited electricity-loss handling in version 6. For current selection rules, cache transactions and limitations, see [post-update supplier linking](docs/por_supplier_linking.md).
+
+For supported premise columnar stores, baseline validation reads supplier columns directly and decodes missing activity fingerprints through premise's fast row reader. Supplier choices, quantities, uncertainty, native hashes and whole-network cycle checks are retained. Older or unsupported stores use the original reader. An isolated 2050 OCE benchmark with 40,048 activities and 463 supplier changes took 21.7 seconds instead of 43.7 seconds, with identical inventories, audits and validation outcomes; timings depend on the inventory and machine. Each run records its own breakdown in the JSON report's `phase_seconds` field.
 
 After a linking-policy change, restart the notebook kernel and rebuild the Brightway databases and Pathways ZIP through Step 4. The export guard rejects old validation tags without the current `linking_policy_version`; version 2 tags, for example, cannot certify version 3 regionalization. Existing databases, matrices, results and figures are not repaired retroactively by changing Python source. Select the rebuilt package and recalculate Step 5.
 
@@ -1497,6 +1501,119 @@ Do not assume renewable steam merely to close a data gap. Recommended sensitivit
 - biomass or waste heat where availability and allocation are supported;
 - a documented mixed supply.
 
+### Waste-derived feedstocks and the current PoR flow network
+
+The active PoR setup now connects waste-plastic gasification and pyrolysis to chemical production through three syngas component markets. Their conversion burdens enter the upstream supply chains of the assessed polymers through these markets. The connections are defined in [the active PoR YAML](configuration_file/config_itom_por-rebuild.yaml), selected by [the PoR datapackage descriptor](datapackages/datapackage_itom_por.json), and use the corresponding activities in [the inventory workbook](inventories/lci-itom_por.xlsx).
+
+The schematic distinguishes conversion processes from the PoR markets they supply. Dark blue boxes are markets whose supplier shares are recalculated from ITOM production volumes for each CL/OCE scenario and modelled year. Teal boxes are conversion processes. The three aromatic upgrading activities also mix their raw suppliers using those volumes, then add purification inputs. Grey boxes identify inputs or outputs, and dashed arrows identify pending downstream connections. Background electricity, heat and oxygen inputs are omitted except where they explain the upgrading step.
+
+```mermaid
+flowchart TB
+    subgraph Supply["1. Waste conversion and syngas supply"]
+        direction TB
+        Waste["Waste plastics"] --> Gas["Plastic-waste gasification<br/>FB technology-specific inventories<br/>11 suppliers per component"]
+        Waste --> Pyro["Plastic-waste pyrolysis<br/>5_2, 7_2, 9_2 and 14_2<br/>oil production and gas conversion to syngas"]
+        HFO["Cracker heavy fuel oil"] --> HFOGas["Cracker-HFO gasification<br/>separate mode 1 and mode 2 inventories"]
+        Gas --> Components["Component outputs<br/>CO, H2 and CO2"]
+        Pyro --> Components
+        HFOGas --> Components
+        Components --> CO["market for syngas, CO component (por)<br/>17 production-weighted suppliers"]
+        Components --> H2["market for syngas, H2 component (por)<br/>18 production-weighted suppliers"]
+        Components --> CO2["market for syngas, CO2 component (por)<br/>18 production-weighted suppliers"]
+        AddH2["Additional hydrogen<br/>provisional RER hydrogen supply"] --> H2
+        AddCO2["Additional CO2<br/>provisional RER liquid-CO2 supply"] --> CO2
+        Pyro -.-> Oil["Hydrogenated pyrolysis oil<br/>downstream feedstock link pending"]
+    end
+
+    subgraph MethanolChain["2. Methanol production and supply mix"]
+        direction TB
+        Synthesis["methanol production, from syngas,<br/>stage-based (por)<br/>synthesis plus fresh hydrogen requirement"]
+        GSR["methanol production, from methane GSR (por)"]
+        DAC["methanol, DAC-based,<br/>imported outside EU (por)<br/>Morocco supply assumption"]
+        EU["methanol, imported from EU (por)"]
+        Methanol["market for methanol (por)<br/>4 production-weighted pathways"]
+        Synthesis --> Methanol
+        GSR --> Methanol
+        DAC --> Methanol
+        EU --> Methanol
+    end
+    CO --> Synthesis
+    H2 --> Synthesis
+    CO2 --> Synthesis
+
+    subgraph Conversion["3. Olefin and aromatic conversion"]
+        direction TB
+        MTO["MTO with loop, mode 2<br/>stage-based ethylene and propylene inventories<br/>internal HFO gasification and methanol loop"]
+        MTA["MTA retrofit, modes 1 and 2<br/>stage-based olefin and raw-aromatic inventories<br/>internal cracking, gasification and methanol loop"]
+        Other["Other configured production routes<br/>FT distillation, steam cracking, refinery routes<br/>and selected intermediate imports"]
+        Ethylene["market for ethylene (por)<br/>7 production-weighted pathways"]
+        Propylene["market for propylene (por)<br/>10 production-weighted pathways"]
+        Raw["Raw benzene, raw toluene and raw p-xylene<br/>from MTA, other domestic routes and raw EU imports"]
+        BenzUpgrade["benzene production,<br/>from raw benzene upgrading (por)<br/>7 raw suppliers plus electricity and steam"]
+        TolUpgrade["toluene production,<br/>from raw toluene upgrading (por)<br/>6 raw suppliers plus electricity and steam"]
+        PXUpgrade["p-xylene production,<br/>from raw p-xylene upgrading (por)<br/>6 raw suppliers plus electricity and HT heat"]
+        MTO --> Ethylene
+        MTO --> Propylene
+        MTA --> Ethylene
+        MTA --> Propylene
+        Other --> Ethylene
+        Other --> Propylene
+        MTA --> Raw
+        Other --> Raw
+        Raw --> BenzUpgrade
+        Raw --> TolUpgrade
+        Raw --> PXUpgrade
+    end
+    Methanol --> MTO
+    Methanol --> MTA
+    H2 --> External["External component inputs<br/>where required by MTO or MTA inventories"]
+    CO2 --> External
+    External --> MTO
+    External --> MTA
+
+    subgraph Products["4. Purified aromatics and assessed polymer production"]
+        direction TB
+        Benzene["market for benzene (por)<br/>4 production-weighted pathways"]
+        Toluene["market for toluene (por)<br/>1 upgrading pathway"]
+        PX["market for p-xylene (por)<br/>3 production-weighted pathways"]
+        PureImports["Purified terminal and EU imports<br/>benzene and p-xylene"]
+        HDA["Benzene from toluene hydrodealkylation"]
+        Downstream["Downstream chemical intermediates<br/>then PET, PVC, polyols, MDI, PP, nylon 6,6,<br/>PLA, PBS and PMMA production"]
+        PureImports --> Benzene
+        PureImports --> PX
+        HDA --> Benzene
+        Benzene --> Downstream
+        Toluene --> HDA
+        PX --> Downstream
+    end
+    BenzUpgrade --> Benzene
+    TolUpgrade --> Toluene
+    PXUpgrade --> PX
+    Ethylene --> Downstream
+    Propylene --> Downstream
+
+    classDef process fill:#286568,color:#fff,stroke:#1E4D50
+    classDef market fill:#243E5A,color:#fff,stroke:#182C41,stroke-width:2px
+    classDef interface fill:#EDF0F3,color:#253448,stroke:#9CA9B6
+    classDef upgrading fill:#49647A,color:#fff,stroke:#304B61,stroke-width:2px
+    class Gas,Pyro,HFOGas,Synthesis,GSR,DAC,EU,MTO,MTA,Other,HDA process
+    class CO,H2,CO2,Methanol,Ethylene,Propylene,Benzene,Toluene,PX market
+    class BenzUpgrade,TolUpgrade,PXUpgrade upgrading
+    class Waste,HFO,Components,AddH2,AddCO2,Oil,Raw,External,PureImports,Downstream interface
+```
+
+For every requested scenario year, premise calculates each market's supplier shares from that year's mapped ITOM volumes and normalizes the included suppliers. An inactive route can therefore have zero share, and the mix can change between years. The three upgrading activities follow the same supplier-weighting mechanism but additionally perform a conversion with a 1:1 material yield and explicit purification energy. The toluene market currently has one supplier, so its upstream raw mix can change even though its immediate supplier share remains 100%. These are annual scenario snapshots; the number of configured pathways above includes routes that can be inactive in a particular snapshot. Fixed process coefficients change only when a different inventory or an explicit efficiency transformation is selected.
+
+For each scenario and year, ITOM production volumes weight suppliers independently in the CO, H2 and CO2 markets. The CO market includes 11 plastic-waste gasification suppliers, four pyrolysis suppliers and two cracker-HFO modes. H2 and CO2 also include their respective additional-component suppliers, which retain commodity proxies. Biomass gasification is currently excluded from these component markets.
+
+The new methanol-synthesis inventory purchases the three syngas components through supply interfaces that the YAML replaces with the PoR component markets. It also purchases additional fresh hydrogen. Methanol enters the PoR market together with methane-GSR production, EU imports and imported DAC methanol. The rebuilt MTO and MTA inventories include internal heavy-by-product conversion and methanol loops, with external syngas component inputs where required. Their internal gasification is distinct from the stand-alone cracker-HFO gasifier supplying the component markets.
+
+The rebuilt MTO and MTA inventories use mass allocation across material products. Waste gasification and pyrolysis use energy allocation based on product lower heating values. The CO2 component receives no allocated conversion burden because its heating value is zero. The inventories include avoided-production credits for exported steam or high-temperature heat where specified. Test these assumptions against alternative coproduct allocation and useful-heat-export assumptions when assessing their influence on results.
+
+The syngas-to-methanol chain is connected. Hydrogenated pyrolysis-oil inventories are present in the workbook, but their downstream feedstock use and the ETICS product connections remain to be completed. Component markets represent pooled supply. They do not enforce a system-wide syngas supply-demand balance or establish bilateral plant-to-plant flows. Check component consumption against available volumes separately before interpreting the network as physically closed.
+
+The converter reads the YAML selected by the PoR descriptor by default. It exports MTA ethylene and stand-alone cracker-HFO syngas separately for modes 1 and 2, retains aggregate rows, and reconciles the mode totals to those aggregates. Pathways absent in one scenario receive zero rows only where the other scenario provides source evidence. The conversion audit records those additions.
+
 ### Methanol
 
 Keep PoR-produced methanol and imported methanol as separate production pathways even when they enter one purified-methanol market. Confirm for each route:
@@ -1544,7 +1661,7 @@ direct CO2 emissions
 
 The subsequent ITOM clarification supplied on 7 October 2026 establishes that `MTO_with_loop` mode 2 includes MTO plus gasification of its heavy-fuel-oil by-product. Its `flue_gas_CO2` is actual CO2 emitted to air. Its `stored_CO2` is CO2 captured from syngas and compressed ready for transport; this field does not establish permanent storage. Capture/compression energy is included in ITOM, while transport/storage energy is outside its model boundary. The same stream interpretation applies to gasification and pyrolysis routes with integrated by-product gasification.
 
-The active MTO ethylene and propylene LCIs now keep the actual flue CO2 and include a positive demand for `carbon dioxide compression, transport and storage` (`carbon dioxide, stored`, `RER`). The exchange assumes all captured CO2 is durably stored; this downstream destination remains provisional. No additional negative CO2 credit is applied, and standalone `FE_CC_MTO_with_loop` demand remains disabled. The requested service includes compression, so its potential overlap with ITOM electricity remains a documented conservative proxy. See [MTO CO2 accounting](docs/por_mto_co2_accounting.md) for allocation, coefficients, limitations and rebuilding instructions.
+The rebuilt mode-2 MTO ethylene and propylene inventories retain actual flue CO2 and include a positive demand for `carbon dioxide compression, transport and storage` (`carbon dioxide, stored`, `RER`). The exchange assumes captured CO2 reaches durable storage; this downstream destination remains provisional. The rebuilt waste-gasification and pyrolysis inventories also include this service where specified, without a separate storage credit. The service includes compression, so potential overlap with ITOM capture/compression energy remains an assumption to review. Consult the activity comments for each route's boundary and check the process inventories alongside standalone CCS demand before interpreting the total capture benefit.
 
 Before applying `FE_CC_gasification`, `FE_CC_waste_pyrolysis`, or another storage pathway, determine which of the following applies:
 
@@ -1747,6 +1864,21 @@ version, visibly flagging mismatches. Selecting 3.12 factors requires
 check RELICS availability before changing the main calculation's version.
 
 ### Additional carbon accounts and product lifetimes
+
+Notebook 1 now also applies a **scenario/year-specific CO2-origin adapter** to
+the active rebuilt syngas-methanol/MTO/MTA and regionalized ethylene-oxide inventories after supplier linking and before either
+export. It traces linked methanol and CO2 make-up supply, checks the reconstructed
+joint-process carbon balance, and splits existing process CO2 between fossil and
+non-fossil biosphere flows. DAC and biogenic fractions remain separate in the
+audit; unresolved origins retain the fossil label. Total emitted CO2, upstream
+utilities and existing allocation are preserved. The current recipes retain
+reported positive carbon-balance gaps of about 1–3%; no emissions are invented
+to close them. Syngas methanol currently has a larger 8.1% carbon gap: the adapter
+reports it, retains its fossil CO2 label and propagates unknown output origin
+until the recipe is reconciled. Accepted MTO/MTA recipes still use their known
+DAC fractions. Ethylene oxide inherits carbon origins from its linked ethylene
+market and splits its direct CO2 after a balance check; its other emissions and
+utilities are preserved. See the [adapter workflow, assumptions and reports](docs/por_carbon_emissions.md).
 
 The final sections of notebooks 1 and 2 connect optional carbon-accounting
 workflows without changing the production packages or LCIA results. Notebook 1

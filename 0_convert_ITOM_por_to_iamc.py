@@ -506,20 +506,24 @@ def complete_absent_pathways(iamc, config_path):
     return iamc, audit
 
 
-def main(config_path=None, output_tag=None, complete_absent=False):
-    """Use optional PoR mappings and tagged outputs; preserve no-argument behaviour."""
+def main(config_path=None, output_tag=None, complete_absent=True):
+    """Use the active PoR datapackage mapping, or an explicit mapping override."""
     # Resolve paths relative to this script.
     base_dir = Path(__file__).resolve().parent
     data_dir = base_dir / "scenario_data"
-    config_path = (base_dir / "configuration_file/config_itom_por.yaml"
-                   if config_path is None else Path(config_path).expanduser())
+    if config_path is None:
+        descriptor = json.loads((base_dir / "datapackages/datapackage_itom_por.json").read_text(encoding="utf-8"))
+        config_resource = next(resource for resource in descriptor["resources"]
+                               if resource["name"] == "config")
+        config_path = base_dir / config_resource["path"]
+    else:
+        config_path = Path(config_path).expanduser()
     if not config_path.is_absolute():
         config_path = base_dir / config_path
     config_path = config_path.resolve(strict=True)
+    print(f"Using PoR configuration: {config_path.name}")
     if output_tag is not None and not re.fullmatch(r"[A-Za-z0-9_-]+", output_tag):
         raise ValueError("output_tag must contain only letters, digits, underscores or hyphens.")
-    if complete_absent and not output_tag:
-        raise ValueError("Absent-pathway completion requires a separate output tag.")
 
     def output_path(stem, suffix):
         return data_dir / f"{stem}{'_' + output_tag if output_tag else ''}{suffix}"
@@ -687,12 +691,16 @@ def main(config_path=None, output_tag=None, complete_absent=False):
 
 if __name__ == "__main__":
     import argparse
+    import sys
 
     parser = argparse.ArgumentParser(description="Convert ITOM production and trade to IAMC CSVs.")
     parser.add_argument("--config", type=Path, help="PoR YAML used for mode and final-product mappings.")
     parser.add_argument("--output-tag", help="Write tagged CSVs and audit without replacing default outputs.")
-    parser.add_argument("--complete-absent", action="store_true",
-                        help="Add evidenced absent-scenario pathways as zeros; requires --output-tag.")
+    parser.add_argument("--complete-absent", action=argparse.BooleanOptionalAction, default=True,
+                        help="Add evidenced absent-scenario pathways as zeros (default: enabled).")
+    if Path(sys.argv[0]).stem == "ipykernel_launcher":
+        # VS Code's interactive window inherits the kernel connection option.
+        parser.add_argument("-f", "--f", dest="_kernel_connection", help=argparse.SUPPRESS)
     arguments = parser.parse_args()
     main(config_path=arguments.config, output_tag=arguments.output_tag,
          complete_absent=arguments.complete_absent)

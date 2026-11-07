@@ -67,6 +67,7 @@ tests/*
 !tests/test_por_supplier_linking.py
 !tests/test_por_poster_figures.py
 !tests/test_carbon_accounting.py
+!tests/test_por_carbon_emissions.py
 !tests/test_itom_steel_conversion.py
 !tests/test_figure_export.py
 !tests/test_polymer_trends.py
@@ -88,6 +89,7 @@ tests/*
 !docs/
 docs/*
 !docs/forecast_steel.md
+!docs/por_carbon_emissions.md
 # Prepared FORECAST steel input is part of its independent integration.
 !scenario_data/
 scenario_data/*

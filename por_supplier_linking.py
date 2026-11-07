@@ -781,14 +781,144 @@ def _graph_baseline(store, validation):
         identities[key].append(activity_id)
         if metadata.get("database") is not None and metadata.get("code") is not None:
             identifiers[(metadata["database"], metadata["code"])] = activity_id
-    rows, graph = defaultdict(list), {}
-    for activity_id, metadata, exchanges in validation._iter_storage(store):
-        exchanges = tuple(exchanges)
-        rows[keys[activity_id]].append(validation._stored_activity_fingerprint(store, activity_id, metadata, exchanges))
-        graph[activity_id] = _consumer_edges((exchange for _, exchange in exchanges), identities, identifiers)
+    rows = defaultdict(list)
+    graph = _columnar_supplier_graph(store, identities, identifiers)
+    underlying = getattr(store, "_store", store)
+    fingerprint = getattr(underlying, "_activity_fingerprint", None)
+    if graph is not None and callable(fingerprint):
+        _prime_columnar_fingerprints(underlying)
+        # Native hashes are cached per activity and invalidated by transactions.
+        # Do not decode all exchanges a second time just to retrieve those hashes.
+        for activity_id, metadata in iter_activity_metadata(store):
+            rows[keys[activity_id]].append(fingerprint(activity_id))
+    else:
+        graph = {}
+        for activity_id, metadata, exchanges in validation._iter_storage(store):
+            exchanges = tuple(exchanges)
+            rows[keys[activity_id]].append(validation._stored_activity_fingerprint(store, activity_id, metadata, exchanges))
+            graph[activity_id] = _consumer_edges((exchange for _, exchange in exchanges), identities, identifiers)
     fingerprints = {key: hashes[0] if len(hashes) == 1 else validation._stable_hash(sorted(hashes)) for key, hashes in rows.items()}
     cycles = validation._cycle_signatures(graph, keys)
     return fingerprints, cycles, graph, keys, identities, identifiers
+
+
+def _prime_columnar_fingerprints(store):
+    """Populate missing native hashes using native fast row decoding.
+
+    The hash algorithm, field sorting and cache invalidation remain premise's.
+    Only the decoding changes; no hashes are substituted or shared across stores.
+    This matters after reopening checkpoints with incomplete fingerprint caches.
+    """
+    from copy import deepcopy
+    getter = getattr(store, "_activity_fingerprint", None)
+    function = getattr(getter, "__func__", None)
+    native_hash = getattr(function, "__globals__", {}).get("_activity_structural_fingerprint")
+    # Foreign/older implementations keep their own fingerprint reader.
+    if (not callable(native_hash) or function.__name__ != "_activity_fingerprint"
+            or "_activity_structural_fingerprint" not in function.__code__.co_names):
+        return
+    state = store._state
+    for activity_id in store.iter_activity_ids():
+        if activity_id in state.activity_fingerprints:
+            continue
+        exchanges = []
+        for exchange_id in state.activity_exchanges[activity_id]:
+            if exchange_id not in state.exchanges:
+                continue
+            exchange = state.exchanges[exchange_id]
+            decode = getattr(exchange, "_premise_fast_export_payload", None)
+            if not callable(decode):
+                exchanges.append(exchange)
+                continue
+            payload = decode()
+            if type(exchange).__name__ == "_ColumnarExchangeMapping":
+                # Mapping.get copies mutable sidecar fields on first access.
+                # Reproduce that isolation, including pickle reference semantics.
+                changes = {key for key, _ in exchange._iter_changes()}
+                for key, value in payload.items():
+                    if key not in changes and isinstance(value, (dict, list, set)):
+                        payload[key] = deepcopy(value)
+            exchanges.append(payload)
+        state.activity_fingerprints[activity_id] = native_hash(state.activities[activity_id], exchanges)
+
+
+def _columnar_supplier_graph(store, identities, identifiers):
+    """Read native columnar graph fields without materialising exchange objects.
+
+    No graph/cache is shared across stores or generations. Sparse overrides use
+    the ordinary mapping reader, including changed/deleted fields and addresses.
+    Unknown native layouts fall back to the existing storage iterator.
+    """
+    underlying = getattr(store, "_store", store)
+    state = getattr(underlying, "_state", None)
+    table = getattr(state, "exchanges", None)
+    kind = type(table).__name__
+    if kind not in ("_ColumnarExchangeTable", "_DeltaExchangeTable"):
+        return None
+    storage = getattr(table, "_storage", None)
+    columns = getattr(storage, "_string_columns", {})
+    values = getattr(storage, "_string_values", None)
+    if (not all(field in columns for field in ("type", "name", "product", "location"))
+            or values is None or not callable(getattr(storage, "metadata", None))
+            or not callable(getattr(underlying, "_activity_fingerprint", None))
+            or not hasattr(table, "_overrides")):
+        return None
+    if kind == "_DeltaExchangeTable" and not hasattr(table, "_rows"):
+        return None
+    if kind == "_ColumnarExchangeTable" and not callable(getattr(storage, "row_for_id", None)):
+        return None
+    value_ids = {value: position for position, value in enumerate(values)}
+    tech = value_ids.get("technosphere")
+    providers = {
+        tuple(value_ids.get(part, -1) for part in key): matches[0]
+        for key, matches in identities.items()
+        if len(matches) == 1 and all(part in value_ids for part in key)
+    }
+    types, names, products, locations = (columns[field] for field in ("type", "name", "product", "location"))
+    overrides = table._overrides
+    tombstones = getattr(table, "_tombstones", ())
+    graph = {}
+    for activity_id in underlying.iter_activity_ids():
+        edges = set()
+        for exchange_id in state.activity_exchanges[activity_id]:
+            if exchange_id in tombstones:
+                continue
+            if exchange_id in overrides:
+                edges.update(_consumer_edges((overrides[exchange_id],), identities, identifiers))
+                continue
+            row = int(table._rows[exchange_id]) if kind == "_DeltaExchangeTable" else storage.row_for_id(exchange_id)
+            if row < 0:  # Deleted/missing final IDs are absent from the native iterator.
+                if exchange_id in table:
+                    # Malformed override markers must fail through the native
+                    # reader rather than silently hiding a broken graph edge.
+                    edges.update(_consumer_edges((table[exchange_id],), identities, identifiers))
+                continue
+            type_id = int(types[row])
+            if type_id < 0:
+                edges.update(_consumer_edges((table[exchange_id],), identities, identifiers))
+                continue
+            if type_id != tech:
+                continue
+            # Native sidecars hold input addresses and non-columnar fields.
+            # Their address wins over the semantic key, exactly as in _consumer_edges.
+            metadata = storage.metadata(row)
+            address = metadata.get("input")
+            provider = identifiers.get(tuple(address)) if isinstance(address, (tuple, list)) and len(address) == 2 else None
+            if provider is None:
+                name, product, location = int(names[row]), int(products[row]), int(locations[row])
+                if min(name, product, location) >= 0:
+                    provider = providers.get((name, product, location))
+                else:
+                    key = (values[name] if name >= 0 else metadata.get("name"),
+                           values[product] if product >= 0 else metadata.get("product", metadata.get("reference product")),
+                           values[location] if location >= 0 else metadata.get("location"))
+                    matches = identities.get(key, ())
+                    if len(matches) == 1:
+                        provider = matches[0]
+            if provider is not None:
+                edges.add(provider)
+        graph[activity_id] = edges
+    return graph
 
 
 def _preserve_relinked_source_components(database, linked, audit):

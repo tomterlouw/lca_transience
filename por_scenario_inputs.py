@@ -23,6 +23,7 @@ _RUNTIME_FIELDS = frozenset({
     "heat diagnostics", "iam data", "index",
     "inventories metadata cache filepath", "mapping", "por supplier linking", "metal steel policy",
     "itom steel market aggregation",
+    "por carbon emissions",
     "unmatched category flows", "additional valid regions",
 })
 

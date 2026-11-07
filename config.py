@@ -16,10 +16,8 @@ import time as _time
 import warnings as _warnings
 import sys as _sys
 
-
 # Keep add_dll_directory handles alive, including across notebook reloads.
 _WINDOWS_SOLVER_DLL_HANDLES = globals().get("_WINDOWS_SOLVER_DLL_HANDLES", {})
-
 
 def configure_windows_solver_runtime():
     """Expose the active Conda MKL DLLs to this process and spawned workers.
@@ -44,7 +42,6 @@ def configure_windows_solver_runtime():
         _WINDOWS_SOLVER_DLL_HANDLES[normalized] = _os.add_dll_directory(location)
     return location
 
-
 ROOT = Path(__file__).resolve().parent
 FIGURES_DIR = ROOT / "figs"
 DATAPACKAGE_DIR = ROOT / "datapackages"
@@ -56,6 +53,10 @@ ITOM_INVENTORY_PATH = ROOT / "inventories" / "lci-itom_por.xlsx"
 INVENTORY_SOURCES_LOCAL = ROOT / "inventory_sources.local.json"
 
 EI_VERSION = "3.12"
+DB_NAME_INIT = 'ecoinvent-{}-cutoff'.format(EI_VERSION)
+PROJECT_NAME = "por"
+NAME_REF_DB = "ecoinvent_{}_reference".format(EI_VERSION).replace(".","")
+BIOSPHERE_DB = f'ecoinvent-{EI_VERSION}-biosphere'
 
 # Optional notebook presets: data only. Scenario composition, premise builds,
 # supplier hooks and Pathways calculations stay visible in the notebooks.
@@ -67,14 +68,14 @@ ASSESSMENT_SCOPES = {
                     "FE_polyols_retrofit", "FE_polyols_lignin", "FE_PLA", "FE_PBS", "FE_PMMA", "FE_PVC"],
     },
     "european_steel": {
-        "package": "remind-transience_steel_test", "regions": ["RER"],
+        "package": "remind-transience_steel_test", "regions": ["RER", "DE"],
         "years": [2025, 2035, 2050],
         "aliases": ["steel_bof", "steel_eaf_scrap", "steel_eaf_dri_ng", "steel_eaf_dri_h2",
                     "steel_eaf_dri_ng_h2", "steel_eaf_dri_unresolved", "steel_eaf_hbi_ng",
                     "steel_eaf_hbi_h2", "steel_eaf_hbi_ng_h2", "steel_eaf_hbi_unresolved"],
     },
     "forecast_steel": {
-        "package": "remind-transience_forecast_steel", "regions": ["RER"],
+        "package": "remind-transience_forecast_steel", "regions": ["RER", "DE"],
         "years": [2025, 2035, 2050],
         "market": "market for steel, low-alloyed (FORECAST-sites)",
         "aliases": ["steel_bof", "steel_eaf_scrap", "steel_eaf_dri_ng",
@@ -93,12 +94,6 @@ def production_mass_factor(unit):
     if key not in factors:
         raise ValueError(f"Unsupported production unit {unit!r}; add an explicit conversion before normalizing impacts.")
     return factors[key]
-
-DB_NAME_INIT = 'ecoinvent-{}-cutoff'.format(EI_VERSION)
-PROJECT_NAME = "por"
-NAME_REF_DB = "ecoinvent_{}_reference".format(EI_VERSION).replace(".","")
-BIOSPHERE_DB = f'ecoinvent-{EI_VERSION}-biosphere'
-
 
 def _resolve_artifact_path(name, default_directory):
     path = Path(name).expanduser()
