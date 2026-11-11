@@ -506,11 +506,23 @@ def complete_absent_pathways(iamc, config_path):
     return iamc, audit
 
 
-def main(config_path=None, output_tag=None, complete_absent=True):
-    """Use the active PoR datapackage mapping, or an explicit mapping override."""
+def main(config_path=None, output_tag=None, complete_absent=True, *,
+         output_dir=None, scenario_inputs=None, write=True):
+    """Convert ITOM scenarios, retaining the active mapping and legacy defaults.
+
+    Optional source paths and an output directory support isolated runs.
+    ``write=False`` returns the data and audit in memory without creating files.
+    """
     # Resolve paths relative to this script.
     base_dir = Path(__file__).resolve().parent
     data_dir = base_dir / "scenario_data"
+    destination = Path(output_dir).expanduser().resolve() if output_dir is not None else data_dir
+    selected_inputs = SCENARIO_INPUTS if scenario_inputs is None else scenario_inputs
+    if set(selected_inputs) != set(SCENARIO_INPUTS):
+        raise ValueError("Provide exactly the CL and OCE scenario source workbooks.")
+    source_paths = {scenario: (Path(filename).expanduser() if Path(filename).expanduser().is_absolute()
+                              else data_dir / Path(filename).expanduser()).resolve()
+                    for scenario, filename in selected_inputs.items()}
     if config_path is None:
         descriptor = json.loads((base_dir / "datapackages/datapackage_itom_por.json").read_text(encoding="utf-8"))
         config_resource = next(resource for resource in descriptor["resources"]
@@ -526,11 +538,10 @@ def main(config_path=None, output_tag=None, complete_absent=True):
         raise ValueError("output_tag must contain only letters, digits, underscores or hyphens.")
 
     def output_path(stem, suffix):
-        return data_dir / f"{stem}{'_' + output_tag if output_tag else ''}{suffix}"
+        return destination / f"{stem}{'_' + output_tag if output_tag else ''}{suffix}"
 
     # Check both inputs before starting.
-    for scenario, filename in SCENARIO_INPUTS.items():
-        path = data_dir / filename
+    for scenario, path in source_paths.items():
         if not path.is_file():
             raise FileNotFoundError(f"{scenario} input not found: {path}")
 
@@ -538,9 +549,9 @@ def main(config_path=None, output_tag=None, complete_absent=True):
     mode_outputs = []
     px_use_outputs = []
 
-    for scenario, filename in SCENARIO_INPUTS.items():
+    for scenario, path in source_paths.items():
         sheets = pd.read_excel(
-            data_dir / filename,
+            path,
             sheet_name=[
                 "products",
                 "production_volume",
@@ -664,6 +675,18 @@ def main(config_path=None, output_tag=None, complete_absent=True):
     if set(combined["scenario"]) != set(SCENARIO_INPUTS):
         raise ValueError("Combined output must contain both CL and OCE.")
 
+    audit_data = {
+        "schema_version": 1,
+        "source_sha256": {str(path): hashlib.sha256(path.read_bytes()).hexdigest()
+                          for path in source_paths.values()},
+        "records": px_purity_audit,
+    }
+    if complete_absent:
+        audit_data["explicit_zero_pathways"] = zero_rows
+    if not write:
+        return {"data": combined, "audit_data": audit_data, "source_paths": source_paths}
+    destination.mkdir(parents=True, exist_ok=True)
+
     # Write one CSV per scenario.
     for scenario in SCENARIO_INPUTS:
         output = output_path(f"scenario_data_itom_por_{scenario}", ".csv")
@@ -677,16 +700,19 @@ def main(config_path=None, output_tag=None, complete_absent=True):
     print(f"Wrote {output.name}: {len(combined)} rows (CL + OCE)")
 
     audit_path = output_path("p_xylene_terminal_purity_audit", ".json")
-    audit_data = {
-        "schema_version": 1,
-        "source_sha256": {filename: hashlib.sha256((data_dir / filename).read_bytes()).hexdigest()
-                          for filename in SCENARIO_INPUTS.values()},
-        "records": px_purity_audit,
-    }
-    if complete_absent:
-        audit_data["explicit_zero_pathways"] = zero_rows
+    if scenario_inputs is None:
+        # Keep the default on-disk audit schema/keys unchanged.
+        audit_data["source_sha256"] = {
+            filename: hashlib.sha256((data_dir / filename).read_bytes()).hexdigest()
+            for filename in SCENARIO_INPUTS.values()}
     audit_path.write_text(json.dumps(audit_data, indent=2), encoding="utf-8")
     print(f"Wrote {audit_path.name}: {len(px_purity_audit)} scenario-year balances")
+    return {
+        "combined": output,
+        "scenarios": {scenario: output_path(f"scenario_data_itom_por_{scenario}", ".csv")
+                      for scenario in SCENARIO_INPUTS},
+        "audit": audit_path,
+    }
 
 
 if __name__ == "__main__":
