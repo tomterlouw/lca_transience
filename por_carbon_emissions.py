@@ -11,6 +11,7 @@ from functools import wraps
 import hashlib
 import json
 import math
+import re
 from pathlib import Path
 from uuid import uuid4
 
@@ -24,14 +25,30 @@ ROOT = Path(__file__).resolve().parent
 POLICY = ROOT / "configuration_file/por_carbon_emissions.yaml"
 MARKER = "por carbon emissions"
 ORIGINS = ("fossil", "biogenic", "dac", "unknown")
-ADAPTER_VERSION = 4
+ADAPTER_VERSION = 5
 # Absolute share tolerance only for a declared provider present on one side of
 # the comparison. xarray's interpolation can return ~1e-18 at a zero endpoint.
 # Never remove or round that exchange in the inventory/origin tracer.
 ZERO_SHARE_ATOL = 1e-12
 
 
+def _allocated_family(dataset):
+    """Reviewed NL process family, independent of its allocated output/unit."""
+    if dataset.get("location", "NL") != "NL":
+        return None
+    match = re.search(r"(?:MTO with loop|MTA retrofit), mode ([12]), stage-based, "
+                      r"(energy|economic) allocation \(por\)$", dataset.get("name", ""))
+    if not match:
+        return None
+    technology = "MTO" if match.group().startswith("MTO") else "MTA"
+    return technology + "_" + match[1], match[2]
+
+
 def _process_rule(dataset, policy):
+    family = _allocated_family(dataset)
+    if family:
+        return family[0], {"basis": "allocated_carbon_inputs", "allowed_carbon_inputs":
+                          ["methanol", "syngas, CO component (por)", "syngas, CO2 component (por)"]}
     matches = [(g, p) for g, p in policy["processes"].items() if p["name_fragment"] in dataset["name"]]
     if len(matches) > 1:
         raise ValueError(f"Ambiguous carbon process rules: {dataset['name']}")
@@ -49,6 +66,14 @@ def _process_balance(ds, supply, process):
            and any(s in e.get("name", "") for s in ("market for natural gas", "market for coal", "market for fuel oil"))
            for e in ds.get("exchanges", ())):
         raise ValueError(f"New direct auxiliary fuel requires decomposition: {ds['name']}")
+    if process.get("basis") == "allocated_carbon_inputs":
+        # Allocation cancels in the input-carbon proportions. Physical closure
+        # is documented externally; do not reconstruct it using mass yields.
+        if any(not math.isfinite(float(e.get("amount", 0))) for e in ds.get("exchanges", ())
+               if e.get("type") == "technosphere" and e.get("product", e.get("reference product")) in allowed):
+            raise ValueError(f"Non-finite allocated carbon input: {ds['name']}")
+        return dict(inputs=inputs, allocated_carbon=sum(c for _, c in inputs),
+                    blocked=False, basis=f"one {ds['unit']} allocated output")
     factor = 1. if reference_basis else sum(process["yields"].values())
     if reference_basis:
         if ds.get("reference product") != process["reference_product"] or ds.get("unit") != "kilogram":
@@ -302,13 +327,19 @@ def plan_carbon_emissions(identities, getter, spec, biosphere_codes, *, biospher
     missing_targets = set(map(tuple, spec.get("required_targets", ()))) - {_key(d) for d in identities}
     if missing_targets:
         raise ValueError(f"Missing regionalized carbon-correction activities: {sorted(missing_targets)}")
-    targets = [d for d in identities if d.get("location") == "NL" and d.get("name") in spec["declared"]
+    declared_families = {_allocated_family(dict(name=name)) for name in spec["declared"]} - {None}
+    active_families = {_allocated_family(dict(name=name)) for name in spec["active"]} - {None}
+    def active(dataset):
+        family = _allocated_family(dataset)
+        return family in active_families if family else dataset["name"] in spec["active"]
+    targets = [d for d in identities if d.get("location") == "NL"
+               and (d.get("name") in spec["declared"] or _allocated_family(d) in declared_families)
                and (_process_rule(d, policy)[1] is not None or
                     any(x in d["name"].lower() for x in ("mto", "mta", "methanol-to-olefins")))]
-    replacements, audit, joint_recipes = {}, [], {}
+    replacements, audit, joint_recipes, allocated_shares = {}, [], {}, {}
     # Verify that the live methanol market really represents the selected ITOM
     # case/year rather than a stale or unmodified background market.
-    if any(t["name"] in spec["active"] for t in targets):
+    if any(active(t) for t in targets):
         markets = spec.get("expected_carbon_markets", {"market for methanol (por)":
             dict(product="methanol", providers=spec["expected_methanol"])})
         for market_name, expected in markets.items():
@@ -324,7 +355,7 @@ def plan_carbon_emissions(identities, getter, spec, biosphere_codes, *, biospher
     for identity in targets:
         ds = getter(identity)
         row = dict(activity=list(_key(ds)), case=spec["case"], year=spec["year"])
-        if ds["name"] not in spec["active"]:
+        if not active(ds):
             audit.append(dict(row, status="inactive_pathway")); continue
         group, process = _process_rule(ds, policy)
         if process is None:
@@ -335,46 +366,74 @@ def plan_carbon_emissions(identities, getter, spec, biosphere_codes, *, biospher
                 raise ValueError("Already adapted inventory has a different carbon-policy/source signature; rebuild it.")
             audit.append(dict(row, **ds[MARKER]["audit"], status="already_applied")); continue
         exchanges = ds.get("exchanges", [])
+        allocated = process.get("basis") == "allocated_carbon_inputs"
         emissions = [e for e in exchanges if e.get("type") == "biosphere" and e.get("name") == "Carbon dioxide, fossil"]
-        if not emissions or any(float(e["amount"]) < 0 for e in emissions):
+        if (not emissions and not allocated) or any(not math.isfinite(float(e["amount"])) or float(e["amount"]) < 0 for e in emissions):
             raise ValueError(f"Missing/negative process CO2 in {ds['name']}")
         if any(e.get("type") == "biosphere" and e.get("name") == policy["nonfossil_flow"] for e in exchanges):
             raise ValueError(f"Unmarked pre-existing non-fossil CO2 in {ds['name']}; review before adapting.")
+        if allocated and any(not math.isfinite(float(e.get("amount", 0))) for e in exchanges
+                             if e.get("type") == "technosphere" and e.get("product", e.get("reference product")) in process['allowed_carbon_inputs']):
+            raise ValueError(f"Non-finite allocated carbon input: {ds['name']}")
+        if allocated and not supply.carbon_inputs(ds):
+            if any(float(e["amount"]) for e in emissions):
+                raise ValueError(f"Direct CO2 without allocated carbon inputs: {ds['name']}")
+            audit.append(dict(row, process=group, status="zero_allocated_carbon", balance_status="documented_externally_not_reconstructed"))
+            continue
         balance = _process_balance(ds, supply, process)
         inputs, allocated_carbon = balance["inputs"], balance["allocated_carbon"]
         shares = sum((c * supply.origins(supply.provider(e)) for e, c in inputs), np.zeros(4)) / allocated_carbon
         if not np.isfinite(shares).all() or (shares < 0).any() or not np.isclose(shares.sum(), 1.):
             raise ValueError("Invalid carbon-origin fractions.")
-        material_mass = balance["factor"]
-        incoming, outgoing, residual = balance["incoming"], balance["outgoing"], balance["residual"]
-        emitted, captured = balance["emitted"], balance["captured"]
-        joint = np.asarray([incoming, emitted * material_mass, captured * material_mass,
-                            balance["other_carbon"], balance["uncertain_carbon"], *shares])
-        if group in joint_recipes and not np.allclose(joint, joint_recipes[group], rtol=1e-8, atol=1e-10):
-            raise ValueError(f"Inconsistent allocated coproduct recipes for {group}; review before splitting.")
-        joint_recipes[group] = joint
-        tolerance = policy["balance_relative_tolerance"] * incoming
-        emission_shares = np.array([0., 0., 0., 1.]) if balance["blocked"] else shares
-        nonfossil = min(1., max(0., float(emission_shares[1] + emission_shares[2])))
-        row.update(process=group, status="balance_review_required" if balance["blocked"] else "split" if nonfossil else "no_known_nonfossil_carbon",
-                   origin_fractions=dict(zip(ORIGINS, map(float, shares))),
-                   emission_origin_fractions=dict(zip(ORIGINS, map(float, emission_shares))),
-                   process_basis=balance["basis"],
-                   incoming_kgC_per_process_basis=incoming, outgoing_kgC_per_process_basis=outgoing,
-                   residual_kgC_per_process_basis=residual,
-                   residual_min_kgC_per_process_basis=balance["residual_min"],
-                   other_emitted_carbon_kgC_per_process_basis=balance["other_carbon"],
-                   uncertain_emitted_carbon_upper_kgC_per_process_basis=balance["uncertain_carbon"],
-                   residual_fraction=residual / incoming,
-                   balance_status="positive_residual_exceeds_acceptance_bound" if balance["blocked"] else "balanced_within_tolerance" if abs(residual) <= tolerance else "unresolved_positive_residual",
-                   total_CO2=emitted, fossil_label_CO2=emitted * (1-nonfossil),
-                   nonfossil_CO2=emitted * nonfossil, captured_CO2_unchanged=captured)
-        if process.get("basis") != "reference_product" or process.get("reference_product") == "methanol":
-            # Preserve old report fields only where their methanol basis applies.
-            row.update(incoming_kgC_per_kg_methanol=incoming, outgoing_kgC_per_kg_methanol=outgoing,
-                       residual_kgC_per_kg_methanol=residual)
+        if allocated:
+            family = _allocated_family(ds)
+            if family in allocated_shares and not np.allclose(shares, allocated_shares[family], rtol=1e-8, atol=1e-10):
+                raise ValueError(f"Inconsistent input carbon origins across allocated outputs for {family}")
+            allocated_shares[family] = shares
+            emission_shares = shares
+            emitted = sum(float(e["amount"]) for e in emissions)
+            nonfossil = min(1., max(0., float(shares[1] + shares[2])))
+            captured = sum(float(e["amount"]) for e in exchanges if e.get("type") == "technosphere"
+                           and e.get("name") == "carbon dioxide compression, transport and storage" and float(e["amount"]) > 0)
+            row.update(process=group, allocation=family[1],
+                       status="no_direct_CO2" if not emitted else "split" if nonfossil else "no_known_nonfossil_carbon",
+                       origin_fractions=dict(zip(ORIGINS, map(float, shares))),
+                       emission_origin_fractions=dict(zip(ORIGINS, map(float, shares))),
+                       process_basis=balance["basis"], incoming_kgC_per_reference_unit=allocated_carbon,
+                       balance_status="documented_externally_not_reconstructed",
+                       total_CO2=emitted, fossil_label_CO2=emitted*(1-nonfossil),
+                       nonfossil_CO2=emitted*nonfossil, captured_CO2_unchanged=captured)
+        else:
+            material_mass = balance["factor"]
+            incoming, outgoing, residual = balance["incoming"], balance["outgoing"], balance["residual"]
+            emitted, captured = balance["emitted"], balance["captured"]
+            joint = np.asarray([incoming, emitted * material_mass, captured * material_mass,
+                                balance["other_carbon"], balance["uncertain_carbon"], *shares])
+            if group in joint_recipes and not np.allclose(joint, joint_recipes[group], rtol=1e-8, atol=1e-10):
+                raise ValueError(f"Inconsistent allocated coproduct recipes for {group}; review before splitting.")
+            joint_recipes[group] = joint
+            tolerance = policy["balance_relative_tolerance"] * incoming
+            emission_shares = np.array([0., 0., 0., 1.]) if balance["blocked"] else shares
+            nonfossil = min(1., max(0., float(emission_shares[1] + emission_shares[2])))
+            row.update(process=group, status="balance_review_required" if balance["blocked"] else "split" if nonfossil else "no_known_nonfossil_carbon",
+                       origin_fractions=dict(zip(ORIGINS, map(float, shares))),
+                       emission_origin_fractions=dict(zip(ORIGINS, map(float, emission_shares))),
+                       process_basis=balance["basis"],
+                       incoming_kgC_per_process_basis=incoming, outgoing_kgC_per_process_basis=outgoing,
+                       residual_kgC_per_process_basis=residual,
+                       residual_min_kgC_per_process_basis=balance["residual_min"],
+                       other_emitted_carbon_kgC_per_process_basis=balance["other_carbon"],
+                       uncertain_emitted_carbon_upper_kgC_per_process_basis=balance["uncertain_carbon"],
+                       residual_fraction=residual / incoming,
+                       balance_status="positive_residual_exceeds_acceptance_bound" if balance["blocked"] else "balanced_within_tolerance" if abs(residual) <= tolerance else "unresolved_positive_residual",
+                       total_CO2=emitted, fossil_label_CO2=emitted * (1-nonfossil),
+                       nonfossil_CO2=emitted * nonfossil, captured_CO2_unchanged=captured)
+            if process.get("basis") != "reference_product" or process.get("reference_product") == "methanol":
+                # Preserve old report fields only where their methanol basis applies.
+                row.update(incoming_kgC_per_kg_methanol=incoming, outgoing_kgC_per_kg_methanol=outgoing,
+                           residual_kgC_per_kg_methanol=residual)
         audit.append(row)
-        if not nonfossil:
+        if not nonfossil or (allocated and not emitted):
             continue
         changed = deepcopy(ds)
         updated = []

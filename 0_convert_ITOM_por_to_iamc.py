@@ -397,8 +397,19 @@ def ensure_required_fe_variables(iamc, config_path):
     return iamc
 
 
+def _check_resolved_port_rows(iamc, required, resolved):
+    """Dedicated port export owns these variables; missing rows are errors."""
+    expected = set(required) & set(resolved)
+    years = [c for c in iamc if str(c).isdigit()]
+    for context, group in iamc.loc[iamc.region.eq('NL')].groupby(['model','scenario','region']):
+        for variable in expected:
+            rows = group.loc[group.variables.eq(variable)]
+            if len(rows) != 1 or rows[years].isna().any().any():
+                raise ValueError(f'Missing/duplicate resolved port variable: {variable}, {context}')
+
+
 def add_mode_aware_rows(iamc: pd.DataFrame, mode_detail: pd.DataFrame,
-                        config_path: Path) -> pd.DataFrame:
+                        config_path: Path, *, resolved_variables=()) -> pd.DataFrame:
     """Add only the operating-mode variables used by the PoR configuration.
 
     The existing aggregated rows remain in the IAMC file for backward
@@ -416,6 +427,10 @@ def add_mode_aware_rows(iamc: pd.DataFrame, mode_detail: pd.DataFrame,
     }
     if not mapped:
         raise ValueError("No mode-aware pathways found in PoR configuration.")
+    _check_resolved_port_rows(iamc, mapped, resolved_variables)
+    mapped -= set(resolved_variables)
+    if not mapped:
+        return iamc
 
     metadata = ["model", "scenario", "region"]
     years = [column for column in iamc.columns if str(column).isdigit()]
@@ -471,7 +486,7 @@ SCENARIO_INPUTS = {
 }
 
 
-def complete_absent_pathways(iamc, config_path):
+def complete_absent_pathways(iamc, config_path, *, resolved_variables=()):
     """Complete a missing scenario row only when another scenario supplies it.
 
     Preserve existing rows. Unknown variables and classification mismatches
@@ -482,6 +497,8 @@ def complete_absent_pathways(iamc, config_path):
     config = yaml.safe_load(Path(config_path).read_text(encoding="utf-8"))
     required = {item["production volume"]["variable"]
                 for item in config["production pathways"].values()}
+    _check_resolved_port_rows(iamc, required, resolved_variables)
+    required -= set(resolved_variables)
     metadata = ["model", "scenario", "region"]
     years = [column for column in iamc if str(column).isdigit()]
     additions, audit = [], []
@@ -506,11 +523,25 @@ def complete_absent_pathways(iamc, config_path):
     return iamc, audit
 
 
-def main(config_path=None, output_tag=None, complete_absent=True):
-    """Use the active PoR datapackage mapping, or an explicit mapping override."""
+def main(config_path=None, output_tag=None, complete_absent=True, *,
+         output_dir=None, scenario_inputs=None, write=True, port_market_flows=False):
+    """Convert ITOM scenarios, retaining the active mapping and legacy defaults.
+
+    Optional source paths and an output directory support isolated runs.
+    ``write=False`` returns the data and audit in memory without creating files.
+    ``port_market_flows=True`` adds physical directions, membrane attribution
+    and review-only utility balances; it never activates a market.
+    """
     # Resolve paths relative to this script.
     base_dir = Path(__file__).resolve().parent
     data_dir = base_dir / "scenario_data"
+    destination = Path(output_dir).expanduser().resolve() if output_dir is not None else data_dir
+    selected_inputs = SCENARIO_INPUTS if scenario_inputs is None else scenario_inputs
+    if set(selected_inputs) != set(SCENARIO_INPUTS):
+        raise ValueError("Provide exactly the CL and OCE scenario source workbooks.")
+    source_paths = {scenario: (Path(filename).expanduser() if Path(filename).expanduser().is_absolute()
+                              else data_dir / Path(filename).expanduser()).resolve()
+                    for scenario, filename in selected_inputs.items()}
     if config_path is None:
         descriptor = json.loads((base_dir / "datapackages/datapackage_itom_por.json").read_text(encoding="utf-8"))
         config_resource = next(resource for resource in descriptor["resources"]
@@ -526,21 +557,21 @@ def main(config_path=None, output_tag=None, complete_absent=True):
         raise ValueError("output_tag must contain only letters, digits, underscores or hyphens.")
 
     def output_path(stem, suffix):
-        return data_dir / f"{stem}{'_' + output_tag if output_tag else ''}{suffix}"
+        return destination / f"{stem}{'_' + output_tag if output_tag else ''}{suffix}"
 
     # Check both inputs before starting.
-    for scenario, filename in SCENARIO_INPUTS.items():
-        path = data_dir / filename
+    for scenario, path in source_paths.items():
         if not path.is_file():
             raise FileNotFoundError(f"{scenario} input not found: {path}")
 
     scenario_outputs = {}
     mode_outputs = []
     px_use_outputs = []
+    market_sources = {}
 
-    for scenario, filename in SCENARIO_INPUTS.items():
+    for scenario, path in source_paths.items():
         sheets = pd.read_excel(
-            data_dir / filename,
+            path,
             sheet_name=[
                 "products",
                 "production_volume",
@@ -551,6 +582,8 @@ def main(config_path=None, output_tag=None, complete_absent=True):
                 "output_factors",
             ],
         )
+        if port_market_flows:
+            market_sources[scenario] = sheets
 
         # Use classifications from this scenario's own workbook.
         products = sheets["products"].dropna(subset=["PRODUCT"])
@@ -637,12 +670,21 @@ def main(config_path=None, output_tag=None, complete_absent=True):
         combined, pd.concat(px_use_outputs, ignore_index=True),
     )
 
+    market_tables = None
+    resolved_port_variables = set()
+    if port_market_flows:
+        from por_market_variables import extend_port_market_variables
+        original_variables = set(combined['variables'])
+        market_tables = extend_port_market_variables(combined, market_sources)
+        combined = market_tables.pop('data')
+        # The dedicated export validates source modes and membrane attribution.
+        # Generic completion must not manufacture zeros for its new variables.
+        resolved_port_variables = set(combined['variables']) - original_variables
+
     mode_detail = pd.concat(mode_outputs, ignore_index=True, sort=False)
     mode_detail = mode_detail[metadata_columns + year_columns]
-    combined = add_mode_aware_rows(
-        combined, mode_detail,
-        config_path,
-    )
+    mode_options = {'resolved_variables': resolved_port_variables} if port_market_flows else {}
+    combined = add_mode_aware_rows(combined, mode_detail, config_path, **mode_options)
 
     # Sum annualized storage flows while retaining the detailed technology rows.
     combined = add_ccs_aggregates(combined)
@@ -655,7 +697,7 @@ def main(config_path=None, output_tag=None, complete_absent=True):
 
     zero_rows = []
     if complete_absent:
-        combined, zero_rows = complete_absent_pathways(combined, config_path)
+        combined, zero_rows = complete_absent_pathways(combined, config_path, **mode_options)
 
     combined = combined[metadata_columns + year_columns].sort_values(
         ["scenario", "region", "variables", "unit"]
@@ -663,6 +705,26 @@ def main(config_path=None, output_tag=None, complete_absent=True):
 
     if set(combined["scenario"]) != set(SCENARIO_INPUTS):
         raise ValueError("Combined output must contain both CL and OCE.")
+
+    audit_data = {
+        "schema_version": 1,
+        "source_sha256": {str(path): hashlib.sha256(path.read_bytes()).hexdigest()
+                          for path in source_paths.values()},
+        "records": px_purity_audit,
+    }
+    if complete_absent:
+        audit_data["explicit_zero_pathways"] = zero_rows
+    if market_tables is not None:
+        audit_data['port_market_flows'] = {name: table.to_dict('records') for name, table in market_tables.items()}
+        audit_data['port_market_flows']['balance_review_required'] = True
+        audit_data['port_market_flows']['source_files_by_scenario'] = {s: str(p) for s, p in source_paths.items()}
+        audit_data['port_market_flows']['membrane_attribution_assumption'] = 'Proportional mixing by annual cracker_H2 production, separately per scenario/year.'
+    if not write:
+        result = {"data": combined, "audit_data": audit_data, "source_paths": source_paths}
+        if market_tables is not None:
+            result['market_tables'] = market_tables
+        return result
+    destination.mkdir(parents=True, exist_ok=True)
 
     # Write one CSV per scenario.
     for scenario in SCENARIO_INPUTS:
@@ -677,16 +739,26 @@ def main(config_path=None, output_tag=None, complete_absent=True):
     print(f"Wrote {output.name}: {len(combined)} rows (CL + OCE)")
 
     audit_path = output_path("p_xylene_terminal_purity_audit", ".json")
-    audit_data = {
-        "schema_version": 1,
-        "source_sha256": {filename: hashlib.sha256((data_dir / filename).read_bytes()).hexdigest()
-                          for filename in SCENARIO_INPUTS.values()},
-        "records": px_purity_audit,
-    }
-    if complete_absent:
-        audit_data["explicit_zero_pathways"] = zero_rows
+    if scenario_inputs is None:
+        # Keep the default on-disk audit schema/keys unchanged.
+        audit_data["source_sha256"] = {
+            filename: hashlib.sha256((data_dir / filename).read_bytes()).hexdigest()
+            for filename in SCENARIO_INPUTS.values()}
     audit_path.write_text(json.dumps(audit_data, indent=2), encoding="utf-8")
     print(f"Wrote {audit_path.name}: {len(px_purity_audit)} scenario-year balances")
+    market_paths = {}
+    if market_tables is not None:
+        for name, table in market_tables.items():
+            path = output_path('por_market_' + name, '.csv')
+            table.to_csv(path, index=False)
+            market_paths[name] = path
+    return {
+        "combined": output,
+        "scenarios": {scenario: output_path(f"scenario_data_itom_por_{scenario}", ".csv")
+                      for scenario in SCENARIO_INPUTS},
+        "audit": audit_path,
+        **({'market_tables': market_paths} if market_tables is not None else {}),
+    }
 
 
 if __name__ == "__main__":
@@ -698,9 +770,11 @@ if __name__ == "__main__":
     parser.add_argument("--output-tag", help="Write tagged CSVs and audit without replacing default outputs.")
     parser.add_argument("--complete-absent", action=argparse.BooleanOptionalAction, default=True,
                         help="Add evidenced absent-scenario pathways as zeros (default: enabled).")
+    parser.add_argument('--port-market-flows', action='store_true',
+                        help='Add hydrogen/methane/utility quantities and review-only balance tables.')
     if Path(sys.argv[0]).stem == "ipykernel_launcher":
         # VS Code's interactive window inherits the kernel connection option.
         parser.add_argument("-f", "--f", dest="_kernel_connection", help=argparse.SUPPRESS)
     arguments = parser.parse_args()
     main(config_path=arguments.config, output_tag=arguments.output_tag,
-         complete_absent=arguments.complete_absent)
+         complete_absent=arguments.complete_absent, port_market_flows=arguments.port_market_flows)

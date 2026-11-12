@@ -114,6 +114,11 @@ markets:
         operator: equals
   
   - name: market for methanol (Forecast)
+    # Explicit containment, installed by forecast_methanol_geography.py.
+    # RER alone with the default equals operator would match only RER consumers.
+    replaces in:
+      - location: RER
+        operator: within
     reference product: methanol
     unit: kilogram
     includes:
