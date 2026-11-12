@@ -18,6 +18,29 @@ SPEC.loader.exec_module(converter)
 
 
 class ExecutionOptions(unittest.TestCase):
+    def test_market_flow_files_are_tagged_inside_selected_destination(self):
+        def extend(frame,sources):
+            return {'data':frame,'row_directions':pd.DataFrame([{'direction':'production'}])}
+        with TemporaryDirectory() as tmp,patch('por_market_variables.extend_port_market_variables',side_effect=extend):
+            destination=Path(tmp)/'outputs'
+            result,_,_=self.run_fixture(Path(tmp),port_market_flows=True,output_dir=destination,output_tag='check')
+            path=result['market_tables']['row_directions']
+            self.assertEqual(path,destination.resolve()/'por_market_row_directions_check.csv')
+            self.assertTrue(path.is_file())
+
+    def test_market_flow_option_returns_tables_and_audit_without_writes(self):
+        calls=[]
+        def extend(frame,sources):
+            calls.append(set(sources))
+            return {'data':frame,'row_directions':pd.DataFrame([{'direction':'production'}])}
+        with TemporaryDirectory() as tmp,patch('por_market_variables.extend_port_market_variables',side_effect=extend):
+            destination=Path(tmp)/'never-written'
+            result,_,_=self.run_fixture(Path(tmp),write=False,port_market_flows=True,output_dir=destination)
+            self.assertEqual(calls,[{'CL','OCE'}])
+            self.assertTrue(result['audit_data']['port_market_flows']['balance_review_required'])
+            self.assertIn('row_directions',result['market_tables'])
+            self.assertFalse(destination.exists())
+
     def run_fixture(self, root, **options):
         data = root / 'scenario_data'
         data.mkdir(exist_ok=True)
@@ -45,8 +68,8 @@ class ExecutionOptions(unittest.TestCase):
             stack.enter_context(patch.object(converter, 'to_iamc_trade_volume', return_value=production(scenario='CL').iloc[:0]))
             stack.enter_context(patch.object(converter, 'reconcile_px_terminal_purity', side_effect=lambda frame, _: (frame, [])))
             for name in ('add_mode_aware_rows', 'add_ccs_aggregates', 'ensure_required_fe_variables'):
-                stack.enter_context(patch.object(converter, name, side_effect=lambda frame, *args: frame))
-            complete = stack.enter_context(patch.object(converter, 'complete_absent_pathways', side_effect=lambda frame, _: (frame, [])))
+                stack.enter_context(patch.object(converter, name, side_effect=lambda frame, *args, **kwargs: frame))
+            complete = stack.enter_context(patch.object(converter, 'complete_absent_pathways', side_effect=lambda frame, _, **kwargs: (frame, [])))
             result = converter.main(**options)
         return result, reader, complete
 
