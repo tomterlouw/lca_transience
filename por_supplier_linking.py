@@ -575,6 +575,8 @@ def configure_por_export_support(*, verbose=True):
     from premise_compat import (disable_legacy_por_regionalization, install_premise_null_bounds_fix,
                                install_premise_pathways_mapping_fix, install_premise_source_duplicate_guard)
     install_premise_null_bounds_fix(verbose=verbose)
+    from forecast_methanol_geography import install_forecast_methanol_geography_fix
+    install_forecast_methanol_geography_fix(verbose=verbose)
     disable_legacy_por_regionalization(verbose=verbose)
     install_por_export_geography_guard(verbose=verbose)
     install_premise_pathways_mapping_fix(verbose=verbose)
